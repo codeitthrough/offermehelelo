@@ -192,9 +192,11 @@ async def init_affiliate_settings():
 import sys
 sys.path.append(str(ROOT_DIR))
 from automation.scraper_pipeline import ScraperPipeline
+from services.deal_highlighter import DealHighlighter
 
-# Initialize scraper pipeline
+# Initialize scraper pipeline and deal highlighter
 scraper_pipeline = ScraperPipeline(db)
+deal_highlighter = DealHighlighter(db)
 
 # Deal fetcher with scraper integration
 async def fetch_deals_from_platforms():
@@ -644,23 +646,106 @@ async def get_dashboard_analytics(username: str = Depends(verify_token)):
         logger.error(f"Error fetching analytics: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-# Click tracking endpoint
+# Deal Highlight endpoints
+@api_router.get("/deals/highlights/best-today")
+async def get_best_deals_today_endpoint(limit: int = 10):
+    """Get best deals today by score"""
+    return await deal_highlighter.get_best_deals_today(limit)
+
+@api_router.get("/deals/highlights/lightning")
+async def get_lightning_deals_endpoint(limit: int = 10):
+    """Get lightning deals (50%+ discount)"""
+    return await deal_highlighter.get_lightning_deals(limit)
+
+@api_router.get("/deals/highlights/price-drops")
+async def get_biggest_price_drops_endpoint(limit: int = 10):
+    """Get biggest price drops"""
+    return await deal_highlighter.get_biggest_price_drops(limit)
+
+@api_router.get("/deals/highlights/trending-24h")
+async def get_trending_24h_endpoint(limit: int = 10):
+    """Get trending deals in last 24 hours"""
+    return await deal_highlighter.get_trending_deals_24h(limit)
+
+# Discovery page endpoints
+@api_router.get("/deals/discovery/today-best-deals")
+async def discovery_today_best(limit: int = 20):
+    """Today's best deals - added in last 24h"""
+    try:
+        yesterday = (datetime.now(timezone.utc) - timedelta(hours=24)).isoformat()
+        deals = await db.deals.find(
+            {"is_active": True, "created_at": {"$gte": yesterday}},
+            {"_id": 0}
+        ).sort("deal_score", -1).limit(limit).to_list(limit)
+        
+        await deal_highlighter._enrich_deals(deals)
+        return deals
+    except Exception as e:
+        logger.error(f"Error getting today's best deals: {str(e)}")
+        return []
+
+@api_router.get("/deals/discovery/best-amazon-deals")
+async def discovery_amazon(limit: int = 20):
+    """Best Amazon deals"""
+    return await deal_highlighter.get_deals_by_platform("Amazon", limit)
+
+@api_router.get("/deals/discovery/best-flipkart-deals")
+async def discovery_flipkart(limit: int = 20):
+    """Best Flipkart deals"""
+    return await deal_highlighter.get_deals_by_platform("Flipkart", limit)
+
+@api_router.get("/deals/discovery/top-discounted-products")
+async def discovery_top_discounted(limit: int = 20):
+    """Top discounted products"""
+    return await deal_highlighter.get_top_discounted(limit)
+
+@api_router.get("/deals/discovery/under-1000")
+async def discovery_under_1000(limit: int = 20):
+    """Deals under ₹1000"""
+    return await deal_highlighter.get_deals_under_price(1000, limit)
+
+@api_router.get("/deals/discovery/under-5000")
+async def discovery_under_5000(limit: int = 20):
+    """Deals under ₹5000"""
+    return await deal_highlighter.get_deals_under_price(5000, limit)
+
+# Related deals endpoint
+@api_router.get("/deals/{deal_id}/related")
+async def get_related_deals_endpoint(deal_id: str, limit: int = 8):
+    """Get related deals for a specific deal"""
+    try:
+        deal = await db.deals.find_one({"id": deal_id}, {"_id": 0})
+        if not deal:
+            return []
+        
+        return await deal_highlighter.get_related_deals(deal['category_id'], deal_id, limit)
+    except Exception as e:
+        logger.error(f"Error getting related deals: {str(e)}")
+        return []
+
+
+
+# Enhanced click tracking
 class ClickTrack(BaseModel):
     deal_id: str
     product_url: str
+    section: Optional[str] = "general"  # best-today, lightning, price-drops, trending, related, etc.
+    page: Optional[str] = "home"  # home, discovery, deal-page
 
 @api_router.post("/track/click")
 async def track_affiliate_click(click: ClickTrack):
-    """Track affiliate button clicks"""
+    """Track affiliate button clicks with section info"""
     try:
         click_record = {
             "deal_id": click.deal_id,
             "product_url": click.product_url,
+            "section": click.section,
+            "page": click.page,
             "timestamp": datetime.now(timezone.utc).isoformat()
         }
         
         await db.affiliate_clicks.insert_one(click_record)
-        logger.info(f"Click tracked for deal: {click.deal_id}")
+        logger.info(f"Click tracked for deal: {click.deal_id} from {click.section}@{click.page}")
         
         return {"status": "tracked"}
         
@@ -689,6 +774,18 @@ async def generate_sitemap():
         for cat in categories:
             slug = cat['slug']
             sitemap_xml += f'  <url>\n    <loc>{base_url}/category/{slug}</loc>\n    <priority>0.8</priority>\n    <changefreq>daily</changefreq>\n  </url>\n'
+        
+        # Discovery pages
+        discovery_pages = [
+            'today-best-deals',
+            'best-amazon-deals',
+            'best-flipkart-deals',
+            'top-discounted-products',
+            'under-1000',
+            'under-5000'
+        ]
+        for page in discovery_pages:
+            sitemap_xml += f'  <url>\n    <loc>{base_url}/deals/{page}</loc>\n    <priority>0.9</priority>\n    <changefreq>hourly</changefreq>\n  </url>\n'
         
         # Deal pages (top 100 by score)
         deals = await db.deals.find({"is_active": True}, {"_id": 0, "id": 1, "updated_at": 1}).sort("deal_score", -1).limit(100).to_list(100)
