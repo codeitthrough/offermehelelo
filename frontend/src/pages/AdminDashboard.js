@@ -13,11 +13,13 @@ const AdminDashboard = () => {
     platforms: 0,
   });
   const [scraperStats, setScraperStats] = useState(null);
+  const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchStats();
     fetchScraperStats();
+    fetchAnalytics();
   }, []);
 
   const fetchStats = async () => {
@@ -45,6 +47,15 @@ const AdminDashboard = () => {
       setScraperStats(response.data);
     } catch (error) {
       console.error('Error fetching scraper stats:', error);
+    }
+  };
+
+  const fetchAnalytics = async () => {
+    try {
+      const response = await axiosInstance.get('/admin/analytics/dashboard');
+      setAnalytics(response.data);
+    } catch (error) {
+      console.error('Error fetching analytics:', error);
     }
   };
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import axios from 'axios';
 import { Toaster } from '@/components/ui/sonner';
+import { HelmetProvider } from 'react-helmet-async';
 import Home from '@/pages/Home';
 import AdminLogin from '@/pages/AdminLogin';
 import AdminDashboard from '@/pages/AdminDashboard';
@@ -60,49 +61,51 @@ const ProtectedRoute = ({ children }) => {
 
 function App() {
   return (
-    <ThemeProvider>
-      <div className="App">
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route
-              path="/admin/dashboard"
-              element={
-                <ProtectedRoute>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/categories"
-              element={
-                <ProtectedRoute>
-                  <AdminCategories />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/deals"
-              element={
-                <ProtectedRoute>
-                  <AdminDeals />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/settings"
-              element={
-                <ProtectedRoute>
-                  <AdminSettings />
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
-        </BrowserRouter>
-        <Toaster position="top-right" />
-      </div>
-    </ThemeProvider>
+    <HelmetProvider>
+      <ThemeProvider>
+        <div className="App">
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route
+                path="/admin/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/categories"
+                element={
+                  <ProtectedRoute>
+                    <AdminCategories />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/deals"
+                element={
+                  <ProtectedRoute>
+                    <AdminDeals />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/settings"
+                element={
+                  <ProtectedRoute>
+                    <AdminSettings />
+                  </ProtectedRoute>
+                }
+              />
+            </Routes>
+          </BrowserRouter>
+          <Toaster position="top-right" />
+        </div>
+      </ThemeProvider>
+    </HelmetProvider>
   );
 }
 

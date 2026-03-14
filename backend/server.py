@@ -64,7 +64,11 @@ class Deal(BaseModel):
     original_price: float
     discounted_price: float
     discount_percentage: int
+    deal_score: Optional[float] = 0.0
+    price_drop_percentage: Optional[float] = 0.0
+    has_price_dropped: Optional[bool] = False
     affiliate_link: str
+    product_url: Optional[str] = None
     platform: str
     is_active: bool = True
     created_at: datetime
@@ -226,7 +230,8 @@ async def get_categories():
 async def get_deals(
     category_id: Optional[str] = None,
     min_discount: Optional[int] = None,
-    platform: Optional[str] = None
+    platform: Optional[str] = None,
+    sort_by: Optional[str] = "score"  # score, date, discount
 ):
     query = {"is_active": True}
     if category_id:
@@ -236,7 +241,11 @@ async def get_deals(
     if platform:
         query["platform"] = platform
     
-    deals = await db.deals.find(query, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    # Determine sort order
+    sort_field = "deal_score" if sort_by == "score" else "created_at" if sort_by == "date" else "discount_percentage"
+    sort_direction = -1  # Descending
+    
+    deals = await db.deals.find(query, {"_id": 0}).sort(sort_field, sort_direction).limit(100).to_list(100)
     
     # Add category names and parse dates
     for deal in deals:
@@ -246,6 +255,78 @@ async def get_deals(
             deal['updated_at'] = datetime.fromisoformat(deal['updated_at'])
         
         # Get category name
+        category = await db.categories.find_one({"id": deal['category_id']}, {"_id": 0})
+        if category:
+            deal['category_name'] = category['name']
+    
+    return deals
+
+@api_router.get("/deals/top")
+async def get_top_deals(limit: int = 20):
+    """Get top-ranked deals by score"""
+    deals = await db.deals.find({"is_active": True}, {"_id": 0}).sort("deal_score", -1).limit(limit).to_list(limit)
+    
+    for deal in deals:
+        if isinstance(deal.get('created_at'), str):
+            deal['created_at'] = datetime.fromisoformat(deal['created_at'])
+        if isinstance(deal.get('updated_at'), str):
+            deal['updated_at'] = datetime.fromisoformat(deal['updated_at'])
+        
+        category = await db.categories.find_one({"id": deal['category_id']}, {"_id": 0})
+        if category:
+            deal['category_name'] = category['name']
+    
+    return deals
+
+@api_router.get("/deals/trending")
+async def get_trending_deals(limit: int = 20):
+    """Get trending deals by click count"""
+    try:
+        # Aggregate clicks by deal_id
+        pipeline = [
+            {"$group": {"_id": "$deal_id", "clicks": {"$sum": 1}}},
+            {"$sort": {"clicks": -1}},
+            {"$limit": limit}
+        ]
+        
+        cursor = db.affiliate_clicks.aggregate(pipeline)
+        deal_ids = []
+        async for doc in cursor:
+            deal_ids.append(doc['_id'])
+        
+        if not deal_ids:
+            return []
+        
+        # Get deal details
+        deals = await db.deals.find({"id": {"$in": deal_ids}, "is_active": True}, {"_id": 0}).to_list(limit)
+        
+        for deal in deals:
+            if isinstance(deal.get('created_at'), str):
+                deal['created_at'] = datetime.fromisoformat(deal['created_at'])
+            if isinstance(deal.get('updated_at'), str):
+                deal['updated_at'] = datetime.fromisoformat(deal['updated_at'])
+            
+            category = await db.categories.find_one({"id": deal['category_id']}, {"_id": 0})
+            if category:
+                deal['category_name'] = category['name']
+        
+        return deals
+        
+    except Exception as e:
+        logger.error(f"Error getting trending deals: {str(e)}")
+        return []
+
+@api_router.get("/deals/latest")
+async def get_latest_deals(limit: int = 20):
+    """Get latest deals"""
+    deals = await db.deals.find({"is_active": True}, {"_id": 0}).sort("created_at", -1).limit(limit).to_list(limit)
+    
+    for deal in deals:
+        if isinstance(deal.get('created_at'), str):
+            deal['created_at'] = datetime.fromisoformat(deal['created_at'])
+        if isinstance(deal.get('updated_at'), str):
+            deal['updated_at'] = datetime.fromisoformat(deal['updated_at'])
+        
         category = await db.categories.find_one({"id": deal['category_id']}, {"_id": 0})
         if category:
             deal['category_name'] = category['name']
@@ -503,6 +584,126 @@ async def trigger_manual_scrape(username: str = Depends(verify_token)):
         return {"message": "Scraper started. Check stats in a few minutes."}
     except Exception as e:
         logger.error(f"Error triggering scraper: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Analytics endpoints
+@api_router.get("/admin/analytics/dashboard")
+async def get_dashboard_analytics(username: str = Depends(verify_token)):
+    """Get analytics for admin dashboard"""
+    try:
+        from datetime import timedelta
+        
+        # Total deals
+        total_deals = await db.deals.count_documents({})
+        
+        # Deals added today
+        today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+        deals_today = await db.deals.count_documents({
+            "created_at": {"$gte": today_start.isoformat()}
+        })
+        
+        # Total clicks
+        total_clicks = await db.affiliate_clicks.count_documents({})
+        
+        # Top clicked deals
+        top_deals_pipeline = [
+            {"$group": {"_id": "$deal_id", "clicks": {"$sum": 1}}},
+            {"$sort": {"clicks": -1}},
+            {"$limit": 5}
+        ]
+        top_deals_cursor = db.affiliate_clicks.aggregate(top_deals_pipeline)
+        top_deal_ids = []
+        click_counts = {}
+        async for doc in top_deals_cursor:
+            top_deal_ids.append(doc['_id'])
+            click_counts[doc['_id']] = doc['clicks']
+        
+        # Get deal details for top deals
+        top_deals = []
+        if top_deal_ids:
+            deals_cursor = db.deals.find({"id": {"$in": top_deal_ids}}, {"_id": 0, "id": 1, "title": 1, "discount_percentage": 1})
+            async for deal in deals_cursor:
+                deal['clicks'] = click_counts.get(deal['id'], 0)
+                top_deals.append(deal)
+        
+        # Scraper success rate
+        recent_runs = await db.scraper_runs.find({}, {"_id": 0}).sort("timestamp", -1).limit(10).to_list(10)
+        total_runs = len(recent_runs)
+        successful_runs = sum(1 for run in recent_runs if run.get('stats', {}).get('processing', {}).get('inserted', 0) > 0)
+        success_rate = (successful_runs / total_runs * 100) if total_runs > 0 else 0
+        
+        return {
+            "total_deals": total_deals,
+            "deals_today": deals_today,
+            "total_clicks": total_clicks,
+            "top_deals": top_deals,
+            "scraper_success_rate": round(success_rate, 2)
+        }
+        
+    except Exception as e:
+        logger.error(f"Error fetching analytics: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Click tracking endpoint
+class ClickTrack(BaseModel):
+    deal_id: str
+    product_url: str
+
+@api_router.post("/track/click")
+async def track_affiliate_click(click: ClickTrack):
+    """Track affiliate button clicks"""
+    try:
+        click_record = {
+            "deal_id": click.deal_id,
+            "product_url": click.product_url,
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+        
+        await db.affiliate_clicks.insert_one(click_record)
+        logger.info(f"Click tracked for deal: {click.deal_id}")
+        
+        return {"status": "tracked"}
+        
+    except Exception as e:
+        logger.error(f"Error tracking click: {str(e)}")
+        return {"status": "error"}
+
+# Sitemap endpoint
+@api_router.get("/sitemap.xml")
+async def generate_sitemap():
+    """Generate dynamic sitemap"""
+    try:
+        from datetime import datetime
+        
+        base_url = "https://deal-automator.preview.emergentagent.com"
+        
+        # Start XML
+        sitemap_xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+        sitemap_xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        
+        # Homepage
+        sitemap_xml += f'  <url>\n    <loc>{base_url}/</loc>\n    <priority>1.0</priority>\n    <changefreq>hourly</changefreq>\n  </url>\n'
+        
+        # Category pages
+        categories = await db.categories.find({"is_active": True}, {"_id": 0}).to_list(100)
+        for cat in categories:
+            slug = cat['slug']
+            sitemap_xml += f'  <url>\n    <loc>{base_url}/category/{slug}</loc>\n    <priority>0.8</priority>\n    <changefreq>daily</changefreq>\n  </url>\n'
+        
+        # Deal pages (top 100 by score)
+        deals = await db.deals.find({"is_active": True}, {"_id": 0, "id": 1, "updated_at": 1}).sort("deal_score", -1).limit(100).to_list(100)
+        for deal in deals:
+            deal_id = deal['id']
+            lastmod = deal.get('updated_at', datetime.now(timezone.utc).isoformat())[:10]
+            sitemap_xml += f'  <url>\n    <loc>{base_url}/deal/{deal_id}</loc>\n    <lastmod>{lastmod}</lastmod>\n    <priority>0.6</priority>\n    <changefreq>daily</changefreq>\n  </url>\n'
+        
+        sitemap_xml += '</urlset>'
+        
+        from fastapi.responses import Response
+        return Response(content=sitemap_xml, media_type="application/xml")
+        
+    except Exception as e:
+        logger.error(f"Error generating sitemap: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 # Include router
