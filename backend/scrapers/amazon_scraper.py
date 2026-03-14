@@ -2,7 +2,6 @@ import asyncio
 import logging
 from typing import List, Dict, Optional
 from playwright.async_api import async_playwright, Page, Browser
-from bs4 import BeautifulSoup
 import re
 
 logger = logging.getLogger(__name__)
@@ -11,7 +10,6 @@ class AmazonScraper:
     def __init__(self):
         self.base_urls = [
             "https://www.amazon.in/gp/goldbox",
-            "https://www.amazon.in/deals"
         ]
         self.browser: Optional[Browser] = None
         self.page: Optional[Page] = None
@@ -21,7 +19,11 @@ class AmazonScraper:
         try:
             self.playwright = await async_playwright().start()
             self.browser = await self.playwright.chromium.launch(headless=True)
-            self.page = await self.browser.new_page()
+            context = await self.browser.new_context(
+                viewport={'width': 1920, 'height': 1080},
+                user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            )
+            self.page = await context.new_page()
             logger.info("Amazon scraper initialized")
         except Exception as e:
             logger.error(f"Failed to initialize Amazon scraper: {str(e)}")
@@ -43,7 +45,7 @@ class AmazonScraper:
     def extract_price(self, price_text: str) -> Optional[float]:
         """Extract numeric price from text"""
         try:
-            # Remove currency symbols and commas
+            # Remove currency symbols, commas, and extract number
             price_str = re.sub(r'[^0-9.]', '', price_text)
             return float(price_str) if price_str else None
         except:
@@ -59,7 +61,7 @@ class AmazonScraper:
             return 0
 
     async def scrape_deals(self, max_deals: int = 50) -> List[Dict]:
-        """Scrape deals from Amazon"""
+        """Scrape deals from Amazon using Playwright DOM extraction"""
         deals = []
         
         try:
@@ -69,119 +71,182 @@ class AmazonScraper:
                 try:
                     logger.info(f"Scraping Amazon URL: {url}")
                     await self.page.goto(url, wait_until="networkidle", timeout=30000)
+                    
+                    # Wait for deals to load - try multiple possible selectors
+                    try:
+                        await self.page.wait_for_selector('div[data-testid="deal-card"], div.DealCard-module, div[class*="DealCard"], div[class*="dealCard"]', timeout=10000)
+                    except:
+                        logger.warning("Primary deal selectors not found, trying alternative selectors")
+                        try:
+                            await self.page.wait_for_selector('div[id^="deal_"], div.a-section.dealContainer', timeout=5000)
+                        except:
+                            logger.warning("No deal containers found with standard selectors")
+                    
                     await asyncio.sleep(2)
                     
                     # Scroll to load more deals
                     for _ in range(3):
-                        await self.page.evaluate("window.scrollBy(0, 800)")
+                        await self.page.evaluate("window.scrollBy(0, 1000)")
                         await asyncio.sleep(1)
                     
-                    html = await self.page.content()
-                    soup = BeautifulSoup(html, 'html.parser')
+                    # Extract deals using JavaScript evaluation
+                    page_deals = await self.page.evaluate("""
+                        () => {
+                            const deals = [];
+                            
+                            // Try multiple selector strategies
+                            const selectors = [
+                                'div[data-testid="deal-card"]',
+                                'div.DealCard-module__card',
+                                'div[class*="DealCard"]',
+                                'div[id^="deal_"]',
+                                'div.a-section.dealContainer',
+                                'div[class*="dealCard"]',
+                                'div.Grid-module__grid-item'
+                            ];
+                            
+                            let dealElements = [];
+                            for (const selector of selectors) {
+                                dealElements = document.querySelectorAll(selector);
+                                if (dealElements.length > 0) {
+                                    console.log('Found deals with selector:', selector, dealElements.length);
+                                    break;
+                                }
+                            }
+                            
+                            dealElements.forEach(card => {
+                                try {
+                                    // Find title
+                                    const titleEl = card.querySelector('a[aria-label], h3, h2, div[data-testid="deal-title"], span[class*="title"]');
+                                    const title = titleEl ? (titleEl.getAttribute('aria-label') || titleEl.innerText.trim()) : '';
+                                    
+                                    if (!title || title.length < 10) return;
+                                    
+                                    // Find link
+                                    const linkEl = card.querySelector('a[href*="/dp/"], a[href*="/gp/"]');
+                                    let url = linkEl ? linkEl.href : '';
+                                    if (!url) return;
+                                    
+                                    // Clean URL
+                                    if (url.includes('?')) {
+                                        url = url.split('?')[0];
+                                    }
+                                    
+                                    // Find prices
+                                    const priceSelectors = [
+                                        'span.a-price-whole',
+                                        'span[class*="price"]',
+                                        'div[data-testid="deal-price"]',
+                                        'span.a-offscreen'
+                                    ];
+                                    
+                                    let priceText = '';
+                                    for (const sel of priceSelectors) {
+                                        const priceEl = card.querySelector(sel);
+                                        if (priceEl) {
+                                            priceText = priceEl.innerText || priceEl.textContent || '';
+                                            if (priceText.includes('₹') || priceText.match(/\d+/)) {
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    
+                                    // Find discount badge
+                                    let discount = 0;
+                                    const discountSelectors = [
+                                        'span.savingsPercentage',
+                                        'span[class*="badge"]',
+                                        'div[class*="badge"]',
+                                        'span[class*="discount"]'
+                                    ];
+                                    
+                                    for (const sel of discountSelectors) {
+                                        const discEl = card.querySelector(sel);
+                                        if (discEl) {
+                                            const discText = discEl.innerText || discEl.textContent || '';
+                                            const match = discText.match(/(\d+)%/);
+                                            if (match) {
+                                                discount = parseInt(match[1]);
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    
+                                    // Find image
+                                    const imgEl = card.querySelector('img');
+                                    const imageUrl = imgEl ? (imgEl.src || imgEl.getAttribute('data-src')) : null;
+                                    
+                                    // Extract price value
+                                    const priceMatch = priceText.match(/([\d,]+)/g);
+                                    let price = null;
+                                    if (priceMatch && priceMatch.length > 0) {
+                                        price = parseFloat(priceMatch[0].replace(/,/g, ''));
+                                    }
+                                    
+                                    if (price && price > 0) {
+                                        deals.push({
+                                            title: title,
+                                            price: price,
+                                            discount: discount,
+                                            url: url,
+                                            image: imageUrl
+                                        });
+                                    }
+                                } catch (err) {
+                                    console.error('Error parsing deal card:', err);
+                                }
+                            });
+                            
+                            return deals;
+                        }
+                    """)
                     
-                    # Find deal cards - Amazon uses various selectors
-                    deal_cards = soup.find_all(['div'], class_=re.compile(r'(DealCard|dealCard|deal-card|Grid-module)'))
+                    logger.info(f"Found {len(page_deals)} potential deals from Amazon")
                     
-                    logger.info(f"Found {len(deal_cards)} potential deal cards")
-                    
-                    for card in deal_cards[:max_deals]:
+                    # Convert to standard format
+                    for deal_data in page_deals:
                         try:
-                            deal = self.parse_deal_card(card)
-                            if deal:
+                            price = deal_data.get('price', 0)
+                            discount = deal_data.get('discount', 0)
+                            
+                            # Calculate original price from discount
+                            if discount > 0:
+                                original_price = price / (1 - discount / 100)
+                            else:
+                                # Estimate if no discount found
+                                original_price = price * 1.3
+                                discount = 30
+                            
+                            deal = {
+                                'product_title': deal_data.get('title', ''),
+                                'product_price': price,
+                                'original_price': original_price,
+                                'discount_percentage': discount,
+                                'product_image': deal_data.get('image'),
+                                'product_url': deal_data.get('url', ''),
+                                'source': 'Amazon'
+                            }
+                            
+                            # Validate
+                            if deal['product_title'] and deal['product_price'] > 0 and deal['product_url']:
                                 deals.append(deal)
+                                
                         except Exception as e:
-                            logger.debug(f"Error parsing deal card: {str(e)}")
+                            logger.debug(f"Error formatting deal: {str(e)}")
                             continue
                     
+                    if len(deals) >= max_deals:
+                        break
+                        
                 except Exception as e:
                     logger.error(f"Error scraping {url}: {str(e)}")
                     continue
             
             logger.info(f"Scraped {len(deals)} deals from Amazon")
-            return deals
+            return deals[:max_deals]
             
         except Exception as e:
             logger.error(f"Amazon scraping failed: {str(e)}")
             return deals
         finally:
             await self.close()
-
-    def parse_deal_card(self, card) -> Optional[Dict]:
-        """Parse individual deal card"""
-        try:
-            # Extract title
-            title_elem = card.find(['a', 'span'], class_=re.compile(r'(title|Title|product|Product)'))
-            if not title_elem:
-                title_elem = card.find(['h2', 'h3', 'h4'])
-            
-            title = title_elem.get_text(strip=True) if title_elem else None
-            if not title or len(title) < 10:
-                return None
-            
-            # Extract URL
-            link_elem = card.find('a', href=True)
-            url = None
-            if link_elem:
-                href = link_elem.get('href', '')
-                if href.startswith('http'):
-                    url = href
-                elif href.startswith('/'):
-                    url = f"https://www.amazon.in{href}"
-            
-            if not url:
-                return None
-            
-            # Clean Amazon URL (remove tracking parameters)
-            if '?' in url:
-                url = url.split('?')[0]
-            
-            # Extract prices
-            price_elem = card.find(['span', 'div'], class_=re.compile(r'(price|Price)'))
-            price_text = price_elem.get_text(strip=True) if price_elem else None
-            discounted_price = self.extract_price(price_text) if price_text else None
-            
-            # Extract original price / MRP
-            original_price_elem = card.find(['span', 'div'], class_=re.compile(r'(mrp|MRP|original|Original|strikethrough)'))
-            original_price_text = original_price_elem.get_text(strip=True) if original_price_elem else None
-            original_price = self.extract_price(original_price_text) if original_price_text else None
-            
-            # If no original price, use 1.5x of discounted price as estimate
-            if not original_price and discounted_price:
-                original_price = discounted_price * 1.5
-            
-            # Extract discount percentage
-            discount_elem = card.find(['span', 'div'], string=re.compile(r'\d+%\s*(off|Off|OFF)'))
-            discount = 0
-            if discount_elem:
-                discount_text = discount_elem.get_text(strip=True)
-                discount_match = re.search(r'(\d+)%', discount_text)
-                if discount_match:
-                    discount = int(discount_match.group(1))
-            
-            # Calculate discount if not found
-            if discount == 0 and original_price and discounted_price:
-                discount = self.calculate_discount(original_price, discounted_price)
-            
-            # Extract image
-            img_elem = card.find('img')
-            image_url = None
-            if img_elem:
-                image_url = img_elem.get('src') or img_elem.get('data-src')
-            
-            # Validate required fields
-            if not all([title, url, discounted_price]):
-                return None
-            
-            return {
-                'product_title': title[:500],
-                'product_price': discounted_price,
-                'original_price': original_price or discounted_price,
-                'discount_percentage': discount,
-                'product_image': image_url,
-                'product_url': url,
-                'source': 'Amazon'
-            }
-            
-        except Exception as e:
-            logger.debug(f"Error parsing deal card: {str(e)}")
-            return None
