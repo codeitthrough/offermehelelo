@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { axiosInstance } from '@/App';
 import AdminLayout from '@/components/AdminLayout';
+import { toast } from 'sonner';
 import { Package, Tag, TrendingUp, Clock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
@@ -10,9 +12,12 @@ const AdminDashboard = () => {
     activeDeals: 0,
     platforms: 0,
   });
+  const [scraperStats, setScraperStats] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchStats();
+    fetchScraperStats();
   }, []);
 
   const fetchStats = async () => {
@@ -31,6 +36,31 @@ const AdminDashboard = () => {
       });
     } catch (error) {
       console.error('Error fetching stats:', error);
+    }
+  };
+
+  const fetchScraperStats = async () => {
+    try {
+      const response = await axiosInstance.get('/admin/scraper/stats');
+      setScraperStats(response.data);
+    } catch (error) {
+      console.error('Error fetching scraper stats:', error);
+    }
+  };
+
+  const handleManualScrape = async () => {
+    try {
+      setLoading(true);
+      await axiosInstance.post('/admin/scraper/run');
+      toast.success('Scraper started! Check back in a few minutes for new deals.');
+      setTimeout(() => {
+        fetchStats();
+        fetchScraperStats();
+      }, 3000);
+    } catch (error) {
+      toast.error('Failed to start scraper');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -66,6 +96,60 @@ const AdminDashboard = () => {
               </div>
             );
           })}
+        </div>
+
+        <div className="border rounded-none bg-card p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold">Scraper Status</h2>
+            <Button
+              onClick={handleManualScrape}
+              disabled={loading}
+              className="rounded-sm uppercase tracking-wide font-bold"
+              data-testid="manual-scrape-btn"
+            >
+              {loading ? 'Running...' : 'Run Now'}
+            </Button>
+          </div>
+          <div className="space-y-3">
+            {scraperStats?.last_run ? (
+              <>
+                <div className="flex items-center justify-between py-2 border-b">
+                  <span className="text-sm uppercase tracking-wider">Last Run</span>
+                  <span className="text-sm font-semibold">
+                    {new Date(scraperStats.last_run).toLocaleString()}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between py-2 border-b">
+                  <span className="text-sm uppercase tracking-wider">Deals Scraped</span>
+                  <span className="text-sm font-semibold text-blue-500">
+                    {(scraperStats.stats?.amazon?.scraped || 0) + (scraperStats.stats?.flipkart?.scraped || 0)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between py-2 border-b">
+                  <span className="text-sm uppercase tracking-wider">Deals Inserted</span>
+                  <span className="text-sm font-semibold text-green-500">
+                    {scraperStats.stats?.processing?.inserted || 0}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between py-2 border-b">
+                  <span className="text-sm uppercase tracking-wider">Duplicates Skipped</span>
+                  <span className="text-sm font-semibold text-yellow-500">
+                    {scraperStats.stats?.processing?.duplicates || 0}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-sm uppercase tracking-wider">Duration</span>
+                  <span className="text-sm font-semibold">
+                    {scraperStats.stats?.duration_seconds?.toFixed(1) || 0}s
+                  </span>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-4 text-muted-foreground">
+                No scraper runs yet. Click &quot;Run Now&quot; to start.
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="border rounded-none bg-card p-6">

@@ -184,21 +184,34 @@ async def init_affiliate_settings():
         await db.affiliate_settings.insert_many(settings)
         logging.info("Initialized affiliate settings")
 
-# Deal fetcher (placeholder for actual API integration)
+# Import scraper pipeline
+import sys
+sys.path.append(str(ROOT_DIR))
+from automation.scraper_pipeline import ScraperPipeline
+
+# Initialize scraper pipeline
+scraper_pipeline = ScraperPipeline(db)
+
+# Deal fetcher with scraper integration
 async def fetch_deals_from_platforms():
     logging.info("Running scheduled deal fetch...")
-    settings = await db.affiliate_settings.find({"is_active": True}, {"_id": 0}).to_list(100)
     
-    for setting in settings:
-        logging.info(f"Fetching deals from {setting['platform']}...")
-        # Placeholder: In production, integrate with actual affiliate APIs
-        # For now, this is where you'd call Amazon/Flipkart/EarnKaro APIs
-        await db.affiliate_settings.update_one(
-            {"id": setting['id']},
-            {"$set": {"last_fetched_at": datetime.now(timezone.utc).isoformat()}}
-        )
-    
-    logging.info("Deal fetch completed")
+    try:
+        # Run the full scraper pipeline
+        stats = await scraper_pipeline.run_full_pipeline()
+        
+        # Update affiliate settings with last fetch time
+        settings = await db.affiliate_settings.find({}, {"_id": 0}).to_list(100)
+        for setting in settings:
+            await db.affiliate_settings.update_one(
+                {"id": setting['id']},
+                {"$set": {"last_fetched_at": datetime.now(timezone.utc).isoformat()}}
+            )
+        
+        logging.info(f"Deal fetch completed. Inserted: {stats.get('processing', {}).get('inserted', 0)} deals")
+        
+    except Exception as e:
+        logging.error(f"Deal fetch failed: {str(e)}")
 
 # Public endpoints
 @api_router.get("/categories", response_model=List[Category])
@@ -439,6 +452,58 @@ async def update_setting(setting_id: str, setting: AffiliateSettingUpdate, usern
     if updated_setting.get('last_fetched_at') and isinstance(updated_setting['last_fetched_at'], str):
         updated_setting['last_fetched_at'] = datetime.fromisoformat(updated_setting['last_fetched_at'])
     return AffiliateSetting(**updated_setting)
+
+# Admin Scraper endpoints
+@api_router.get("/admin/scraper/stats")
+async def get_scraper_stats(username: str = Depends(verify_token)):
+    """Get latest scraper run statistics"""
+    try:
+        # Get latest scraper run
+        latest_run = await db.scraper_runs.find_one(
+            {},
+            {"_id": 0},
+            sort=[("timestamp", -1)]
+        )
+        
+        if not latest_run:
+            return {
+                "last_run": None,
+                "stats": None
+            }
+        
+        return {
+            "last_run": latest_run.get('timestamp'),
+            "stats": latest_run.get('stats', {})
+        }
+    except Exception as e:
+        logger.error(f"Error fetching scraper stats: {str(e)}")
+        return {"error": str(e)}
+
+@api_router.get("/admin/scraper/history")
+async def get_scraper_history(username: str = Depends(verify_token), limit: int = 10):
+    """Get scraper run history"""
+    try:
+        runs = await db.scraper_runs.find(
+            {},
+            {"_id": 0}
+        ).sort("timestamp", -1).limit(limit).to_list(limit)
+        
+        return {"runs": runs, "total": len(runs)}
+    except Exception as e:
+        logger.error(f"Error fetching scraper history: {str(e)}")
+        return {"error": str(e)}
+
+@api_router.post("/admin/scraper/run")
+async def trigger_manual_scrape(username: str = Depends(verify_token)):
+    """Manually trigger scraper"""
+    try:
+        logger.info("Manual scraper triggered by admin")
+        # Run scraper in background
+        asyncio.create_task(scraper_pipeline.run_manual_scrape())
+        return {"message": "Scraper started. Check stats in a few minutes."}
+    except Exception as e:
+        logger.error(f"Error triggering scraper: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 # Include router
 app.include_router(api_router)
