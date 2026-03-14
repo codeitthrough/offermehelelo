@@ -1,53 +1,108 @@
-import { useEffect } from "react";
-import "@/App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import axios from "axios";
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import axios from 'axios';
+import { Toaster } from '@/components/ui/sonner';
+import Home from '@/pages/Home';
+import AdminLogin from '@/pages/AdminLogin';
+import AdminDashboard from '@/pages/AdminDashboard';
+import AdminCategories from '@/pages/AdminCategories';
+import AdminDeals from '@/pages/AdminDeals';
+import AdminSettings from '@/pages/AdminSettings';
+import { ThemeProvider } from '@/contexts/ThemeContext';
+import '@/App.css';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+export const API = `${BACKEND_URL}/api`;
 
-const Home = () => {
-  const helloWorldApi = async () => {
-    try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
-    }
-  };
+export const axiosInstance = axios.create({
+  baseURL: API,
+});
+
+// Add token to requests
+axiosInstance.interceptors.request.use((config) => {
+  const token = localStorage.getItem('admin_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// Protected Route Component
+const ProtectedRoute = ({ children }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
 
   useEffect(() => {
-    helloWorldApi();
+    const verifyAuth = async () => {
+      const token = localStorage.getItem('admin_token');
+      if (!token) {
+        setIsAuthenticated(false);
+        return;
+      }
+
+      try {
+        await axiosInstance.get('/auth/verify');
+        setIsAuthenticated(true);
+      } catch (error) {
+        localStorage.removeItem('admin_token');
+        setIsAuthenticated(false);
+      }
+    };
+
+    verifyAuth();
   }, []);
 
-  return (
-    <div>
-      <header className="App-header">
-        <a
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
-    </div>
-  );
+  if (isAuthenticated === null) {
+    return <div className="flex items-center justify-center h-screen">Loading...</div>;
+  }
+
+  return isAuthenticated ? children : <Navigate to="/admin/login" />;
 };
 
 function App() {
   return (
-    <div className="App">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<Home />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </div>
+    <ThemeProvider>
+      <div className="App">
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route
+              path="/admin/dashboard"
+              element={
+                <ProtectedRoute>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/categories"
+              element={
+                <ProtectedRoute>
+                  <AdminCategories />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/deals"
+              element={
+                <ProtectedRoute>
+                  <AdminDeals />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/settings"
+              element={
+                <ProtectedRoute>
+                  <AdminSettings />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </BrowserRouter>
+        <Toaster position="top-right" />
+      </div>
+    </ThemeProvider>
   );
 }
 

@@ -1,0 +1,174 @@
+{
+  "timestamp": "2026-03-14T15:33:13.454130",
+  "base_url": "https://deal-automator.preview.emergentagent.com",
+  "summary": {
+    "total_tests": 27,
+    "passed": 27,
+    "failed": 0,
+    "success_rate": 100.0
+  },
+  "detailed_results": [
+    {
+      "name": "Get Categories",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-03-14T15:33:09.988153"
+    },
+    {
+      "name": "Get All Deals",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-03-14T15:33:10.139189"
+    },
+    {
+      "name": "Get Deals by Category",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-03-14T15:33:10.288418"
+    },
+    {
+      "name": "Get Deals with Min Discount",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-03-14T15:33:10.420081"
+    },
+    {
+      "name": "Get Deals by Platform",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-03-14T15:33:10.541020"
+    },
+    {
+      "name": "Admin Login",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-03-14T15:33:10.869232"
+    },
+    {
+      "name": "Verify Token",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-03-14T15:33:11.013755"
+    },
+    {
+      "name": "Invalid Login",
+      "success": true,
+      "details": "Status: 401",
+      "timestamp": "2026-03-14T15:33:11.346217"
+    },
+    {
+      "name": "Get Admin Categories",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-03-14T15:33:11.461745"
+    },
+    {
+      "name": "Create Category",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-03-14T15:33:11.566161"
+    },
+    {
+      "name": "Update Category",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-03-14T15:33:11.676067"
+    },
+    {
+      "name": "Delete Category",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-03-14T15:33:11.779547"
+    },
+    {
+      "name": "Update Non-existent Category",
+      "success": true,
+      "details": "Status: 404",
+      "timestamp": "2026-03-14T15:33:11.883328"
+    },
+    {
+      "name": "Get Admin Deals",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-03-14T15:33:11.993166"
+    },
+    {
+      "name": "Get Categories for Deal",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-03-14T15:33:12.101821"
+    },
+    {
+      "name": "Create Deal",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-03-14T15:33:12.206568"
+    },
+    {
+      "name": "Update Deal",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-03-14T15:33:12.314883"
+    },
+    {
+      "name": "Deactivate Deal",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-03-14T15:33:12.418957"
+    },
+    {
+      "name": "Delete Deal",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-03-14T15:33:12.523943"
+    },
+    {
+      "name": "Create Deal Invalid Category",
+      "success": true,
+      "details": "Status: 404",
+      "timestamp": "2026-03-14T15:33:12.626683"
+    },
+    {
+      "name": "Get Affiliate Settings",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-03-14T15:33:12.733483"
+    },
+    {
+      "name": "Update Amazon Settings",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-03-14T15:33:12.895027"
+    },
+    {
+      "name": "Deactivate Amazon",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-03-14T15:33:13.010960"
+    },
+    {
+      "name": "Update Non-existent Setting",
+      "success": true,
+      "details": "Status: 404",
+      "timestamp": "2026-03-14T15:33:13.115022"
+    },
+    {
+      "name": "Non-existent Endpoint",
+      "success": true,
+      "details": "Status: 404",
+      "timestamp": "2026-03-14T15:33:13.229025"
+    },
+    {
+      "name": "Empty Category Data",
+      "success": true,
+      "details": "Status: 422",
+      "timestamp": "2026-03-14T15:33:13.341859"
+    },
+    {
+      "name": "Invalid Deal Prices",
+      "success": true,
+      "details": "Status: 422",
+      "timestamp": "2026-03-14T15:33:13.453515"
+    }
+  ]
+}
