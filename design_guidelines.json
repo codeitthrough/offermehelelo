@@ -1,0 +1,135 @@
+{
+  "identity": {
+    "persona": "E1: The Anti-AI Designer",
+    "archetype": "The Performance Pro (Tactical Minimalism)",
+    "mission": "Create a high-density, deals-focused interface that feels like a 'Bloomberg Terminal for Shoppers'. Function over fluff. Clarity over decoration.",
+    "emotional_tone": "Urgent, Precise, Rewarding",
+    "theme_strategy": "Hybrid: Light Mode Base for Trust/Readability, Dark Mode Toggle for 'Night Hunting' vibe."
+  },
+  "typography": {
+    "headings": {
+      "family": "Barlow Condensed, sans-serif",
+      "weights": ["600", "700", "800"],
+      "usage": "Use for all Deal Titles, Discount Percentages, and Section Headers. Tight tracking (-0.02em).",
+      "import_url": "https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600&display=swap"
+    },
+    "body": {
+      "family": "Inter, sans-serif",
+      "weights": ["400", "500"],
+      "usage": "Product descriptions, metadata, admin tables. Normal tracking."
+    }
+  },
+  "colors": {
+    "base": {
+      "background": "#F8F9FA",
+      "foreground": "#09090B",
+      "card": "#FFFFFF",
+      "card_foreground": "#09090B",
+      "border": "#E4E4E7"
+    },
+    "dark_mode": {
+      "background": "#09090B",
+      "foreground": "#FAFAFA",
+      "card": "#18181B",
+      "card_foreground": "#FAFAFA",
+      "border": "#27272A"
+    },
+    "brand": {
+      "primary": "#09090B",
+      "primary_foreground": "#FAFAFA",
+      "accent": "#FF3B30",
+      "accent_foreground": "#FFFFFF",
+      "action": "#007AFF"
+    },
+    "functional": {
+      "success": "#10B981",
+      "warning": "#F59E0B",
+      "error": "#EF4444",
+      "discount_badge": "#FF3B30"
+    }
+  },
+  "spacing_layout": {
+    "system": "Tailwind Scale (p-1 to p-64)",
+    "container": "max-w-[1600px] mx-auto px-4 md:px-8",
+    "grid_strategy": "Bento Grid Mode B (High Density)",
+    "card_style": {
+      "radius": "rounded-none",
+      "border": "border border-border",
+      "shadow": "none",
+      "hover": "hover:border-primary transition-colors duration-200"
+    },
+    "density_rules": "Minimal padding inside cards (p-3 or p-4). Maximize data density. No jagged bottoms."
+  },
+  "components": {
+    "deal_card": {
+      "structure": "Image (Top 60%) + Info (Bottom 40%)",
+      "typography": "Title: text-lg font-bold leading-tight. Price: text-xl font-black text-accent.",
+      "badges": "Absolute position top-left. Square corners. Uppercase text.",
+      "interaction": "Highlight border on hover. 'Quick View' button appears."
+    },
+    "navigation": {
+      "style": "Sticky Header. Glassmorphism (backdrop-blur-xl).",
+      "links": "Uppercase, tracking-widest, text-xs font-semibold."
+    },
+    "admin_panel": {
+      "layout": "Sidebar (Left, Fixed, w-64) + Content (Right, Fluid).",
+      "table_style": "Dense. Row height 40px. Font size text-sm. Mono font for IDs."
+    },
+    "buttons": {
+      "primary": "bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm uppercase tracking-wide font-bold h-10 px-6",
+      "secondary": "border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-6 rounded-sm uppercase"
+    }
+  },
+  "visual_enhancers": {
+    "textures": "Subtle noise overlay on backgrounds (opacity 0.02) to reduce digital flatness.",
+    "shadows": "Hard shadows for popovers: shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] (Neo-Brutalist touch).",
+    "icons": "Lucide React (Stroke width 1.5px for elegance, 2px for active).",
+    "animations": {
+      "hover": "transform: translateY(-1px)",
+      "click": "transform: scale(0.98)",
+      "page_load": "fade-in duration-300"
+    }
+  },
+  "image_urls": {
+    "categories": {
+      "Electronics": "https://images.unsplash.com/photo-1727093493740-90af54b99738?crop=entropy&cs=srgb&fm=jpg&q=85",
+      "Mobile Accessories": "https://images.unsplash.com/photo-1764744198561-d638d32b50d9?crop=entropy&cs=srgb&fm=jpg&q=85",
+      "Laptops": "https://images.unsplash.com/photo-1621534222671-05b508d16bb8?crop=entropy&cs=srgb&fm=jpg&q=85",
+      "Fashion": "https://images.unsplash.com/photo-1771978603999-94656a3ecacf?crop=entropy&cs=srgb&fm=jpg&q=85",
+      "Shoes": "https://images.unsplash.com/photo-1555145777-08bc06f96c63?crop=entropy&cs=srgb&fm=jpg&q=85",
+      "Gaming": "https://images.unsplash.com/photo-1737254103879-92ef0b453580?crop=entropy&cs=srgb&fm=jpg&q=85",
+      "Home & Kitchen": "https://images.unsplash.com/photo-1593720903194-606569bd25fc?crop=entropy&cs=srgb&fm=jpg&q=85",
+      "Audio": "https://images.unsplash.com/photo-1584892905725-bdac5b99e55a?crop=entropy&cs=srgb&fm=jpg&q=85"
+    },
+    "hero": {
+      "main_banner": "https://images.unsplash.com/photo-1634340368854-7d92d2fb57c4?crop=entropy&cs=srgb&fm=jpg&q=85",
+      "empty_state": "https://images.unsplash.com/photo-1758613655976-e8c8f85849a2?crop=entropy&cs=srgb&fm=jpg&q=85"
+    },
+    "placeholders": {
+      "product_fallback": "https://images.unsplash.com/photo-1621534222671-05b508d16bb8?crop=entropy&cs=srgb&fm=jpg&q=85"
+    }
+  },
+  "instructions_to_main_agent": [
+    "INSTALL FONTS: Import 'Barlow Condensed' and 'Inter' in index.css immediately.",
+    "NO ROUNDED CORNERS: Use 'rounded-sm' or 'rounded-none' for a sharper, more tactical look.",
+    "DENSITY IS KING: Admin tables must show 15+ rows per screen. Use 'h-8' for table rows.",
+    "COLOR DISCIPLINE: Do not use arbitrary colors. Use ONLY the defined palette.",
+    "TEST IDS: Every button must have 'data-testid'.",
+    "USE SHADCN: Heavily customize Shadcn components to remove the 'default Vercel look'. Remove rounded-xl, change to rounded-none.",
+    "GRID LAYOUT: Use the defined Bento Grid for the homepage deals. 1 Featured Deal (2x2), rest 1x1."
+  ],
+  "UNIVERSAL_GUIDELINES": {
+    "dos": [
+      "Use 'sonner' for toasts.",
+      "Use 'lucide-react' for icons.",
+      "Prioritize 'grid' and 'flex' for layouts.",
+      "Implement Dark Mode toggle in the Navbar."
+    ],
+    "donts": [
+      "Do NOT use 'Inter' for Headings.",
+      "Do NOT use gradients on text.",
+      "Do NOT use 'alert()' for notifications.",
+      "Do NOT make the deal cards too tall; keep them compact."
+    ]
+  }
+}
