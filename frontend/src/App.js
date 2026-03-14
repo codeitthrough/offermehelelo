@@ -3,7 +3,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import axios from 'axios';
 import { Toaster } from '@/components/ui/sonner';
 import { HelmetProvider } from 'react-helmet-async';
-import Home from '@/pages/Home';
+import HomeEnhanced from '@/pages/HomeEnhanced';
+import DiscoveryPage from '@/pages/DiscoveryPage';
 import AdminLogin from '@/pages/AdminLogin';
 import AdminDashboard from '@/pages/AdminDashboard';
 import AdminCategories from '@/pages/AdminCategories';
@@ -66,7 +67,8 @@ function App() {
         <div className="App">
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={<Home />} />
+              <Route path="/" element={<HomeEnhanced />} />
+              <Route path="/deals/:slug" element={<DiscoveryPage />} />
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route
                 path="/admin/dashboard"
