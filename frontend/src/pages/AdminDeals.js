@@ -4,6 +4,7 @@ import AdminLayout from '@/components/AdminLayout';
 import { toast } from 'sonner';
 import { Plus, Edit, Trash2, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Dialog,
   DialogContent,
@@ -28,6 +29,8 @@ const AdminDeals = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
+  const [selectedDeals, setSelectedDeals] = useState([]);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
   const [currentDeal, setCurrentDeal] = useState({
     title: '',
     description: '',
@@ -141,6 +144,45 @@ const AdminDeals = () => {
     }
   };
 
+  const handleSelectAll = (checked) => {
+    if (checked) {
+      setSelectedDeals(deals.map((deal) => deal.id));
+    } else {
+      setSelectedDeals([]);
+    }
+  };
+
+  const handleSelectDeal = (dealId, checked) => {
+    if (checked) {
+      setSelectedDeals([...selectedDeals, dealId]);
+    } else {
+      setSelectedDeals(selectedDeals.filter((id) => id !== dealId));
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedDeals.length === 0) {
+      toast.error('No deals selected');
+      return;
+    }
+
+    if (!window.confirm(`Are you sure you want to delete ${selectedDeals.length} deals?`)) return;
+
+    try {
+      setBulkDeleting(true);
+      const response = await axiosInstance.post('/admin/deals/bulk-delete', {
+        deal_ids: selectedDeals,
+      });
+      toast.success(`Successfully deleted ${response.data.deleted} deals`);
+      setSelectedDeals([]);
+      fetchDeals();
+    } catch (error) {
+      toast.error('Failed to delete deals');
+    } finally {
+      setBulkDeleting(false);
+    }
+  };
+
   return (
     <AdminLayout>
       <div className="space-y-6" data-testid="admin-deals">
@@ -149,14 +191,28 @@ const AdminDeals = () => {
             <h1 className="text-3xl font-black">Deals</h1>
             <p className="text-muted-foreground mt-1">Manage affiliate deals</p>
           </div>
-          <Button
-            onClick={() => handleOpenDialog()}
-            className="rounded-sm uppercase tracking-wide font-bold"
-            data-testid="add-deal-btn"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Add Deal
-          </Button>
+          <div className="flex items-center gap-2">
+            {selectedDeals.length > 0 && (
+              <Button
+                onClick={handleBulkDelete}
+                disabled={bulkDeleting}
+                variant="destructive"
+                className="rounded-sm uppercase tracking-wide font-bold"
+                data-testid="bulk-delete-btn"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete ({selectedDeals.length})
+              </Button>
+            )}
+            <Button
+              onClick={() => handleOpenDialog()}
+              className="rounded-sm uppercase tracking-wide font-bold"
+              data-testid="add-deal-btn"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Deal
+            </Button>
+          </div>
         </div>
 
         {loading ? (
@@ -168,6 +224,13 @@ const AdminDeals = () => {
             <table className="w-full admin-table">
               <thead>
                 <tr className="border-b bg-secondary/50">
+                  <th className="text-left p-3 text-xs uppercase tracking-wider font-semibold w-10">
+                    <Checkbox
+                      checked={selectedDeals.length === deals.length && deals.length > 0}
+                      onCheckedChange={handleSelectAll}
+                      data-testid="select-all-checkbox"
+                    />
+                  </th>
                   <th className="text-left p-3 text-xs uppercase tracking-wider font-semibold">Title</th>
                   <th className="text-left p-3 text-xs uppercase tracking-wider font-semibold">Category</th>
                   <th className="text-left p-3 text-xs uppercase tracking-wider font-semibold">Platform</th>
@@ -180,6 +243,13 @@ const AdminDeals = () => {
               <tbody>
                 {deals.map((deal) => (
                   <tr key={deal.id} className="border-b" data-testid={`deal-row-${deal.id}`}>
+                    <td className="p-3">
+                      <Checkbox
+                        checked={selectedDeals.includes(deal.id)}
+                        onCheckedChange={(checked) => handleSelectDeal(deal.id, checked)}
+                        data-testid={`select-deal-${deal.id}`}
+                      />
+                    </td>
                     <td className="p-3 font-medium max-w-xs truncate">{deal.title}</td>
                     <td className="p-3 text-sm text-muted-foreground">{deal.category_name}</td>
                     <td className="p-3 text-sm">{deal.platform}</td>

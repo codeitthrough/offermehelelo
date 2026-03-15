@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { API } from '@/App';
-import { Flame, Zap, TrendingDown, TrendingUp, Moon, Sun, Filter } from 'lucide-react';
+import { Flame, Zap, TrendingDown, TrendingUp, Moon, Sun, Filter, MessageSquare } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,11 +15,14 @@ import SEO from '@/components/SEO';
 import DealSection from '@/components/DealSection';
 import DealCard from '@/components/DealCard';
 import StickyDealButton from '@/components/StickyDealButton';
+import PlatformTiles from '@/components/PlatformTiles';
 
 const HomeEnhanced = () => {
   const { theme, toggleTheme } = useTheme();
   const [categories, setCategories] = useState([]);
+  const [subcategories, setSubcategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedSubcategory, setSelectedSubcategory] = useState('all');
   const [minDiscount, setMinDiscount] = useState(0);
   const [loading, setLoading] = useState(true);
 
@@ -42,7 +45,16 @@ const HomeEnhanced = () => {
 
   useEffect(() => {
     fetchCategoryDeals();
-  }, [selectedCategory, minDiscount]);
+  }, [selectedCategory, selectedSubcategory, minDiscount]);
+
+  useEffect(() => {
+    if (selectedCategory !== 'all') {
+      fetchSubcategories(selectedCategory);
+    } else {
+      setSubcategories([]);
+      setSelectedSubcategory('all');
+    }
+  }, [selectedCategory]);
 
   const fetchCategories = async () => {
     try {
@@ -50,6 +62,16 @@ const HomeEnhanced = () => {
       setCategories(response.data);
     } catch (error) {
       console.error('Error fetching categories:', error);
+    }
+  };
+
+  const fetchSubcategories = async (categoryId) => {
+    try {
+      const response = await axios.get(`${API}/subcategories?category_id=${categoryId}`);
+      setSubcategories(response.data);
+    } catch (error) {
+      console.error('Error fetching subcategories:', error);
+      setSubcategories([]);
     }
   };
 
@@ -86,6 +108,10 @@ const HomeEnhanced = () => {
       if (selectedCategory !== 'all') {
         url += `&category_id=${selectedCategory}`;
       }
+
+      if (selectedSubcategory !== 'all') {
+        url += `&subcategory=${selectedSubcategory}`;
+      }
       
       if (minDiscount > 0) {
         url += `&min_discount=${minDiscount}`;
@@ -96,6 +122,11 @@ const HomeEnhanced = () => {
     } catch (error) {
       console.error('Error fetching category deals:', error);
     }
+  };
+
+  const handleCategoryChange = (catId) => {
+    setSelectedCategory(catId);
+    setSelectedSubcategory('all');
   };
 
   const trackClick = async (dealId, productUrl, section, page) => {
@@ -191,36 +222,72 @@ const HomeEnhanced = () => {
           onTrackClick={trackClick}
         />
 
+        {/* Popular Platforms */}
+        <PlatformTiles />
+
         {/* Category Filter Section */}
         <section className="py-8 mt-8 border-t">
           <h2 className="text-2xl font-black uppercase tracking-tight mb-6">Browse By Category</h2>
 
           {/* Category Tabs */}
-          <div className="flex gap-2 overflow-x-auto pb-4 mb-6 scrollbar-hide">
+          <div className="flex gap-2 overflow-x-auto pb-4 mb-4 scrollbar-hide">
             <button
-              onClick={() => setSelectedCategory('all')}
+              onClick={() => handleCategoryChange('all')}
               className={`px-6 py-2 text-xs font-semibold uppercase tracking-widest whitespace-nowrap border rounded-sm transition-colors ${
                 selectedCategory === 'all'
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-background hover:bg-secondary'
               }`}
+              data-testid="category-all"
             >
               All Categories
             </button>
             {categories.map((cat) => (
               <button
                 key={cat.id}
-                onClick={() => setSelectedCategory(cat.id)}
+                onClick={() => handleCategoryChange(cat.id)}
                 className={`px-6 py-2 text-xs font-semibold uppercase tracking-widest whitespace-nowrap border rounded-sm transition-colors ${
                   selectedCategory === cat.id
                     ? 'bg-primary text-primary-foreground'
                     : 'bg-background hover:bg-secondary'
                 }`}
+                data-testid={`category-${cat.id}`}
               >
                 {cat.name}
               </button>
             ))}
           </div>
+
+          {/* Subcategory Filter */}
+          {subcategories.length > 0 && (
+            <div className="flex gap-2 overflow-x-auto pb-4 mb-4 scrollbar-hide">
+              <button
+                onClick={() => setSelectedSubcategory('all')}
+                className={`px-4 py-1.5 text-xs font-medium uppercase tracking-wider whitespace-nowrap border rounded-sm transition-colors ${
+                  selectedSubcategory === 'all'
+                    ? 'bg-accent text-accent-foreground'
+                    : 'bg-background hover:bg-secondary/70'
+                }`}
+                data-testid="subcategory-all"
+              >
+                All
+              </button>
+              {subcategories.map((subcat) => (
+                <button
+                  key={subcat.id}
+                  onClick={() => setSelectedSubcategory(subcat.slug)}
+                  className={`px-4 py-1.5 text-xs font-medium uppercase tracking-wider whitespace-nowrap border rounded-sm transition-colors ${
+                    selectedSubcategory === subcat.slug
+                      ? 'bg-accent text-accent-foreground'
+                      : 'bg-background hover:bg-secondary/70'
+                  }`}
+                  data-testid={`subcategory-${subcat.id}`}
+                >
+                  {subcat.name}
+                </button>
+              ))}
+            </div>
+          )}
 
           {/* Discount Filter */}
           <div className="flex items-center gap-4 mb-6">
@@ -229,7 +296,7 @@ const HomeEnhanced = () => {
               <span className="text-sm font-semibold uppercase tracking-wider">Filter:</span>
             </div>
             <Select value={minDiscount.toString()} onValueChange={(val) => setMinDiscount(Number(val))}>
-              <SelectTrigger className="w-[200px] rounded-sm">
+              <SelectTrigger className="w-[200px] rounded-sm" data-testid="discount-filter">
                 <SelectValue placeholder="Min Discount" />
               </SelectTrigger>
               <SelectContent>
@@ -281,6 +348,12 @@ const HomeEnhanced = () => {
                 <li><a href="/deals/under-1000" className="text-muted-foreground hover:text-foreground">Under ₹1,000</a></li>
                 <li><a href="/deals/under-5000" className="text-muted-foreground hover:text-foreground">Under ₹5,000</a></li>
                 <li><a href="/deals/top-discounted-products" className="text-muted-foreground hover:text-foreground">Top Discounts</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-bold text-sm uppercase tracking-wider mb-4">Support</h4>
+              <ul className="space-y-2 text-sm">
+                <li><a href="/contact" className="text-muted-foreground hover:text-foreground flex items-center gap-1"><MessageSquare className="h-3 w-3" /> Talk To Us</a></li>
               </ul>
             </div>
           </div>

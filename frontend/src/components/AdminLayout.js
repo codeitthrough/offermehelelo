@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/button';
-import { LayoutDashboard, Package, Tag, Settings, LogOut, Moon, Sun, Home } from 'lucide-react';
+import { LayoutDashboard, Package, Tag, Settings, LogOut, Moon, Sun, Home, Upload, Store, Cog, MessageSquare } from 'lucide-react';
 import { toast } from 'sonner';
 
 const AdminLayout = ({ children }) => {
@@ -20,6 +20,10 @@ const AdminLayout = ({ children }) => {
     { path: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { path: '/admin/categories', icon: Package, label: 'Categories' },
     { path: '/admin/deals', icon: Tag, label: 'Deals' },
+    { path: '/admin/bulk-upload', icon: Upload, label: 'Bulk Upload' },
+    { path: '/admin/platforms', icon: Store, label: 'Platforms' },
+    { path: '/admin/scraper-settings', icon: Cog, label: 'Scraper' },
+    { path: '/admin/suggestions', icon: MessageSquare, label: 'Suggestions' },
     { path: '/admin/settings', icon: Settings, label: 'Settings' },
   ];
 

@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Depends, status, UploadFile
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, UploadFile
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
@@ -865,43 +865,6 @@ async def generate_sitemap():
         logger.error(f"Error generating sitemap: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-# Include router
-app.include_router(api_router)
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
-
-# Scheduler setup
-scheduler = AsyncIOScheduler()
-
-@app.on_event("startup")
-async def startup_event():
-    await init_admin()
-    await init_categories()
-    await init_affiliate_settings()
-    
-    # Schedule hourly deal fetching
-    scheduler.add_job(fetch_deals_from_platforms, 'interval', hours=1, id='fetch_deals')
-    scheduler.start()
-    logger.info("Scheduler started - deals will be fetched every hour")
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    scheduler.shutdown()
-    client.close()
-
 # Bulk Upload endpoint
 @api_router.post("/admin/deals/bulk-upload")
 async def bulk_upload_deals(file: UploadFile, username: str = Depends(verify_token)):
@@ -1016,7 +979,7 @@ async def bulk_upload_deals(file: UploadFile, username: str = Depends(verify_tok
         return results
         
     except Exception as e:
-        logger.error(f"Bulk upload failed: {str(e)}")
+        logging.error(f"Bulk upload failed: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 # Bulk Delete endpoint
@@ -1030,7 +993,7 @@ async def bulk_delete_deals(request: BulkDeleteRequest, username: str = Depends(
             "requested": len(request.deal_ids)
         }
     except Exception as e:
-        logger.error(f"Bulk delete failed: {str(e)}")
+        logging.error(f"Bulk delete failed: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 # Platform Management endpoints
@@ -1151,11 +1114,11 @@ async def get_suggestions(username: str = Depends(verify_token)):
     return suggestions
 
 @api_router.put("/admin/suggestions/{suggestion_id}")
-async def update_suggestion_status(suggestion_id: str, status: str, username: str = Depends(verify_token)):
+async def update_suggestion_status(suggestion_id: str, new_status: str, username: str = Depends(verify_token)):
     """Update suggestion status"""
     result = await db.suggestions.update_one(
         {"id": suggestion_id},
-        {"$set": {"status": status}}
+        {"$set": {"status": new_status}}
     )
     
     if result.matched_count == 0:
@@ -1171,11 +1134,12 @@ async def get_scraper_settings(username: str = Depends(verify_token)):
     
     if not settings:
         # Initialize with defaults
-        settings = {
+        default_settings = {
             "scraper_enabled": True,
             "scraper_interval": "hourly"
         }
-        await db.scraper_settings.insert_one(settings)
+        await db.scraper_settings.insert_one(default_settings)
+        return {"scraper_enabled": True, "scraper_interval": "hourly"}
     
     return settings
 
@@ -1190,3 +1154,39 @@ async def update_scraper_settings(settings: ScraperSettings, username: str = Dep
     
     return {"message": "Settings updated successfully"}
 
+# Include router
+app.include_router(api_router)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_credentials=True,
+    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+# Scheduler setup
+scheduler = AsyncIOScheduler()
+
+@app.on_event("startup")
+async def startup_event():
+    await init_admin()
+    await init_categories()
+    await init_affiliate_settings()
+    
+    # Schedule hourly deal fetching
+    scheduler.add_job(fetch_deals_from_platforms, 'interval', hours=1, id='fetch_deals')
+    scheduler.start()
+    logger.info("Scheduler started - deals will be fetched every hour")
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    scheduler.shutdown()
+    client.close()

@@ -10,6 +10,11 @@ import AdminDashboard from '@/pages/AdminDashboard';
 import AdminCategories from '@/pages/AdminCategories';
 import AdminDeals from '@/pages/AdminDeals';
 import AdminSettings from '@/pages/AdminSettings';
+import AdminBulkUpload from '@/pages/AdminBulkUpload';
+import AdminPlatforms from '@/pages/AdminPlatforms';
+import AdminScraperSettings from '@/pages/AdminScraperSettings';
+import AdminSuggestions from '@/pages/AdminSuggestions';
+import Contact from '@/pages/Contact';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import '@/App.css';
 
@@ -102,6 +107,39 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path="/admin/bulk-upload"
+                element={
+                  <ProtectedRoute>
+                    <AdminBulkUpload />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/platforms"
+                element={
+                  <ProtectedRoute>
+                    <AdminPlatforms />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/scraper-settings"
+                element={
+                  <ProtectedRoute>
+                    <AdminScraperSettings />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/suggestions"
+                element={
+                  <ProtectedRoute>
+                    <AdminSuggestions />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/contact" element={<Contact />} />
             </Routes>
           </BrowserRouter>
           <Toaster position="top-right" />
