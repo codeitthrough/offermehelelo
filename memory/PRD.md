@@ -21,11 +21,11 @@ Build a fully automated affiliate deals website with the following core features
 #### Frontend
 - [x] Homepage with deal highlight sections (Best Deals Today, Lightning Deals, Price Drops, Trending)
 - [x] Category tabs and discount filter
-- [x] Subcategory filter buttons (when category selected)
+- [x] Subcategory filter buttons (appears when a category is selected)
 - [x] Popular Platforms section with platform tiles
 - [x] Admin Panel with 8 navigation items:
   - Dashboard with analytics
-  - Categories management
+  - Categories management with subcategory creation
   - Deals management with checkbox bulk delete
   - Bulk Upload (CSV/XLSX)
   - Platforms management
@@ -69,7 +69,6 @@ All critical features completed.
 
 ### P1 - High Priority
 - [ ] Investigate official affiliate APIs (Amazon Product Advertising API, Flipkart Affiliate API) as reliable alternative to web scraping
-- [ ] Add subcategory creation in admin panel
 
 ### P2 - Nice to Have
 - [ ] A/B testing for UI elements
