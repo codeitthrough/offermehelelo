@@ -16,6 +16,7 @@ import DealSection from '@/components/DealSection';
 import DealCard from '@/components/DealCard';
 import StickyDealButton from '@/components/StickyDealButton';
 import PlatformTiles from '@/components/PlatformTiles';
+import BrowseLinkTiles from '@/components/BrowseLinkTiles';
 
 const HomeEnhanced = () => {
   const { theme, toggleTheme } = useTheme();
@@ -195,6 +196,9 @@ const HomeEnhanced = () => {
           onTrackClick={trackClick}
         />
 
+        {/* Browse Links - Shop by Store */}
+        <BrowseLinkTiles showTitle={true} maxLinks={6} />
+
         <DealSection
           title="⚡ Lightning Deals"
           icon={Zap}
@@ -308,6 +312,16 @@ const HomeEnhanced = () => {
               </SelectContent>
             </Select>
           </div>
+
+          {/* Browse Links for selected category */}
+          {selectedCategory !== 'all' && (
+            <BrowseLinkTiles
+              category={selectedCategory}
+              subcategory={selectedSubcategory !== 'all' ? selectedSubcategory : null}
+              showTitle={true}
+              maxLinks={4}
+            />
+          )}
 
           {/* Category Deals Grid */}
           {categoryDeals.length > 0 ? (

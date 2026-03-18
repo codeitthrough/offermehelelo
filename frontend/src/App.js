@@ -14,6 +14,7 @@ import AdminBulkUpload from '@/pages/AdminBulkUpload';
 import AdminPlatforms from '@/pages/AdminPlatforms';
 import AdminScraperSettings from '@/pages/AdminScraperSettings';
 import AdminSuggestions from '@/pages/AdminSuggestions';
+import AdminBrowseLinks from '@/pages/AdminBrowseLinks';
 import Contact from '@/pages/Contact';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import '@/App.css';
@@ -136,6 +137,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <AdminSuggestions />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/browse-links"
+                element={
+                  <ProtectedRoute>
+                    <AdminBrowseLinks />
                   </ProtectedRoute>
                 }
               />

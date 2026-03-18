@@ -175,6 +175,36 @@ class ScraperSettings(BaseModel):
 class BulkDeleteRequest(BaseModel):
     deal_ids: List[str]
 
+class BrowseLink(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    title: str
+    platform: str
+    platform_logo: Optional[str] = None
+    affiliate_link: str
+    category_id: Optional[str] = None
+    subcategory: Optional[str] = None
+    offer_text: Optional[str] = None
+    is_active: bool = True
+    created_at: datetime
+
+class BrowseLinkCreate(BaseModel):
+    title: str
+    platform: str
+    affiliate_link: str
+    category_id: Optional[str] = None
+    subcategory: Optional[str] = None
+    offer_text: Optional[str] = None
+
+class BrowseLinkUpdate(BaseModel):
+    title: Optional[str] = None
+    platform: Optional[str] = None
+    affiliate_link: Optional[str] = None
+    category_id: Optional[str] = None
+    subcategory: Optional[str] = None
+    offer_text: Optional[str] = None
+    is_active: Optional[bool] = None
+
 
 # Helper functions
 def verify_password(plain_password, hashed_password):
@@ -1153,6 +1183,108 @@ async def update_scraper_settings(settings: ScraperSettings, username: str = Dep
     )
     
     return {"message": "Settings updated successfully"}
+
+# Browse Links endpoints
+@api_router.get("/browse-links")
+async def get_browse_links(category: Optional[str] = None, subcategory: Optional[str] = None):
+    """Get browse links with optional filters"""
+    query = {"is_active": True}
+    
+    if category:
+        query["category_id"] = category
+    
+    if subcategory:
+        query["subcategory"] = subcategory
+    
+    links = await db.browse_links.find(query, {"_id": 0}).sort("created_at", -1).to_list(50)
+    
+    # Enrich with platform logos
+    for link in links:
+        platform = await db.platforms.find_one({"name": link.get("platform")}, {"_id": 0})
+        if platform:
+            link["platform_logo"] = platform.get("image_url")
+        if isinstance(link.get("created_at"), str):
+            link["created_at"] = datetime.fromisoformat(link["created_at"])
+    
+    return links
+
+@api_router.get("/admin/browse-links")
+async def get_admin_browse_links(username: str = Depends(verify_token)):
+    """Get all browse links for admin"""
+    links = await db.browse_links.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    
+    for link in links:
+        # Enrich with platform logo
+        platform = await db.platforms.find_one({"name": link.get("platform")}, {"_id": 0})
+        if platform:
+            link["platform_logo"] = platform.get("image_url")
+        if isinstance(link.get("created_at"), str):
+            link["created_at"] = datetime.fromisoformat(link["created_at"])
+    
+    return links
+
+@api_router.post("/admin/browse-links", response_model=BrowseLink)
+async def create_browse_link(link: BrowseLinkCreate, username: str = Depends(verify_token)):
+    """Create a new browse link"""
+    count = await db.browse_links.count_documents({})
+    link_id = f"blink-{count + 1}"
+    
+    now = datetime.now(timezone.utc)
+    
+    link_doc = {
+        "id": link_id,
+        "title": link.title,
+        "platform": link.platform,
+        "affiliate_link": link.affiliate_link,
+        "category_id": link.category_id,
+        "subcategory": link.subcategory,
+        "offer_text": link.offer_text,
+        "is_active": True,
+        "created_at": now.isoformat()
+    }
+    
+    await db.browse_links.insert_one(link_doc)
+    
+    # Get platform logo
+    platform = await db.platforms.find_one({"name": link.platform}, {"_id": 0})
+    link_doc["platform_logo"] = platform.get("image_url") if platform else None
+    link_doc["created_at"] = now
+    
+    return BrowseLink(**link_doc)
+
+@api_router.put("/admin/browse-links/{link_id}", response_model=BrowseLink)
+async def update_browse_link(link_id: str, link: BrowseLinkUpdate, username: str = Depends(verify_token)):
+    """Update a browse link"""
+    update_data = {k: v for k, v in link.model_dump().items() if v is not None}
+    
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No update data provided")
+    
+    result = await db.browse_links.update_one({"id": link_id}, {"$set": update_data})
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Browse link not found")
+    
+    updated_link = await db.browse_links.find_one({"id": link_id}, {"_id": 0})
+    
+    # Get platform logo
+    platform = await db.platforms.find_one({"name": updated_link.get("platform")}, {"_id": 0})
+    updated_link["platform_logo"] = platform.get("image_url") if platform else None
+    
+    if isinstance(updated_link.get("created_at"), str):
+        updated_link["created_at"] = datetime.fromisoformat(updated_link["created_at"])
+    
+    return BrowseLink(**updated_link)
+
+@api_router.delete("/admin/browse-links/{link_id}")
+async def delete_browse_link(link_id: str, username: str = Depends(verify_token)):
+    """Delete a browse link"""
+    result = await db.browse_links.delete_one({"id": link_id})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Browse link not found")
+    
+    return {"message": "Browse link deleted successfully"}
 
 # Include router
 app.include_router(api_router)
