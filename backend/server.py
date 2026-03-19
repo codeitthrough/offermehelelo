@@ -280,14 +280,16 @@ async def init_affiliate_settings():
 # Import scraper pipeline
 import sys
 sys.path.append(str(ROOT_DIR))
-from automation.scraper_pipeline import ScraperPipeline
-from services.deal_highlighter import DealHighlighter
+#from automation.scraper_pipeline import ScraperPipeline
+#from services.deal_highlighter import DealHighlighter
 
 # Initialize scraper pipeline and deal highlighter
-scraper_pipeline = ScraperPipeline(db)
-deal_highlighter = DealHighlighter(db)
+#scraper_pipeline = ScraperPipeline(db)
+#deal_highlighter = DealHighlighter(db)
 
 # Deal fetcher with scraper integration
+
+'''
 async def fetch_deals_from_platforms():
     logging.info("Running scheduled deal fetch...")
     
@@ -307,6 +309,13 @@ async def fetch_deals_from_platforms():
         
     except Exception as e:
         logging.error(f"Deal fetch failed: {str(e)}")
+
+'''
+
+async def fetch_deals_from_platforms():
+    return
+
+
 
 # Public endpoints
 @api_router.get("/categories", response_model=List[Category])
@@ -742,22 +751,27 @@ async def get_dashboard_analytics(username: str = Depends(verify_token)):
 @api_router.get("/deals/highlights/best-today")
 async def get_best_deals_today_endpoint(limit: int = 10):
     """Get best deals today by score"""
-    return await deal_highlighter.get_best_deals_today(limit)
+    #return await deal_highlighter.get_best_deals_today(limit)
+    return []
 
 @api_router.get("/deals/highlights/lightning")
 async def get_lightning_deals_endpoint(limit: int = 10):
     """Get lightning deals (50%+ discount)"""
-    return await deal_highlighter.get_lightning_deals(limit)
+    #return await deal_highlighter.get_lightning_deals(limit)
+    return []
 
 @api_router.get("/deals/highlights/price-drops")
 async def get_biggest_price_drops_endpoint(limit: int = 10):
     """Get biggest price drops"""
-    return await deal_highlighter.get_biggest_price_drops(limit)
+    #return await deal_highlighter.get_biggest_price_drops(limit)
+    return []
 
 @api_router.get("/deals/highlights/trending-24h")
 async def get_trending_24h_endpoint(limit: int = 10):
     """Get trending deals in last 24 hours"""
-    return await deal_highlighter.get_trending_deals_24h(limit)
+    #return await deal_highlighter.get_trending_deals_24h(limit)
+    return []
+
 
 # Discovery page endpoints
 @api_router.get("/deals/discovery/today-best-deals")
@@ -779,27 +793,32 @@ async def discovery_today_best(limit: int = 20):
 @api_router.get("/deals/discovery/best-amazon-deals")
 async def discovery_amazon(limit: int = 20):
     """Best Amazon deals"""
-    return await deal_highlighter.get_deals_by_platform("Amazon", limit)
+    #return await deal_highlighter.get_deals_by_platform("Amazon", limit)
+    return []
 
 @api_router.get("/deals/discovery/best-flipkart-deals")
 async def discovery_flipkart(limit: int = 20):
     """Best Flipkart deals"""
-    return await deal_highlighter.get_deals_by_platform("Flipkart", limit)
+    #return await deal_highlighter.get_deals_by_platform("Flipkart", limit)
+    return []
 
 @api_router.get("/deals/discovery/top-discounted-products")
 async def discovery_top_discounted(limit: int = 20):
     """Top discounted products"""
-    return await deal_highlighter.get_top_discounted(limit)
+    return []
+    #return await deal_highlighter.get_top_discounted(limit)
 
 @api_router.get("/deals/discovery/under-1000")
 async def discovery_under_1000(limit: int = 20):
     """Deals under ₹1000"""
-    return await deal_highlighter.get_deals_under_price(1000, limit)
+    return []
+    #return await deal_highlighter.get_deals_under_price(1000, limit)
 
 @api_router.get("/deals/discovery/under-5000")
 async def discovery_under_5000(limit: int = 20):
     """Deals under ₹5000"""
-    return await deal_highlighter.get_deals_under_price(5000, limit)
+    return []
+    #return await deal_highlighter.get_deals_under_price(5000, limit)
 
 # Related deals endpoint
 @api_router.get("/deals/{deal_id}/related")
@@ -810,7 +829,8 @@ async def get_related_deals_endpoint(deal_id: str, limit: int = 8):
         if not deal:
             return []
         
-        return await deal_highlighter.get_related_deals(deal['category_id'], deal_id, limit)
+        #return await deal_highlighter.get_related_deals(deal['category_id'], deal_id, limit)
+        return []
     except Exception as e:
         logger.error(f"Error getting related deals: {str(e)}")
         return []
@@ -1314,8 +1334,8 @@ async def startup_event():
     await init_affiliate_settings()
     
     # Schedule hourly deal fetching
-    scheduler.add_job(fetch_deals_from_platforms, 'interval', hours=1, id='fetch_deals')
-    scheduler.start()
+    #scheduler.add_job(fetch_deals_from_platforms, 'interval', hours=1, id='fetch_deals')
+    #scheduler.start()
     logger.info("Scheduler started - deals will be fetched every hour")
 
 @app.on_event("shutdown")

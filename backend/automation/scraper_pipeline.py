@@ -1,9 +1,9 @@
 import logging
 import asyncio
 from datetime import datetime, timezone
-from scrapers.amazon_scraper import AmazonScraper
-from scrapers.flipkart_scraper import FlipkartScraper
-from scrapers.earnkaro_converter import EarnKaroConverter
+#from scrapers.amazon_scraper import AmazonScraper
+#from scrapers.flipkart_scraper import FlipkartScraper
+#from scrapers.earnkaro_converter import EarnKaroConverter
 from services.category_mapper import CategoryMapper
 from services.deal_processor import DealProcessor
 from services.deal_cleaner import DealCleaner
