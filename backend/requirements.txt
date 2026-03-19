@@ -4,3 +4,6 @@ motor
 python-dotenv
 python-jose
 passlib[bcrypt]
+apscheduler
+python-multipart
+email-validator
