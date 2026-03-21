@@ -3,7 +3,8 @@ uvicorn
 motor
 python-dotenv
 python-jose
-passlib[bcrypt]
+passlib[bcrypt]==1.7.4
 apscheduler
 python-multipart
 email-validator
+bcrypt==4.0.1
