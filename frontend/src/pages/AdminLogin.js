@@ -87,7 +87,11 @@ const AdminLogin = () => {
             </Button>
           </form>
 
-          
+          <div className="mt-6 p-4 bg-secondary/50 rounded-none">
+            <p className="text-xs text-center text-muted-foreground">
+              Default credentials: <strong>admin / fuckalldeals</strong>
+            </p>
+          </div>
 
           <Button
             variant="ghost"
