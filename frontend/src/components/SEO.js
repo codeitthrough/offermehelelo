@@ -9,7 +9,7 @@ const SEO = ({
   url,
   productData
 }) => {
-  const siteUrl = 'https://deal-automator.preview.emergentagent.com';
+  const siteUrl = 'https://offermehelelo.onrender.com/';
   const fullUrl = url ? `${siteUrl}${url}` : siteUrl;
 
   return (

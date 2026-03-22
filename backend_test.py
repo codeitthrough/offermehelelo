@@ -11,7 +11,7 @@ from datetime import datetime
 from typing import Dict, List, Optional
 
 class AffiliateDealsAPITester:
-    def __init__(self, base_url="https://deal-automator.preview.emergentagent.com"):
+    def __init__(self, base_url="https://offermehelelo.onrender.com/"):
         self.base_url = base_url
         self.api_url = f"{base_url}/api"
         self.admin_token = None

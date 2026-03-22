@@ -872,7 +872,7 @@ async def generate_sitemap():
     try:
         from datetime import datetime
         
-        base_url = "https://deal-automator.preview.emergentagent.com"
+        base_url = "https://offermehelelo.onrender.com/"
         
         # Start XML
         sitemap_xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
