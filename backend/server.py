@@ -236,14 +236,17 @@ def create_slug(name: str) -> str:
 
 # Initialize default admin user
 async def init_admin():
-    admin = await db.admin_users.find_one({"username": "admin"})
-    if not admin:
-        hashed_password = get_password_hash("fuckalldeals")
-        await db.admin_users.insert_one({
-            "username": "admin",
-            "password_hash": hashed_password,
-            "created_at": datetime.now(timezone.utc).isoformat()
-        })
+    hashed_password = get_password_hash("fuckalldeals")
+
+    await db.admin_users.update_one(
+        {"username": "admin"},
+        {
+            "$set": {
+                "password_hash": hashed_password
+            }
+        },
+        upsert=True
+    )
 
 # Initialize categories
 async def init_categories():
