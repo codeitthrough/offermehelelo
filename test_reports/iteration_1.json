@@ -31,7 +31,7 @@
   },
   "test_credentials": {
     "admin_username": "admin",
-    "admin_password": "admin123"
+    "admin_password": "fuckalldeals"
   },
   "seed_data_creation": "Test suggestions created via API tests (prefixed with TEST_)",
   "retest_needed": false,
@@ -54,7 +54,7 @@
       "status": "PASS",
       "details": [
         "Login form renders correctly",
-        "Login with admin/admin123 successful",
+        "Login with admin/fuckalldeals successful",
         "Redirects to dashboard after login"
       ]
     },

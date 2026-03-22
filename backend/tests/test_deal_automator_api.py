@@ -106,7 +106,7 @@ class TestAuthEndpoints:
         """Test POST /api/auth/login with valid credentials"""
         response = requests.post(f"{BASE_URL}/api/auth/login", json={
             "username": "admin",
-            "password": "admin123"
+            "password": "fuckalldeals"
         })
         assert response.status_code == 200
         data = response.json()
@@ -129,7 +129,7 @@ class TestAuthEndpoints:
         # First login
         login_response = requests.post(f"{BASE_URL}/api/auth/login", json={
             "username": "admin",
-            "password": "admin123"
+            "password": "fuckalldeals"
         })
         token = login_response.json()["access_token"]
         
@@ -165,7 +165,7 @@ class TestSuggestionsEndpoints:
         # Login first
         login_response = requests.post(f"{BASE_URL}/api/auth/login", json={
             "username": "admin",
-            "password": "admin123"
+            "password": "fuckalldeals"
         })
         token = login_response.json()["access_token"]
         
@@ -187,7 +187,7 @@ class TestAdminPlatformsEndpoints:
         """Get authentication token"""
         response = requests.post(f"{BASE_URL}/api/auth/login", json={
             "username": "admin",
-            "password": "admin123"
+            "password": "fuckalldeals"
         })
         return response.json()["access_token"]
     
@@ -238,7 +238,7 @@ class TestAdminScraperSettings:
         """Get authentication token"""
         response = requests.post(f"{BASE_URL}/api/auth/login", json={
             "username": "admin",
-            "password": "admin123"
+            "password": "fuckalldeals"
         })
         return response.json()["access_token"]
     
@@ -291,7 +291,7 @@ class TestAdminDealsEndpoints:
         """Get authentication token"""
         response = requests.post(f"{BASE_URL}/api/auth/login", json={
             "username": "admin",
-            "password": "admin123"
+            "password": "fuckalldeals"
         })
         return response.json()["access_token"]
     
@@ -394,7 +394,7 @@ class TestAnalyticsEndpoints:
         """Get authentication token"""
         response = requests.post(f"{BASE_URL}/api/auth/login", json={
             "username": "admin",
-            "password": "admin123"
+            "password": "fuckalldeals"
         })
         return response.json()["access_token"]
     

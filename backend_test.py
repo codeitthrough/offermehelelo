@@ -147,7 +147,7 @@ class AffiliateDealsAPITester:
         print("="*60)
         
         # Test login with valid credentials
-        credentials = {"username": "admin", "password": "admin123"}
+        credentials = {"username": "admin", "password": "fuckalldeals"}
         success, response = self.run_test(
             "Admin Login", "POST", "auth/login", 200, 
             data=credentials,

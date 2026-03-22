@@ -32,7 +32,7 @@
   },
   "test_credentials": {
     "admin_username": "admin",
-    "admin_password": "admin123"
+    "admin_password": "fuckalldeals"
   },
   "seed_data_creation": "7 browse links pre-exist in database from main agent",
   "retest_needed": false,

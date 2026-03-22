@@ -66,7 +66,7 @@ class TestBrowseLinksAdminEndpoints:
         """Get authentication token"""
         response = requests.post(f"{BASE_URL}/api/auth/login", json={
             "username": "admin",
-            "password": "admin123"
+            "password": "fuckalldeals"
         })
         return response.json()["access_token"]
     

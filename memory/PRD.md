@@ -119,7 +119,7 @@ All critical features completed.
 
 ## Admin Credentials
 - Username: `admin`
-- Password: `admin123`
+- Password: `fuckalldeals`
 
 ## Known Issues
 1. **Web scrapers are non-functional**: Amazon and Flipkart scrapers fail due to anti-bot measures. Use bulk upload feature for manual deal management.
