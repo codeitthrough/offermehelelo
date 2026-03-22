@@ -2,7 +2,7 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 
 const SEO = ({ 
-  title = 'Deal Striker - Best Deals & Discounts',
+  title = 'Offer Me He Lelo! - Best Deals & Discounts',
   description = 'Find the best deals and discounts from Amazon, Flipkart and more. Save up to 80% on electronics, fashion, home appliances and more.',
   type = 'website',
   image = 'https://images.unsplash.com/photo-1634340368854-7d92d2fb57c4?crop=entropy&cs=srgb&fm=jpg&q=85',
@@ -26,7 +26,7 @@ const SEO = ({
       <meta property="og:description" content={description} />
       <meta property="og:image" content={image} />
       <meta property="og:url" content={fullUrl} />
-      <meta property="og:site_name" content="Deal Striker" />
+      <meta property="og:site_name" content="Offer Me He Lelo!" />
 
       {/* Twitter Card Tags */}
       <meta name="twitter:card" content="summary_large_image" />
@@ -73,7 +73,7 @@ const SEO = ({
         {JSON.stringify({
           "@context": "https://schema.org",
           "@type": "Organization",
-          "name": "Deal Striker",
+          "name": "Offer Me He Lelo!",
           "url": siteUrl,
           "logo": `${siteUrl}/logo.png`,
           "description": "Best deals and discounts aggregator platform",

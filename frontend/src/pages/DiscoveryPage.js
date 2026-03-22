@@ -17,37 +17,37 @@ const DiscoveryPage = () => {
 
   const pageConfigs = {
     'today-best-deals': {
-      title: "Today's Best Deals | Deal Striker",
+      title: "Today's Best Deals | Offer Me He Lelo!",
       heading: "🔥 Today's Best Deals",
       description: "Handpicked best deals added in the last 24 hours. Highest scoring deals updated hourly.",
       metaDescription: "Today's best deals from Amazon and Flipkart. New deals added hourly with smart scoring.",
     },
     'best-amazon-deals': {
-      title: 'Best Amazon Deals | Deal Striker',
+      title: 'Best Amazon Deals | Offer Me He Lelo!',
       heading: '📦 Best Amazon Deals',
       description: 'Top-rated deals from Amazon sorted by our smart deal scoring algorithm.',
       metaDescription: 'Find the best Amazon deals with up to 80% off on electronics, fashion, and more.',
     },
     'best-flipkart-deals': {
-      title: 'Best Flipkart Deals | Deal Striker',
+      title: 'Best Flipkart Deals | Offer Me He Lelo!',
       heading: '🛒 Best Flipkart Deals',
       description: 'Top-rated deals from Flipkart sorted by our smart deal scoring algorithm.',
       metaDescription: 'Discover amazing Flipkart deals with huge discounts on all categories.',
     },
     'top-discounted-products': {
-      title: 'Top Discounted Products | Deal Striker',
+      title: 'Top Discounted Products | Offer Me He Lelo!',
       heading: '💰 Top Discounted Products',
       description: 'Products with the highest discount percentages. Save big on every purchase!',
       metaDescription: 'Explore products with the highest discounts - up to 80% off on top brands.',
     },
     'under-1000': {
-      title: 'Best Deals Under ₹1,000 | Deal Striker',
+      title: 'Best Deals Under ₹1,000 | Offer Me He Lelo!',
       heading: '💵 Deals Under ₹1,000',
       description: 'Amazing deals under ₹1,000. Great products at budget-friendly prices.',
       metaDescription: 'Find the best deals under ₹1,000 from Amazon and Flipkart.',
     },
     'under-5000': {
-      title: 'Best Deals Under ₹5,000 | Deal Striker',
+      title: 'Best Deals Under ₹5,000 | Offer Me He Lelo!',
       heading: '💳 Deals Under ₹5,000',
       description: 'Premium deals under ₹5,000. Get more value for your money.',
       metaDescription: 'Explore premium deals under ₹5,000 with best discounts and offers.',
@@ -105,7 +105,7 @@ const DiscoveryPage = () => {
               >
                 <ArrowLeft className="h-5 w-5" />
               </Button>
-              <h1 className="text-2xl md:text-3xl font-black tracking-tight">DEAL STRIKER</h1>
+              <h1 className="text-2xl md:text-3xl font-black tracking-tight">OFFER ME HE LELO!</h1>
             </div>
             <div className="flex items-center gap-2">
               <Button variant="ghost" size="icon" onClick={toggleTheme}>
@@ -172,7 +172,7 @@ const DiscoveryPage = () => {
       {/* Footer */}
       <footer className="border-t bg-card mt-20">
         <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-8 text-center text-sm text-muted-foreground">
-          <p>Deal Striker - Automated Affiliate Deals Platform</p>
+          <p>Offer Me He Lelo! - Automated Affiliate Deals Platform</p>
           <p className="mt-2">Deals updated hourly • Smart scoring • Best prices guaranteed</p>
         </div>
       </footer>

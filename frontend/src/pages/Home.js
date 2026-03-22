@@ -161,7 +161,7 @@ const Home = () => {
   return (
     <div className="min-h-screen noise-bg">
       <SEO 
-        title="Deal Striker - Best Deals & Discounts | Save Up to 80%"
+        title="Offer Me He Lelo! - Best Deals & Discounts | Save Up to 80%"
         description="Find the hottest deals from Amazon, Flipkart and more. Save big on electronics, fashion, home appliances and more. Updated hourly!"
         url="/"
       />
@@ -171,7 +171,7 @@ const Home = () => {
         <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-4">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl md:text-3xl font-black tracking-tight" data-testid="site-title">
-              DEAL STRIKER
+              OFFER ME HE LELO!
             </h1>
             <div className="flex items-center gap-2">
               <Button
@@ -307,7 +307,7 @@ const Home = () => {
       {/* Footer */}
       <footer className="border-t bg-card mt-20">
         <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-8 text-center text-sm text-muted-foreground">
-          <p>Deal Striker - Automated Affiliate Deals Platform</p>
+          <p>Offer Me He Lelo! - Automated Affiliate Deals Platform</p>
           <p className="mt-2">Deals updated hourly from Amazon, Flipkart, and EarnKaro</p>
         </div>
       </footer>

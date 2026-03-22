@@ -48,8 +48,8 @@ const Contact = () => {
   return (
     <div className="min-h-screen noise-bg">
       <SEO
-        title="Contact Us | Deal Striker"
-        description="Get in touch with Deal Striker. Share product suggestions, request features, or report issues."
+        title="Contact Us | Offer Me He Lelo!"
+        description="Get in touch with Offer Me He Lelo!. Share product suggestions, request features, or report issues."
         url="/contact"
       />
 
@@ -65,7 +65,7 @@ const Contact = () => {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Home
           </Button>
-          <h1 className="text-2xl md:text-3xl font-black tracking-tight">DEAL STRIKER</h1>
+          <h1 className="text-2xl md:text-3xl font-black tracking-tight">OFFER ME HE LELO!</h1>
         </div>
       </header>
 
@@ -170,7 +170,7 @@ const Contact = () => {
           <div className="border rounded-none bg-card p-6">
             <div className="text-3xl mb-2">✨</div>
             <h3 className="font-bold mb-1">Feature Ideas</h3>
-            <p className="text-sm text-muted-foreground">Help us improve Deal Striker</p>
+            <p className="text-sm text-muted-foreground">Help us improve Offer Me He Lelo!</p>
           </div>
           <div className="border rounded-none bg-card p-6">
             <div className="text-3xl mb-2">⚠️</div>
@@ -183,7 +183,7 @@ const Contact = () => {
       {/* Footer */}
       <footer className="border-t bg-card mt-20">
         <div className="max-w-[800px] mx-auto px-4 md:px-8 py-8 text-center text-sm text-muted-foreground">
-          <p>Deal Striker - We value your feedback!</p>
+          <p>Offer Me He Lelo! - We value your feedback!</p>
         </div>
       </footer>
     </div>

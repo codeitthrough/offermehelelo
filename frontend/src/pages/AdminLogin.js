@@ -36,7 +36,7 @@ const AdminLogin = () => {
           <h1 className="text-3xl font-black text-center mb-2" data-testid="admin-login-title">
             ADMIN LOGIN
           </h1>
-          <p className="text-center text-muted-foreground text-sm mb-8">Deal Striker Dashboard</p>
+          <p className="text-center text-muted-foreground text-sm mb-8">Offer Me He Lelo! Dashboard</p>
 
           <form onSubmit={handleLogin} className="space-y-6">
             <div>

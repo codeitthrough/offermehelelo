@@ -146,7 +146,7 @@ const HomeEnhanced = () => {
   return (
     <div className="min-h-screen noise-bg">
       <SEO
-        title="Deal Striker - Best Deals & Discounts | Save Up to 80%"
+        title="Offer Me He Lelo! - Best Deals & Discounts | Save Up to 80%"
         description="Find the hottest deals from Amazon, Flipkart and more. Save big on electronics, fashion, home appliances. Updated hourly with smart deal scoring!"
         url="/"
       />
@@ -156,7 +156,7 @@ const HomeEnhanced = () => {
         <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-4">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl md:text-3xl font-black tracking-tight" data-testid="site-title">
-              DEAL STRIKER
+              OFFER ME HE LELO!
             </h1>
             <div className="flex items-center gap-2">
               <Button variant="ghost" size="icon" onClick={toggleTheme} data-testid="theme-toggle-btn">
@@ -343,7 +343,7 @@ const HomeEnhanced = () => {
         <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
-              <h3 className="font-black text-lg mb-4">DEAL STRIKER</h3>
+              <h3 className="font-black text-lg mb-4">OFFER ME HE LELO!</h3>
               <p className="text-sm text-muted-foreground">
                 Your trusted source for the best deals from Amazon, Flipkart, and more.
               </p>
@@ -372,7 +372,7 @@ const HomeEnhanced = () => {
             </div>
           </div>
           <div className="text-center mt-8 pt-8 border-t text-sm text-muted-foreground">
-            <p>Deal Striker - Automated Affiliate Deals Platform</p>
+            <p>Offer Me He Lelo! - Automated Affiliate Deals Platform</p>
             <p className="mt-2">Deals updated hourly • Smart scoring • Best prices guaranteed</p>
           </div>
         </div>

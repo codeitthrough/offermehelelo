@@ -33,7 +33,7 @@ const AdminLayout = ({ children }) => {
       {/* Sidebar */}
       <aside className="w-64 border-r bg-card flex flex-col" data-testid="admin-sidebar">
         <div className="p-6 border-b">
-          <h1 className="text-2xl font-black tracking-tight">DEAL STRIKER</h1>
+          <h1 className="text-2xl font-black tracking-tight">OFFER ME HE LELO!</h1>
           <p className="text-xs text-muted-foreground mt-1 uppercase tracking-wider">Admin Panel</p>
         </div>
 

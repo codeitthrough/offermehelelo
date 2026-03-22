@@ -1,4 +1,4 @@
-# Deal Striker - Affiliate Deals Website PRD
+# Offer Me He Lelo! - Affiliate Deals Website PRD
 
 ## Original Problem Statement
 Build a fully automated affiliate deals website with the following core features:
