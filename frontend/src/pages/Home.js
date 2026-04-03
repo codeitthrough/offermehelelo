@@ -49,10 +49,10 @@ const Home = () => {
     try {
       setLoading(true);
       const [allResponse, topResponse, trendingResponse, latestResponse] = await Promise.all([
-        axios.get(`${API}/deals?sort_by=score`),
-        axios.get(`${API}/deals/top?limit=12`),
-        axios.get(`${API}/deals/trending?limit=12`),
-        axios.get(`${API}/deals/latest?limit=12`)
+        axios.get(`${API}/deals?sort_by=score&limit=80`),
+        axios.get(`${API}/deals/top?limit=80`),
+        axios.get(`${API}/deals/trending?limit=80`),
+        axios.get(`${API}/deals/latest?limit=80`)
       ]);
       
       setDeals(allResponse.data);
