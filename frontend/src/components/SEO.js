@@ -9,11 +9,14 @@ const SEO = ({
   url,
   productData
 }) => {
-  const siteUrl = 'https://offermehelelo.onrender.com';
+  const siteUrl = 'https://offermehelelo.com';
   const fullUrl = url ? `${siteUrl}${url}` : siteUrl;
 
   return (
     <Helmet>
+      {/* chatgpt said for SEO fix */}
+      <link rel="canonical" href={url || "https://offermehelelo.com"} />
+
       {/* Basic Meta Tags */}
       <title>{title}</title>
       <meta name="description" content={description} />

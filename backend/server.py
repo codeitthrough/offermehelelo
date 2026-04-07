@@ -1316,6 +1316,7 @@ app.add_middleware(
     allow_origins=[
         "https://offermehelelo.vercel.app",
         "https://offermehelelo.com",
+        "https://www.offermehelelo.com",
         "http://localhost:3000"
     ],
     allow_credentials=True,
