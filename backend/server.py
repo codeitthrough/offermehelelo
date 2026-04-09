@@ -1093,10 +1093,27 @@ async def bulk_delete_deals(request: BulkDeleteRequest, username: str = Depends(
 
 # Platform Management endpoints
 @api_router.get("/platforms")
-async def get_platforms(active_only: bool = False):
-    """Get all platforms"""
+async def get_platforms(active_only: bool = False, has_content: bool = False):
+    """Get all platforms, optionally filtering for those that actually have deals or links"""
     query = {"is_active": True} if active_only else {}
     platforms = await db.platforms.find(query, {"_id": 0}).to_list(100)
+    
+    if has_content:
+        filtered_platforms = []
+        for p in platforms:
+            # Check if this platform has any active deals
+            deal_count = await db.deals.count_documents({"platform": p["name"], "is_active": True})
+            if deal_count > 0:
+                filtered_platforms.append(p)
+                continue
+            
+            # Check if this platform has any active browse links
+            link_count = await db.browse_links.count_documents({"platform": p["name"], "is_active": True})
+            if link_count > 0:
+                filtered_platforms.append(p)
+                
+        return filtered_platforms
+        
     return platforms
 
 @api_router.get("/admin/platforms", response_model=List[Platform])

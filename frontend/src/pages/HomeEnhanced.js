@@ -105,7 +105,8 @@ const HomeEnhanced = () => {
   
   const fetchActivePlatforms = async () => {
     try {
-      const response = await axios.get(`${API}/platforms?active_only=true`);
+      // Added &has_content=true so the backend only sends platforms with actual data
+      const response = await axios.get(`${API}/platforms?active_only=true&has_content=true`);
       setActivePlatforms(response.data);
     } catch (error) {}
   };
@@ -197,26 +198,35 @@ const HomeEnhanced = () => {
           </div>
         </header>
 
-        {/* Quick Links Sub-Header (Problem 1 Solved) */}
+        {/* Quick Links Sub-Header (Problems 1 & 2 Solved) */}
         <div className="bg-secondary/95 backdrop-blur border-b">
-          <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-3 flex flex-wrap items-center justify-between gap-4 text-sm">
-            <div className="flex flex-wrap items-center gap-4 md:gap-6">
-              <span className="font-bold uppercase tracking-wider text-xs text-muted-foreground">Quick Links:</span>
-              <a href="/deals/today-best-deals" className="font-semibold hover:text-accent transition-colors">Today's Best</a>
-              {/* Maps through active platforms to create internal filter buttons */}
-              {activePlatforms.slice(0, 5).map(p => (
+          <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-3 flex items-center justify-between gap-4 text-sm">
+            
+            {/* Left Side: Scrollable Quick Links */}
+            <div className="flex items-center gap-4 md:gap-6 overflow-x-auto scrollbar-hide whitespace-nowrap flex-grow">
+              <span className="font-bold uppercase tracking-wider text-xs text-muted-foreground sticky left-0 bg-secondary/95 pr-2 z-10">Quick Links:</span>
+              <a href="/deals/today-best-deals" className="font-semibold hover:text-accent transition-colors flex-shrink-0">Today's Best</a>
+              
+              {/* Maps through active platforms that actually have content */}
+              {activePlatforms.map(p => (
                 <button 
                   key={p.id} 
                   onClick={() => handlePlatformClick(p.name)} 
-                  className={`font-semibold transition-colors ${selectedPlatform === p.name ? 'text-accent' : 'hover:text-accent'}`}
+                  className={`font-semibold transition-colors flex-shrink-0 ${selectedPlatform === p.name ? 'text-accent' : 'hover:text-accent'}`}
                 >
                   {p.name} Deals
                 </button>
               ))}
             </div>
-            <a href="/contact" className="hover:text-accent flex items-center gap-1 font-bold text-xs uppercase tracking-wider transition-colors">
-              <MessageSquare className="h-4 w-4" /> Talk To Us
-            </a>
+
+            {/* Right Side: Fixed Contact Button */}
+            <div className="flex-shrink-0 pl-4 border-l border-border/50 bg-secondary/95 z-10">
+              <a href="/contact" className="hover:text-accent flex items-center gap-1.5 font-bold text-xs uppercase tracking-wider transition-colors">
+                <MessageSquare className="h-4 w-4" /> 
+                <span className="hidden sm:inline">Talk To Us</span>
+              </a>
+            </div>
+
           </div>
         </div>
       </div>
