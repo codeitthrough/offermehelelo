@@ -328,6 +328,8 @@ async def get_categories():
             cat['created_at'] = datetime.fromisoformat(cat['created_at'])
     return categories
 
+
+''' gemini comment
 @api_router.get("/deals", response_model=List[Deal])
 async def get_deals(
     category_id: Optional[str] = None,
@@ -365,6 +367,47 @@ async def get_deals(
             deal['category_name'] = category['name']
     
     return deals
+'''
+    
+#gemini said
+@api_router.get("/deals", response_model=List[Deal])
+async def get_deals(
+    category_id: Optional[str] = None,
+    subcategory: Optional[str] = None,
+    min_discount: Optional[int] = None,
+    platform: Optional[str] = None,
+    sort_by: Optional[str] = "score",
+    skip: int = 0,
+    limit: int = 20
+):
+    query = {"is_active": True}
+    if category_id:
+        query["category_id"] = category_id
+    if subcategory:
+        query["subcategory"] = subcategory
+    if min_discount:
+        query["discount_percentage"] = {"$gte": min_discount}
+    if platform:
+        query["platform"] = platform
+    
+    sort_field = "deal_score" if sort_by == "score" else "created_at" if sort_by == "date" else "discount_percentage"
+    sort_direction = -1 
+    
+    deals = await db.deals.find(query, {"_id": 0}).sort(sort_field, sort_direction).skip(skip).limit(limit).to_list(limit)
+    
+    for deal in deals:
+        if isinstance(deal.get('created_at'), str):
+            deal['created_at'] = datetime.fromisoformat(deal['created_at'])
+        if isinstance(deal.get('updated_at'), str):
+            deal['updated_at'] = datetime.fromisoformat(deal['updated_at'])
+        
+        category = await db.categories.find_one({"id": deal['category_id']}, {"_id": 0})
+        if category:
+            deal['category_name'] = category['name']
+    
+    return deals
+
+
 
 @api_router.get("/deals/top")
 async def get_top_deals(limit: int = 20):

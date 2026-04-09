@@ -14,14 +14,19 @@ const DealCard = ({ deal, section = 'general', page = 'home', onTrackClick }) =>
       className="deal-card border rounded-none bg-card overflow-hidden group"
       data-testid={`deal-card-${deal.id}`}
     >
-      <div className="relative overflow-hidden">
+      <div className="relative overflow-hidden w-full h-48 bg-secondary/40 animate-pulse">
         <img
           src={
             deal.image_url ||
             'https://images.unsplash.com/photo-1621534222671-05b508d16bb8?crop=entropy&cs=srgb&fm=jpg&q=85'
           }
           alt={deal.title}
-          className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+          loading="lazy"
+          className="w-full h-full object-cover transition-all duration-500 opacity-0 group-hover:scale-105"
+          onLoad={(e) => {
+            e.target.classList.remove('opacity-0');
+            e.target.parentElement.classList.remove('animate-pulse');
+          }}
         />
         
         {/* Discount Badge */}
