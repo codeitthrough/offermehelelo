@@ -163,6 +163,11 @@ const HomeEnhanced = () => {
       setIsFetchingMore(false);
     }
   };
+  
+  const handleCategoryChange = (catId) => {
+    setSelectedCategory(catId);
+    setSelectedSubcategory('all');
+  };
 
   const trackClick = async (dealId, productUrl, section, page) => {
     try {
