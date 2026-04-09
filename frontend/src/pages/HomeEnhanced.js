@@ -177,7 +177,7 @@ const HomeEnhanced = () => {
     <div className="min-h-screen noise-bg">
       <SEO title="Offer Me He Lelo! - Best Deals & Discounts" description="Find the hottest deals from Amazon, Flipkart and more." url="/" />
 
-      {/* FIXED HEADER WRAPPER (Problem 3 Solved) */}
+      {/* FIXED HEADER WRAPPER */}
       <div className="sticky top-0 z-50 w-full flex flex-col shadow-sm">
         {/* Main Header */}
         <header className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
@@ -186,7 +186,11 @@ const HomeEnhanced = () => {
               <h1 className="text-2xl md:text-3xl font-black tracking-tight cursor-pointer" onClick={() => { setSelectedPlatform(null); window.scrollTo({top:0, behavior:'smooth'}); }}>
                 OFFER ME HE LELO!
               </h1>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
+                <a href="/contact" className="hover:text-accent hidden sm:flex items-center gap-1.5 font-bold text-xs uppercase tracking-wider transition-colors mr-2">
+                  <MessageSquare className="h-4 w-4" /> 
+                  Talk To Us
+                </a>
                 <Button variant="ghost" size="icon" onClick={toggleTheme}>
                   {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
                 </Button>
@@ -198,16 +202,12 @@ const HomeEnhanced = () => {
           </div>
         </header>
 
-        {/* Quick Links Sub-Header (Problems 1 & 2 Solved) */}
-        <div className="bg-secondary/95 backdrop-blur border-b">
-          <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-3 flex items-center justify-between gap-4 text-sm">
-            
-            {/* Left Side: Scrollable Quick Links */}
-            <div className="flex items-center gap-4 md:gap-6 overflow-x-auto scrollbar-hide whitespace-nowrap flex-grow">
-              <span className="font-bold uppercase tracking-wider text-xs text-muted-foreground sticky left-0 bg-secondary/95 pr-2 z-10">Quick Links:</span>
+        {/* Sub-Header (Scrollable) */}
+        <div className="bg-secondary/95 backdrop-blur supports-[backdrop-filter]:bg-secondary/60 border-b">
+          <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-3">
+            <div className="flex items-center gap-6 overflow-x-auto scrollbar-hide whitespace-nowrap">
               <a href="/deals/today-best-deals" className="font-semibold hover:text-accent transition-colors flex-shrink-0">Today's Best</a>
               
-              {/* Maps through active platforms that actually have content */}
               {activePlatforms.map(p => (
                 <button 
                   key={p.id} 
@@ -218,15 +218,6 @@ const HomeEnhanced = () => {
                 </button>
               ))}
             </div>
-
-            {/* Right Side: Fixed Contact Button */}
-            <div className="flex-shrink-0 pl-4 border-l border-border/50 bg-secondary/95 z-10">
-              <a href="/contact" className="hover:text-accent flex items-center gap-1.5 font-bold text-xs uppercase tracking-wider transition-colors">
-                <MessageSquare className="h-4 w-4" /> 
-                <span className="hidden sm:inline">Talk To Us</span>
-              </a>
-            </div>
-
           </div>
         </div>
       </div>
@@ -236,11 +227,7 @@ const HomeEnhanced = () => {
         {/* CONDITIONAL VIEW RENDERING (Problem 2 Solved) */}
         {!selectedPlatform ? (
           <>
-            <div className="text-center mb-12">
-              <h2 className="text-4xl md:text-5xl font-black mb-4">Discover Amazing Deals</h2>
-              <p className="text-lg text-muted-foreground">Smart deal scoring • Hourly updates • Up to 80% off</p>
-            </div>
-
+            
             <DealSection title="🔥 Best Deals Today" icon={Flame} deals={bestDealsToday} loading={highlightsLoading} section="best-today" onTrackClick={trackClick} />
             <BrowseLinkTiles showTitle={true} maxLinks={12} scrollable={true} />
             <DealSection title="⚡ Lightning Deals" icon={Zap} deals={lightningDeals} loading={highlightsLoading} section="lightning" onTrackClick={trackClick} />
@@ -264,7 +251,7 @@ const HomeEnhanced = () => {
             {selectedPlatform ? `Filter ${selectedPlatform} Deals By Category` : 'Browse By Category'}
           </h2>
 
-          <div className="flex gap-2 overflow-x-auto pb-4 mb-4 scrollbar-hide">
+          <div className="flex gap-2 overflow-x-auto pb-4 mb-4 scrollbar-hide fade-edges">
             <button onClick={() => handleCategoryChange('all')} className={`px-6 py-2 text-xs font-bold uppercase tracking-widest whitespace-nowrap border rounded-lg transition-colors ${selectedCategory === 'all' ? 'bg-primary text-primary-foreground' : 'bg-background hover:bg-secondary'}`}>All Categories</button>
             {categories.map((cat) => (
               <button key={cat.id} onClick={() => handleCategoryChange(cat.id)} className={`px-6 py-2 text-xs font-bold uppercase tracking-widest whitespace-nowrap border rounded-lg transition-colors ${selectedCategory === cat.id ? 'bg-primary text-primary-foreground' : 'bg-background hover:bg-secondary'}`}>{cat.name}</button>
@@ -272,7 +259,7 @@ const HomeEnhanced = () => {
           </div>
 
           {subcategories.length > 0 && (
-            <div className="flex gap-2 overflow-x-auto pb-4 mb-4 scrollbar-hide">
+            <div className="flex gap-2 overflow-x-auto pb-4 mb-4 scrollbar-hide fade-edges">
               <button onClick={() => setSelectedSubcategory('all')} className={`px-4 py-1.5 text-xs font-bold uppercase tracking-wider whitespace-nowrap border rounded-lg transition-colors ${selectedSubcategory === 'all' ? 'bg-accent text-accent-foreground' : 'bg-background hover:bg-secondary/70'}`}>All</button>
               {subcategories.map((subcat) => (
                 <button key={subcat.id} onClick={() => setSelectedSubcategory(subcat.slug)} className={`px-4 py-1.5 text-xs font-bold uppercase tracking-wider whitespace-nowrap border rounded-lg transition-colors ${selectedSubcategory === subcat.slug ? 'bg-accent text-accent-foreground' : 'bg-background hover:bg-secondary/70'}`}>{subcat.name}</button>

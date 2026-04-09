@@ -75,7 +75,7 @@ const BrowseLinkTiles = ({ category = null, subcategory = null, platform = null,
         )}
       </div>
       <h4 className="text-sm font-semibold line-clamp-2 flex-grow">{link.title}</h4>
-      {link.offer_text && <p className="text-xs text-accent font-bold mt-2">{link.offer_text}</p>}
+      {link.offer_text && <p className="text-xs text-emerald-600 dark:text-emerald-400 font-bold mt-2">{link.offer_text}</p>}
       <div className="flex items-center gap-1 text-xs font-semibold text-muted-foreground mt-2 group-hover:text-foreground transition-colors">
         <span>Browse</span>
         <ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
@@ -88,7 +88,7 @@ const BrowseLinkTiles = ({ category = null, subcategory = null, platform = null,
       {showTitle && <h3 className="text-lg font-bold uppercase tracking-tight mb-4">Shop by Store {platform && `for ${platform}`}</h3>}
       
       {scrollable ? (
-        <div className="flex overflow-x-auto gap-3 pb-4 scrollbar-hide snap-x">
+        <div className="flex overflow-x-auto gap-3 pb-4 scrollbar-hide snap-x fade-edges">
           {links.map((link) => (
             <button
               key={link.id}

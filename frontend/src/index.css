@@ -17,7 +17,7 @@ code {
 
 @layer base {
     :root {
-        --background: 0 0% 98%;
+        --background: 0 0% 96%; /* Deeper off-white (gray-100) */
         --foreground: 240 5% 15%;
         --card: 0 0% 100%;
         --card-foreground: 240 5% 15%;
@@ -25,22 +25,22 @@ code {
         --popover-foreground: 240 5% 15%;
         --primary: 240 5% 15%;
         --primary-foreground: 0 0% 98%;
-        --secondary: 240 5% 94%;
+        --secondary: 240 5% 92%; /* Slightly darker secondary for contrast */
         --secondary-foreground: 240 5% 15%;
-        --muted: 240 5% 94%;
+        --muted: 240 5% 92%;
         --muted-foreground: 240 4% 46%;
-        --accent: 43 96% 56%; /* Warm Amber instead of Neon Yellow */
+        --accent: 43 96% 56%;
         --accent-foreground: 24 10% 10%;
         --destructive: 0 84% 60%;
         --destructive-foreground: 0 0% 98%;
-        --border: 240 6% 90%;
-        --input: 240 6% 90%;
+        --border: 240 6% 86%; /* Darker borders so cards pop more */
+        --input: 240 6% 86%;
         --ring: 240 5% 15%;
-        --radius: 0.75rem; /* Modern rounded corners universally */
+        --radius: 0.75rem;
     }
     .dark {
-        --background: 222 14% 9%; /* Premium deep slate, not pure black */
-        --foreground: 210 20% 98%; /* Off-white text for readability */
+        --background: 222 14% 9%;
+        --foreground: 210 20% 98%;
         --card: 222 14% 12%;
         --card-foreground: 210 20% 98%;
         --popover: 222 14% 12%;
@@ -51,7 +51,7 @@ code {
         --secondary-foreground: 210 20% 98%;
         --muted: 215 14% 16%;
         --muted-foreground: 215 14% 65%;
-        --accent: 43 96% 56%; /* Accent stays amber for pop */
+        --accent: 43 96% 56%; 
         --accent-foreground: 222 14% 9%;
         --destructive: 0 62% 30%;
         --destructive-foreground: 210 20% 98%;
@@ -90,12 +90,17 @@ code {
         z-index: -1;
     }
     
-    /* Kill the ugly scrollbars */
     .scrollbar-hide::-webkit-scrollbar {
         display: none;
     }
     .scrollbar-hide {
         -ms-overflow-style: none;
         scrollbar-width: none;
+    }
+    
+    /* This creates the visual illusion of more content to scroll */
+    .fade-edges {
+        -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
+        mask-image: linear-gradient(to right, black 85%, transparent 100%);
     }
 }

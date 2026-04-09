@@ -74,18 +74,6 @@ const DealCard = ({ deal, section = 'general', page = 'home', onTrackClick }) =>
           </p>
         )}
         
-        {deal.deal_score > 0 && (
-          <div className="mb-4 flex items-center gap-2">
-            <div className="flex-1 bg-secondary rounded-full h-1.5 overflow-hidden">
-              <div
-                className="h-full bg-accent transition-all duration-300 rounded-full"
-                style={{ width: `${Math.min(deal.deal_score, 100)}%` }}
-              ></div>
-            </div>
-            <span className="text-xs font-bold text-muted-foreground">{deal.deal_score.toFixed(0)}</span>
-          </div>
-        )}
-        
         <a
           href={deal.affiliate_link}
           target="_blank"
