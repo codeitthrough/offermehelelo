@@ -50,6 +50,7 @@ const HomeEnhanced = () => {
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   const observer = useRef();
+  const fetchIdRef = useRef(0);
 
   useEffect(() => {
     fetchCategories();
@@ -136,6 +137,9 @@ const HomeEnhanced = () => {
   };
 
   const fetchCategoryDeals = async (pageNum, isNewFilter = false) => {
+    // Increment the ID for this specific fetch request
+    const currentFetchId = ++fetchIdRef.current;
+    
     try {
       if (isNewFilter) setGridLoading(true);
       else setIsFetchingMore(true);
@@ -144,16 +148,24 @@ const HomeEnhanced = () => {
       if (selectedCategory !== 'all') url += `&category_id=${selectedCategory}`;
       if (selectedSubcategory !== 'all') url += `&subcategory=${selectedSubcategory}`;
       if (minDiscount > 0) url += `&min_discount=${minDiscount}`;
-      if (selectedPlatform) url += `&platform=${selectedPlatform}`; // Native backend filter
+      if (selectedPlatform) url += `&platform=${selectedPlatform}`;
       
       const response = await axios.get(url);
-      const newData = response.data;
       
+      // CRITICAL FIX: If the user clicked another category while this was fetching, 
+      // the fetchIdRef.current will have changed. Abort state update.
+      if (currentFetchId !== fetchIdRef.current) return;
+      
+      const newData = response.data;
       if (newData.length < 12) setHasMore(false);
       setCategoryDeals(prev => isNewFilter ? newData : [...prev, ...newData]);
-    } catch (error) {} finally {
-      setGridLoading(false);
-      setIsFetchingMore(false);
+    } catch (error) {
+    } finally {
+      // Only clear loading states if this is still the active request
+      if (currentFetchId === fetchIdRef.current) {
+        setGridLoading(false);
+        setIsFetchingMore(false);
+      }
     }
   };
 
@@ -203,7 +215,7 @@ const HomeEnhanced = () => {
         </header>
 
         {/* Sub-Header (Scrollable) */}
-        <div className="bg-secondary/95 backdrop-blur supports-[backdrop-filter]:bg-secondary/60 border-b">
+        <div className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
           <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-3">
             <div className="flex items-center gap-6 overflow-x-auto scrollbar-hide whitespace-nowrap">
               <a href="/deals/today-best-deals" className="font-semibold hover:text-accent transition-colors flex-shrink-0">Today's Best</a>

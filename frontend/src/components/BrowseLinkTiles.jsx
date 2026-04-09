@@ -74,7 +74,7 @@ const BrowseLinkTiles = ({ category = null, subcategory = null, platform = null,
           <span className="text-xs font-bold bg-secondary px-2 py-0.5 rounded">{link.platform}</span>
         )}
       </div>
-      <h4 className="text-sm font-semibold line-clamp-2 flex-grow">{link.title}</h4>
+      <h4 className="text-base font-bold line-clamp-2 flex-grow">{link.title}</h4>
       {link.offer_text && <p className="text-xs text-emerald-600 dark:text-emerald-400 font-bold mt-2">{link.offer_text}</p>}
       <div className="flex items-center gap-1 text-xs font-semibold text-muted-foreground mt-2 group-hover:text-foreground transition-colors">
         <span>Browse</span>
