@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { API } from '@/App';
-import { Flame, Zap, TrendingDown, TrendingUp, Moon, Sun, Filter, MessageSquare } from 'lucide-react';
+import { Flame, Zap, TrendingDown, TrendingUp, Moon, Sun, Filter, MessageSquare, ArrowUp } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/button';
 import {
@@ -36,6 +36,9 @@ const HomeEnhanced = () => {
   const [topDeal, setTopDeal] = useState(null);
   const [highlightsLoading, setHighlightsLoading] = useState(true);
 
+  // Dynamic Platforms for Quick Links
+  const [activePlatforms, setActivePlatforms] = useState([]);
+
   // Infinite Scroll & Grid States
   const [categoryDeals, setCategoryDeals] = useState([]);
   const [page, setPage] = useState(0);
@@ -43,18 +46,28 @@ const HomeEnhanced = () => {
   const [gridLoading, setGridLoading] = useState(true);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [minTimePassed, setMinTimePassed] = useState(false);
+  
+  // Back to Top State
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
   const observer = useRef();
 
   useEffect(() => {
     fetchCategories();
     fetchHighlights();
-    // Start minimum loading timer to prevent UI flash
+    fetchActivePlatforms();
+    
     const timer = setTimeout(() => setMinTimePassed(true), 800);
-    return () => clearTimeout(timer);
+    
+    const handleScroll = () => setShowScrollTop(window.scrollY > 500);
+    window.addEventListener('scroll', handleScroll);
+    
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
-  // Reset grid when filters change
   useEffect(() => {
     setPage(0);
     setCategoryDeals([]);
@@ -62,11 +75,8 @@ const HomeEnhanced = () => {
     fetchCategoryDeals(0, true);
   }, [selectedCategory, selectedSubcategory, minDiscount]);
 
-  // Fetch more when page changes
   useEffect(() => {
-    if (page > 0) {
-      fetchCategoryDeals(page, false);
-    }
+    if (page > 0) fetchCategoryDeals(page, false);
   }, [page]);
 
   useEffect(() => {
@@ -83,9 +93,7 @@ const HomeEnhanced = () => {
     if (observer.current) observer.current.disconnect();
     
     observer.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && hasMore) {
-        setPage(prevPage => prevPage + 1);
-      }
+      if (entries[0].isIntersecting && hasMore) setPage(prevPage => prevPage + 1);
     });
     
     if (node) observer.current.observe(node);
@@ -95,9 +103,14 @@ const HomeEnhanced = () => {
     try {
       const response = await axios.get(`${API}/categories`);
       setCategories(response.data);
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-    }
+    } catch (error) {}
+  };
+  
+  const fetchActivePlatforms = async () => {
+    try {
+      const response = await axios.get(`${API}/platforms?active_only=true`);
+      setActivePlatforms(response.data);
+    } catch (error) {}
   };
 
   const fetchSubcategories = async (categoryId) => {
@@ -125,9 +138,7 @@ const HomeEnhanced = () => {
       setTrendingDeals(trendingRes.data);
       
       if (bestRes.data.length > 0) setTopDeal(bestRes.data[0]);
-    } catch (error) {
-      console.error('Error fetching highlights:', error);
-    } finally {
+    } catch (error) {} finally {
       setHighlightsLoading(false);
     }
   };
@@ -138,7 +149,6 @@ const HomeEnhanced = () => {
       else setIsFetchingMore(true);
 
       let url = `${API}/deals?sort_by=score&skip=${pageNum * 12}&limit=12`;
-      
       if (selectedCategory !== 'all') url += `&category_id=${selectedCategory}`;
       if (selectedSubcategory !== 'all') url += `&subcategory=${selectedSubcategory}`;
       if (minDiscount > 0) url += `&min_discount=${minDiscount}`;
@@ -148,32 +158,18 @@ const HomeEnhanced = () => {
       
       if (newData.length < 12) setHasMore(false);
       setCategoryDeals(prev => isNewFilter ? newData : [...prev, ...newData]);
-      
-    } catch (error) {
-      console.error('Error fetching category deals:', error);
-    } finally {
+    } catch (error) {} finally {
       setGridLoading(false);
       setIsFetchingMore(false);
     }
   };
 
-  const handleCategoryChange = (catId) => {
-    setSelectedCategory(catId);
-    setSelectedSubcategory('all');
-  };
-
   const trackClick = async (dealId, productUrl, section, page) => {
     try {
-      await axios.post(`${API}/track/click`, {
-        deal_id: dealId,
-        product_url: productUrl,
-        section,
-        page,
-      });
+      await axios.post(`${API}/track/click`, { deal_id: dealId, product_url: productUrl, section, page });
     } catch (error) {}
   };
 
-  // UX Logic evaluations
   const showEmptyState = !gridLoading && minTimePassed && categoryDeals.length === 0;
 
   return (
@@ -184,27 +180,42 @@ const HomeEnhanced = () => {
         url="/"
       />
 
+      {/* Main Header */}
       <header className="sticky-header glassmorphism border-b">
         <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl md:text-3xl font-black tracking-tight" data-testid="site-title">
+            <h1 className="text-2xl md:text-3xl font-black tracking-tight cursor-pointer" onClick={() => window.scrollTo({top:0, behavior:'smooth'})}>
               OFFER ME HE LELO!
             </h1>
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" onClick={toggleTheme} data-testid="theme-toggle-btn">
+              <Button variant="ghost" size="icon" onClick={toggleTheme}>
                 {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
               </Button>
-              <Button
-                variant="outline"
-                onClick={() => (window.location.href = '/admin/login')}
-                className="uppercase text-xs font-semibold tracking-widest"
-              >
+              <Button variant="outline" onClick={() => (window.location.href = '/admin/login')} className="uppercase text-xs font-semibold tracking-widest">
                 Admin
               </Button>
             </div>
           </div>
         </div>
       </header>
+
+      {/* Sub-Header: Quick Links (Fix for infinite scroll hiding footer links) */}
+      <div className="bg-secondary/30 border-b">
+        <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-3 flex flex-wrap items-center justify-between gap-4 text-sm">
+          <div className="flex flex-wrap items-center gap-4 md:gap-6">
+            <span className="font-bold uppercase tracking-wider text-xs text-muted-foreground">Quick Links:</span>
+            <a href="/deals/today-best-deals" className="font-semibold hover:text-accent transition-colors">Today's Best</a>
+            {activePlatforms.slice(0, 5).map(p => (
+              <a key={p.id} href={p.affiliate_link} target="_blank" rel="noopener noreferrer" className="font-semibold hover:text-accent transition-colors">
+                {p.name} Deals
+              </a>
+            ))}
+          </div>
+          <a href="/contact" className="hover:text-accent flex items-center gap-1 font-bold text-xs uppercase tracking-wider transition-colors">
+            <MessageSquare className="h-4 w-4" /> Talk To Us
+          </a>
+        </div>
+      </div>
 
       <main className="max-w-[1600px] mx-auto px-4 md:px-8 py-8">
         <div className="text-center mb-12">
@@ -213,11 +224,15 @@ const HomeEnhanced = () => {
         </div>
 
         <DealSection title="🔥 Best Deals Today" icon={Flame} deals={bestDealsToday} loading={highlightsLoading} section="best-today" onTrackClick={trackClick} />
-        <BrowseLinkTiles showTitle={true} maxLinks={6} />
+        
+        {/* Top Browse Links: Scrollable, max 12 */}
+        <BrowseLinkTiles showTitle={true} maxLinks={12} scrollable={true} />
+        
         <DealSection title="⚡ Lightning Deals" icon={Zap} deals={lightningDeals} loading={highlightsLoading} section="lightning" onTrackClick={trackClick} />
         <DealSection title="📉 Biggest Price Drops" icon={TrendingDown} deals={priceDrops} loading={highlightsLoading} section="price-drops" onTrackClick={trackClick} />
         <DealSection title="📈 Trending Deals" icon={TrendingUp} deals={trendingDeals} loading={highlightsLoading} section="trending-24h" onTrackClick={trackClick} />
 
+        {/* Wraps natively */}
         <PlatformTiles />
 
         <section className="py-8 mt-8 border-t">
@@ -256,9 +271,11 @@ const HomeEnhanced = () => {
             </Select>
           </div>
 
-          {selectedCategory !== 'all' && <BrowseLinkTiles category={selectedCategory} subcategory={selectedSubcategory !== 'all' ? selectedSubcategory : null} showTitle={true} maxLinks={4} />}
+          {/* Bottom Browse Links: Wrapping grid, unlimited */}
+          {selectedCategory !== 'all' && (
+            <BrowseLinkTiles category={selectedCategory} subcategory={selectedSubcategory !== 'all' ? selectedSubcategory : null} showTitle={true} maxLinks={100} scrollable={false} />
+          )}
 
-          {/* DYNAMIC GRID WITH INFINITE SCROLL */}
           {gridLoading ? (
             <>
               <LoadingMessages />
@@ -276,7 +293,6 @@ const HomeEnhanced = () => {
                   );
                 })}
               </div>
-              
               {isFetchingMore && (
                 <div className="py-8 text-center animate-pulse">
                   <span className="text-sm font-bold tracking-widest uppercase text-muted-foreground">Fetching more deals...</span>
@@ -285,7 +301,6 @@ const HomeEnhanced = () => {
             </>
           )}
 
-          {/* CONDITIONAL EMPTY STATE FLASH FIX */}
           {showEmptyState && (
              <div className="text-center py-20 animate-in fade-in duration-500">
                <h3 className="text-2xl font-bold mb-2">No deals found right now.</h3>
@@ -295,31 +310,25 @@ const HomeEnhanced = () => {
         </section>
       </main>
 
+      {/* Kept minimal footer since vital links moved to top */}
       <footer className="border-t bg-card mt-20">
-        <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div>
-              <h3 className="font-black text-lg mb-4">OFFER ME HE LELO!</h3>
-              <p className="text-sm text-muted-foreground">Your trusted source for the best deals from Amazon, Flipkart, and more.</p>
-            </div>
-            <div>
-              <h4 className="font-bold text-sm uppercase tracking-wider mb-4">Quick Links</h4>
-              <ul className="space-y-2 text-sm">
-                <li><a href="/deals/today-best-deals" className="text-muted-foreground hover:text-foreground">Today's Best</a></li>
-                <li><a href="/deals/best-amazon-deals" className="text-muted-foreground hover:text-foreground">Amazon Deals</a></li>
-                <li><a href="/deals/best-flipkart-deals" className="text-muted-foreground hover:text-foreground">Flipkart Deals</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-bold text-sm uppercase tracking-wider mb-4">Support</h4>
-              <ul className="space-y-2 text-sm">
-                <li><a href="/contact" className="text-muted-foreground hover:text-foreground flex items-center gap-1"><MessageSquare className="h-3 w-3" /> Talk To Us</a></li>
-              </ul>
-            </div>
-          </div>
+        <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-8 text-center text-sm text-muted-foreground">
+          <p className="font-bold">OFFER ME HE LELO!</p>
+          <p className="mt-2">Deals updated hourly • Smart scoring • Best prices guaranteed</p>
         </div>
       </footer>
+
       <StickyDealButton deal={topDeal} onTrackClick={trackClick} />
+
+      {/* Floating Back to Top Button */}
+      {showScrollTop && (
+        <Button
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="fixed bottom-24 md:bottom-8 right-8 rounded-full shadow-2xl z-50 h-12 w-12 p-0 bg-accent hover:bg-accent/90"
+        >
+          <ArrowUp className="h-6 w-6 text-white" />
+        </Button>
+      )}
     </div>
   );
 };
