@@ -3,16 +3,17 @@ import axios from 'axios';
 import { API } from '@/App';
 import { ArrowRight } from 'lucide-react';
 
-const BrowseLinkTiles = ({ category = null, subcategory = null, showTitle = true, maxLinks = 100, scrollable = false }) => {
+const BrowseLinkTiles = ({ category = null, subcategory = null, platform = null, showTitle = true, maxLinks = 100, scrollable = false }) => {
   const [links, setLinks] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchBrowseLinks();
-  }, [category, subcategory]);
+  }, [category, subcategory, platform]);
 
   const fetchBrowseLinks = async () => {
     try {
+      setLoading(true);
       let url = `${API}/browse-links`;
       const params = new URLSearchParams();
       if (category) params.append('category', category);
@@ -20,7 +21,16 @@ const BrowseLinkTiles = ({ category = null, subcategory = null, showTitle = true
       if (params.toString()) url += `?${params.toString()}`;
       
       const response = await axios.get(url);
-      setLinks(response.data.slice(0, maxLinks));
+      let fetchedLinks = response.data;
+      
+      // Frontend override: Filter by platform if active
+      if (platform) {
+        fetchedLinks = fetchedLinks.filter(link => 
+          link.platform && link.platform.toLowerCase() === platform.toLowerCase()
+        );
+      }
+      
+      setLinks(fetchedLinks.slice(0, maxLinks));
     } catch (error) {
       console.error('Error fetching browse links:', error);
     } finally {
@@ -46,7 +56,7 @@ const BrowseLinkTiles = ({ category = null, subcategory = null, showTitle = true
         {showTitle && <h3 className="text-lg font-bold uppercase tracking-tight mb-4">Shop by Store</h3>}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="h-24 bg-secondary/50 animate-pulse rounded-sm"></div>
+            <div key={i} className="h-24 bg-secondary/50 animate-pulse rounded-xl"></div>
           ))}
         </div>
       </section>
@@ -75,7 +85,7 @@ const BrowseLinkTiles = ({ category = null, subcategory = null, showTitle = true
 
   return (
     <section className="py-6">
-      {showTitle && <h3 className="text-lg font-bold uppercase tracking-tight mb-4">Shop by Store</h3>}
+      {showTitle && <h3 className="text-lg font-bold uppercase tracking-tight mb-4">Shop by Store {platform && `for ${platform}`}</h3>}
       
       {scrollable ? (
         <div className="flex overflow-x-auto gap-3 pb-4 scrollbar-hide snap-x">
@@ -83,7 +93,7 @@ const BrowseLinkTiles = ({ category = null, subcategory = null, showTitle = true
             <button
               key={link.id}
               onClick={() => handleClick(link)}
-              className="min-w-[160px] md:min-w-[200px] flex-shrink-0 snap-start browse-link-tile group border rounded-sm bg-card hover:bg-secondary/50 transition-all duration-300 hover:shadow-md overflow-hidden text-left"
+              className="min-w-[160px] md:min-w-[200px] flex-shrink-0 snap-start browse-link-tile group border rounded-xl bg-card hover:bg-secondary/50 transition-all duration-300 hover:shadow-md overflow-hidden text-left"
             >
               <TileContent link={link} />
             </button>
@@ -95,7 +105,7 @@ const BrowseLinkTiles = ({ category = null, subcategory = null, showTitle = true
             <button
               key={link.id}
               onClick={() => handleClick(link)}
-              className="browse-link-tile group border rounded-sm bg-card hover:bg-secondary/50 transition-all duration-300 hover:shadow-md overflow-hidden text-left"
+              className="browse-link-tile group border rounded-xl bg-card hover:bg-secondary/50 transition-all duration-300 hover:shadow-md overflow-hidden text-left"
             >
               <TileContent link={link} />
             </button>
