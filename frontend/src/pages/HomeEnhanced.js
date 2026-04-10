@@ -169,13 +169,13 @@ const HomeEnhanced = () => {
   const showEmptyState = !gridLoading && minTimePassed && categoryDeals.length === 0;
 
   // FMCG Intent Mapper Helper
-  const getIntentPill = (name) => {
+  const getCategoryPill = (name) => {
     const nameStr = name.toLowerCase();
-    if (nameStr.includes('electronic') || nameStr.includes('laptop') || nameStr.includes('mobile')) return `⚡ Tech Stock-Up`;
-    if (nameStr.includes('fashion') || nameStr.includes('wearable') || nameStr.includes('shoe')) return `👗 Style Essentials`;
-    if (nameStr.includes('home') || nameStr.includes('kitchen')) return `🏠 Home Upgrades`;
-    if (nameStr.includes('personal') || nameStr.includes('health')) return `✨ Daily Care`;
-    return `🔥 ${name} Deals`;
+    if (nameStr.includes('electronic') || nameStr.includes('laptop') || nameStr.includes('mobile')) return `⚡ ${name}`;
+    if (nameStr.includes('fashion') || nameStr.includes('wearable') || nameStr.includes('shoe')) return `👗 ${name}`;
+    if (nameStr.includes('home') || nameStr.includes('kitchen')) return `🏠 ${name}`;
+    if (nameStr.includes('personal') || nameStr.includes('health')) return `✨ ${name}`;
+    return `🔥 ${name}`;
   };
 
   return (
@@ -248,15 +248,24 @@ const HomeEnhanced = () => {
 
         <section className="py-8 mt-4 border-t">
           <h2 className="text-2xl font-black uppercase tracking-tight mb-6">
-            {selectedPlatform ? `Filter ${selectedPlatform} By Intent` : 'Shop By Intent'}
+            {selectedPlatform ? `Filter ${selectedPlatform} By Category` : 'Browse By Category'}
           </h2>
 
-          {/* INTENT PILLS (Phase 3) */}
+          {/* CATEGORY PILLS */}
           <div className="flex gap-2 overflow-x-auto pb-4 mb-4 scrollbar-hide fade-edges">
-            <button onClick={() => handleCategoryChange('all')} className={`px-5 py-2.5 text-xs font-black uppercase tracking-widest whitespace-nowrap border-2 rounded-full transition-all active:scale-95 ${selectedCategory === 'all' ? 'border-accent bg-accent/10 text-accent-foreground' : 'border-border/50 bg-background hover:border-accent/50'}`}>🌐 All Deals</button>
+            <button 
+              onClick={() => handleCategoryChange('all')} 
+              className={`px-5 py-2.5 text-xs font-black uppercase tracking-widest whitespace-nowrap border-2 rounded-full transition-all active:scale-95 ${selectedCategory === 'all' ? 'border-accent bg-accent text-black' : 'border-border/50 bg-background hover:border-accent/50 text-foreground'}`}
+            >
+              🌐 All Categories
+            </button>
             {categories.map((cat) => (
-              <button key={cat.id} onClick={() => handleCategoryChange(cat.id)} className={`px-5 py-2.5 text-xs font-black uppercase tracking-widest whitespace-nowrap border-2 rounded-full transition-all active:scale-95 ${selectedCategory === cat.id ? 'border-accent bg-accent/10 text-accent-foreground' : 'border-border/50 bg-background hover:border-accent/50'}`}>
-                {getIntentPill(cat.name)}
+              <button 
+                key={cat.id} 
+                onClick={() => handleCategoryChange(cat.id)} 
+                className={`px-5 py-2.5 text-xs font-black uppercase tracking-widest whitespace-nowrap border-2 rounded-full transition-all active:scale-95 ${selectedCategory === cat.id ? 'border-accent bg-accent text-black' : 'border-border/50 bg-background hover:border-accent/50 text-foreground'}`}
+              >
+                {getCategoryPill(cat.name)}
               </button>
             ))}
           </div>

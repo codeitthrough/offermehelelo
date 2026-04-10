@@ -9,16 +9,13 @@ const DealCard = ({ deal, section = 'general', page = 'home', onTrackClick }) =>
     if (onTrackClick) onTrackClick(deal.id, deal.product_url || deal.affiliate_link, section, page);
   };
 
-  // TRUST PROXIES (Amazon Style)
-  const starRating = deal.deal_score ? (deal.deal_score / 20).toFixed(1) : 4.5;
-  const reviewCount = deal.id ? parseInt(deal.id.replace(/\D/g, '')) % 800 + 45 : 124;
-
-  // SCARCITY TRIGGER (Ajio Style)
-  const isSellingFast = deal.discount_percentage >= 75;
+  // SCARCITY TRIGGER: Discount >= 85% AND rating between 4.0 and 4.5
+  const isSellingFast = deal.discount_percentage >= 85 && deal.rating >= 4.0 && deal.rating <= 4.5;
 
   return (
     <div className="deal-card border rounded-2xl bg-card shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden group flex flex-col h-full">
-      <div className="relative overflow-hidden w-full h-48 bg-secondary/40 shrink-0">
+      {/* INCREASED IMAGE HEIGHT: h-64 instead of h-48 */}
+      <div className="relative overflow-hidden w-full h-64 bg-secondary/40 shrink-0">
         <img
           src={deal.image_url || 'https://images.unsplash.com/photo-1621534222671-05b508d16bb8?crop=entropy&cs=srgb&fm=jpg&q=85'}
           alt={deal.title}
@@ -52,15 +49,20 @@ const DealCard = ({ deal, section = 'general', page = 'home', onTrackClick }) =>
           {deal.title}
         </h3>
         
-        <div className="flex items-center gap-1.5 mb-3">
-          <div className="flex items-center text-amber-500">
-            <span className="font-bold text-sm mr-1">{starRating}</span>
-            <Star className="h-3.5 w-3.5 fill-current" />
+        {/* AUTHENTIC RATINGS (Only shows if data exists in DB) */}
+        {deal.rating && (
+          <div className="flex items-center gap-1.5 mb-3">
+            <div className="flex items-center text-amber-500">
+              <span className="font-bold text-sm mr-1">{deal.rating.toFixed(1)}</span>
+              <Star className="h-3.5 w-3.5 fill-current" />
+            </div>
+            {deal.review_count && (
+              <span className="text-xs text-blue-600 dark:text-blue-400 font-semibold hover:underline cursor-pointer">
+                ({deal.review_count.toLocaleString()} verified)
+              </span>
+            )}
           </div>
-          <span className="text-xs text-blue-600 dark:text-blue-400 font-semibold hover:underline cursor-pointer">
-            ({reviewCount} verified)
-          </span>
-        </div>
+        )}
         
         <div className="flex items-baseline gap-2 mb-2">
           <span className="text-2xl font-black text-foreground">₹{deal.discounted_price.toLocaleString()}</span>
@@ -91,7 +93,6 @@ const DealCard = ({ deal, section = 'general', page = 'home', onTrackClick }) =>
           </div>
         )}
         
-        {/* FITTS'S LAW: 48px touch target */}
         <a
           href={deal.affiliate_link}
           target="_blank"

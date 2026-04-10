@@ -71,6 +71,8 @@ class Deal(BaseModel):
     product_url: Optional[str] = None
     platform: str
     is_active: bool = True
+    rating: Optional[float] = None          # ADD THIS LINE
+    review_count: Optional[int] = None      # ADD THIS LINE
     created_at: datetime
     updated_at: datetime
 
@@ -83,6 +85,8 @@ class DealCreate(BaseModel):
     discounted_price: float
     affiliate_link: str
     platform: str
+    rating: Optional[float] = None
+    review_count: Optional[int] = None
 
 class DealUpdate(BaseModel):
     title: Optional[str] = None
@@ -1050,6 +1054,8 @@ async def bulk_upload_deals(file: UploadFile, username: str = Depends(verify_tok
                     "affiliate_link": str(row['affiliate_link']),
                     "product_url": str(row['affiliate_link']),
                     "platform": str(row['platform']),
+                    "rating": float(row['rating']) if 'rating' in df.columns and not pd.isna(row['rating']) else None,             # ADD THIS LINE
+                    "review_count": int(row['review_count']) if 'review_count' in df.columns and not pd.isna(row['review_count']) else None, # ADD THIS LINE
                     "is_active": True,
                     "created_at": now,
                     "updated_at": now
