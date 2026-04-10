@@ -192,20 +192,22 @@ const HomeEnhanced = () => {
     <div className="min-h-screen noise-bg pb-safe md:pb-0">
       <SEO title="Offer Me He Lelo! - Best Deals" description="Find the hottest deals. Updated hourly!" url="/" />
 
-      {/* AIRY HEADER (Phase 2) - Removed strict borders, uses soft blur */}
+      {/* AIRY HEADER (Phase 2) */}
       <div className="sticky top-0 z-50 w-full flex flex-col shadow-sm">
         <header className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-4">
             <div className="flex items-center justify-between">
-              <h1 className="text-2xl md:text-3xl font-black tracking-tight cursor-pointer" onClick={() => { setSelectedPlatform(null); window.scrollTo({top:0, behavior:'smooth'}); }}>
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight cursor-pointer" onClick={() => { setSelectedPlatform(null); window.scrollTo({top:0, behavior:'smooth'}); }}>
                 OFFER ME HE LELO!
               </h1>
-              <div className="flex items-center gap-3">
-                <a href="/contact" className="hover:text-accent hidden sm:flex items-center gap-1.5 font-bold text-xs uppercase tracking-wider transition-colors mr-2">
-                  <MessageSquare className="h-4 w-4" /> Talk To Us
+              <div className="flex items-center gap-2 sm:gap-3">
+                {/* This is now visible on mobile & desktop */}
+                <a href="/contact" className="hover:text-accent flex items-center gap-1 sm:gap-1.5 font-bold text-[10px] sm:text-xs uppercase tracking-wider transition-colors mr-1 sm:mr-2">
+                  <MessageSquare className="h-4 w-4" /> 
+                  <span className="hidden min-[380px]:inline">Talk To Us</span>
                 </a>
-                <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-full">
-                  {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-full h-8 w-8 sm:h-10 sm:w-10">
+                  {theme === 'dark' ? <Sun className="h-4 w-4 sm:h-5 sm:w-5" /> : <Moon className="h-4 w-4 sm:h-5 sm:w-5" />}
                 </Button>
                 <Button variant="outline" onClick={() => (window.location.href = '/admin/login')} className="uppercase text-xs font-bold tracking-widest rounded-full hidden sm:flex">
                   Login
@@ -215,21 +217,20 @@ const HomeEnhanced = () => {
           </div>
         </header>
 
-        {/* Scrollable Quick Links */}
+        {/* Scrollable Quick Links (Contact button removed from here) */}
         <div className="bg-secondary/95 backdrop-blur supports-[backdrop-filter]:bg-secondary/60 border-b border-t border-border/50">
-          <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-3 flex items-center justify-between gap-4 text-sm">
-            <div className="flex items-center gap-4 md:gap-6 overflow-x-auto scrollbar-hide whitespace-nowrap flex-grow fade-edges">
+          <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-3">
+            <div className="flex items-center gap-4 md:gap-6 overflow-x-auto scrollbar-hide whitespace-nowrap fade-edges transition-all" onScroll={handleScrollMask}>
               <a href="/deals/today-best-deals" className="font-bold text-xs uppercase tracking-wider hover:text-accent transition-colors flex-shrink-0">Today's Best</a>
               {activePlatforms.map(p => (
-                <button key={p.id} onClick={() => handlePlatformClick(p.name)} className={`font-bold text-xs uppercase tracking-wider transition-colors flex-shrink-0 ${selectedPlatform === p.name ? 'text-accent' : 'hover:text-accent'}`}>
+                <button 
+                  key={p.id} 
+                  onClick={() => handlePlatformClick(p.name)} 
+                  className={`font-bold text-xs uppercase tracking-wider transition-colors flex-shrink-0 ${selectedPlatform === p.name ? 'text-accent' : 'hover:text-accent'}`}
+                >
                   {p.name} Deals
                 </button>
               ))}
-            </div>
-            <div className="flex-shrink-0 pl-4 border-l border-border/50 sm:hidden z-10">
-              <a href="/contact" className="text-accent flex items-center justify-center p-1">
-                <MessageSquare className="h-5 w-5" />
-              </a>
             </div>
           </div>
         </div>
