@@ -50,6 +50,16 @@ const BrowseLinkTiles = ({ category = null, subcategory = null, platform = null,
     window.open(link.affiliate_link, '_blank');
   };
 
+  const handleScroll = (e) => {
+    const { scrollLeft, clientWidth, scrollWidth } = e.currentTarget;
+    // If we scrolled to the end (allowing a 5px buffer), remove the fade
+    if (scrollLeft + clientWidth >= scrollWidth - 5) {
+      e.currentTarget.classList.remove('fade-edges');
+    } else {
+      e.currentTarget.classList.add('fade-edges');
+    }
+  };
+
   if (loading) {
     return (
       <section className="py-6">
@@ -88,7 +98,9 @@ const BrowseLinkTiles = ({ category = null, subcategory = null, platform = null,
       {showTitle && <h3 className="text-lg font-bold uppercase tracking-tight mb-4">Shop by Store {platform && `for ${platform}`}</h3>}
       
       {scrollable ? (
-        <div className="flex overflow-x-auto gap-3 pb-4 scrollbar-hide snap-x fade-edges">
+        <div 
+          className="flex overflow-x-auto gap-3 pb-4 scrollbar-hide snap-x fade-edges transition-all"
+          onScroll={handleScroll}>
           {links.map((link) => (
             <button
               key={link.id}

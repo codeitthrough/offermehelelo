@@ -13,6 +13,7 @@ import PlatformTiles from '@/components/PlatformTiles';
 import BrowseLinkTiles from '@/components/BrowseLinkTiles';
 import DealSkeleton from '@/components/DealSkeleton';
 import LoadingMessages from '@/components/LoadingMessages';
+import { toast } from 'sonner';
 
 // SIMPLE FRONTEND CACHE (Protects the Backend)
 const cache = new Map();
@@ -45,6 +46,15 @@ const HomeEnhanced = () => {
 
   const observer = useRef();
   const fetchIdRef = useRef(0);
+
+  const handleScrollMask = (e) => {
+    const { scrollLeft, clientWidth, scrollWidth } = e.currentTarget;
+    if (scrollLeft + clientWidth >= scrollWidth - 5) {
+      e.currentTarget.classList.remove('fade-edges');
+    } else {
+      e.currentTarget.classList.add('fade-edges');
+    }
+  };
 
   useEffect(() => {
     fetchCategories();
@@ -198,7 +208,7 @@ const HomeEnhanced = () => {
                   {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
                 </Button>
                 <Button variant="outline" onClick={() => (window.location.href = '/admin/login')} className="uppercase text-xs font-bold tracking-widest rounded-full hidden sm:flex">
-                  Admin
+                  Login
                 </Button>
               </div>
             </div>
@@ -252,12 +262,12 @@ const HomeEnhanced = () => {
           </h2>
 
           {/* CATEGORY PILLS */}
-          <div className="flex gap-2 overflow-x-auto pb-4 mb-4 scrollbar-hide fade-edges">
+          <div className="flex gap-2 overflow-x-auto pb-4 mb-4 scrollbar-hide fade-edges transition-all" onScroll={handleScrollMask}>
             <button 
               onClick={() => handleCategoryChange('all')} 
               className={`px-5 py-2.5 text-xs font-black uppercase tracking-widest whitespace-nowrap border-2 rounded-full transition-all active:scale-95 ${selectedCategory === 'all' ? 'border-accent bg-accent text-black' : 'border-border/50 bg-background hover:border-accent/50 text-foreground'}`}
             >
-              🌐 All Categories
+              All Categories
             </button>
             {categories.map((cat) => (
               <button 
@@ -265,7 +275,7 @@ const HomeEnhanced = () => {
                 onClick={() => handleCategoryChange(cat.id)} 
                 className={`px-5 py-2.5 text-xs font-black uppercase tracking-widest whitespace-nowrap border-2 rounded-full transition-all active:scale-95 ${selectedCategory === cat.id ? 'border-accent bg-accent text-black' : 'border-border/50 bg-background hover:border-accent/50 text-foreground'}`}
               >
-                {getCategoryPill(cat.name)}
+                {cat.name}
               </button>
             ))}
           </div>
@@ -323,23 +333,30 @@ const HomeEnhanced = () => {
 
       {/* MOBILE STICKY BOTTOM NAV (Phase 2) */}
       <div className="md:hidden fixed bottom-0 left-0 w-full bg-background/95 backdrop-blur border-t z-[60] flex justify-around items-center px-2 py-3 pb-safe">
+        
         <button onClick={() => window.scrollTo({top:0, behavior:'smooth'})} className="flex flex-col items-center gap-1 text-accent">
           <Home className="h-5 w-5" />
           <span className="text-[9px] font-bold uppercase tracking-wider">Home</span>
         </button>
-        <button onClick={() => { setSelectedPlatform(null); window.scrollTo({top: 800, behavior:'smooth'}); }} className="flex flex-col items-center gap-1 text-muted-foreground hover:text-foreground transition-colors">
+
+        {/* UPDATED: Discover button now triggers a toast */}
+        <button onClick={() => toast.info("🛠️ We are working on this feature! Stay tuned.")} className="flex flex-col items-center gap-1 text-muted-foreground hover:text-foreground transition-colors">
           <Search className="h-5 w-5" />
           <span className="text-[9px] font-bold uppercase tracking-wider">Discover</span>
         </button>
-        <button onClick={() => window.scrollTo({top:0, behavior:'smooth'})} className="flex flex-col items-center gap-1 text-muted-foreground hover:text-foreground transition-colors relative">
+
+        {/* UPDATED: Hot button now triggers a toast */}
+        <button onClick={() => toast.info("🛠️ We are working on this feature! Stay tuned.")} className="flex flex-col items-center gap-1 text-muted-foreground hover:text-foreground transition-colors relative">
           <div className="absolute -top-1 -right-1 h-2 w-2 bg-destructive rounded-full animate-pulse"></div>
           <Heart className="h-5 w-5" />
           <span className="text-[9px] font-bold uppercase tracking-wider">Hot</span>
         </button>
+
         <a href="/admin/login" className="flex flex-col items-center gap-1 text-muted-foreground hover:text-foreground transition-colors">
           <User className="h-5 w-5" />
-          <span className="text-[9px] font-bold uppercase tracking-wider">Admin</span>
+          <span className="text-[9px] font-bold uppercase tracking-wider">Login</span>
         </a>
+
       </div>
 
       {showScrollTop && (

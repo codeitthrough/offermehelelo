@@ -70,6 +70,7 @@ const DealCard = ({ deal, section = 'general', page = 'home', onTrackClick }) =>
         <div className="flex items-baseline gap-1.5 mb-1.5">
           <span className="text-sm font-black text-foreground">₹{deal.discounted_price.toLocaleString()}</span>
           <span className="text-[10px] line-through text-muted-foreground">₹{deal.original_price.toLocaleString()}</span>
+          <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">({deal.discount_percentage}% OFF)</span>
         </div>
         
         {/* Scarcity Indicator */}

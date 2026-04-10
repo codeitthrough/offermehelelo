@@ -58,7 +58,11 @@ const PlatformTiles = () => {
                 </div>
               )}
               <h3 className="font-bold text-sm text-center">{platform.name}</h3>
-              {platform.offer_percentage > 0 && <p className="text-xs text-accent font-semibold mt-1">Up to {platform.offer_percentage}% off</p>}
+              {platform.offer_percentage > 0 && (
+                <p className="text-xs text-emerald-600 dark:text-emerald-400 font-bold mt-1">
+                  Up to {platform.offer_percentage}% off
+                </p>
+              )}
             </div>
             <div className="bg-primary text-primary-foreground py-2 px-3 flex items-center justify-center gap-1 text-xs font-semibold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity">
               <span>Visit</span>
