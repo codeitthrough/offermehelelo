@@ -103,4 +103,8 @@ code {
         -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
         mask-image: linear-gradient(to right, black 85%, transparent 100%);
     }
+
+    .pb-safe {
+        padding-bottom: env(safe-area-inset-bottom, 80px);
+    }
 }
