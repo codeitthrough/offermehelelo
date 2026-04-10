@@ -56,9 +56,9 @@ const AdminBulkUpload = () => {
   };
 
   const downloadTemplate = () => {
-    const csv = `title,affiliate_link,platform,category,original_price,discounted_price,image_url,description
-"Samsung Galaxy S24 Ultra","https://amazon.in/samsung-s24","Amazon","Mobile Accessories",129999,89999,"https://images.unsplash.com/photo-1610945415295-d9bbf067e59c","Latest flagship smartphone"
-"Sony WH-1000XM5","https://flipkart.com/sony-headphones","Flipkart","Audio (Headphones, Earbuds, Speakers)",29990,14990,"https://images.unsplash.com/photo-1546435770-a3e426bf472b","Noise cancelling headphones"`;
+    const csv = `title,affiliate_link,platform,category,original_price,discounted_price,image_url,description,rating,review_count
+"Samsung Galaxy S24 Ultra","https://amazon.in/samsung-s24","Amazon","Mobile Accessories",129999,89999,"https://images.unsplash.com/photo-1610945415295-d9bbf067e59c","Latest flagship smartphone",4.8,12450
+"Sony WH-1000XM5","https://flipkart.com/sony-headphones","Flipkart","Audio (Headphones, Earbuds, Speakers)",29990,14990,"https://images.unsplash.com/photo-1546435770-a3e426bf472b","Noise cancelling headphones",4.5,850`;
     
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
@@ -133,6 +133,8 @@ const AdminBulkUpload = () => {
                 <li>• discounted_price - Sale price (number)</li>
                 <li>• image_url - Product image URL (optional)</li>
                 <li>• description - Product description (optional)</li>
+                <li><span className="text-accent font-bold">• rating</span> - Product rating e.g., 4.5 (optional)</li>
+                <li><span className="text-accent font-bold">• review_count</span> - Total reviews e.g., 1250 (optional)</li>
               </ul>
               <p className="mt-3 font-semibold text-foreground">Note: Discount must be ≥ 30%</p>
             </div>
