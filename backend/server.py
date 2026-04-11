@@ -1447,31 +1447,6 @@ async def delete_browse_link(link_id: str, username: str = Depends(verify_token)
 
 # --- Admin Scrape Targets endpoints ---
 @api_router.get("/admin/scrape-targets")
-async def get_scrape_targets():
-    targets = await db.scrape_targets.find({}, {"_id": 0}).to_list(100)
-    return targets
-
-@api_router.post("/admin/scrape-targets")
-async def create_scrape_target(target: ScrapeTarget, username: str = Depends(verify_token)):
-    count = await db.scrape_targets.count_documents({})
-    target_id = f"target-{count + 1}"
-
-    target_doc = target.model_dump()
-    target_doc["id"] = target_id
-
-    await db.scrape_targets.insert_one(target_doc)
-    return target_doc
-
-@api_router.delete("/admin/scrape-targets/{target_id}")
-async def delete_scrape_target(target_id: str, username: str = Depends(verify_token)):
-    result = await db.scrape_targets.delete_one({"id": target_id})
-    if result.deleted_count == 0:
-        raise HTTPException(status_code=404, detail="Target not found")
-    return {"message": "Target deleted"}
-# --------------------------------------
-
-# --- Admin Scrape Targets endpoints ---
-@api_router.get("/admin/scrape-targets")
 async def get_scrape_targets(username: str = Depends(verify_token)):
     targets = await db.scrape_targets.find({}, {"_id": 0}).to_list(100)
     return targets
@@ -1486,6 +1461,19 @@ async def create_scrape_target(target: ScrapeTarget, username: str = Depends(ver
     
     await db.scrape_targets.insert_one(target_doc)
     return target_doc
+
+@api_router.put("/admin/scrape-targets/{target_id}")
+async def update_scrape_target(target_id: str, update_data: dict, username: str = Depends(verify_token)):
+    # Remove IDs so MongoDB doesn't throw immutable errors
+    update_data.pop("id", None)
+    update_data.pop("_id", None)
+    
+    result = await db.scrape_targets.update_one({"id": target_id}, {"$set": update_data})
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Target not found")
+        
+    return {"status": "success"}
 
 @api_router.delete("/admin/scrape-targets/{target_id}")
 async def delete_scrape_target(target_id: str, username: str = Depends(verify_token)):
