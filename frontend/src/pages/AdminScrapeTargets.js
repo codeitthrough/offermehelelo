@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { axiosInstance } from '@/App';
 import AdminLayout from '@/components/AdminLayout';
 import { toast } from 'sonner';
-import { Plus, Trash2, Pencil, Eye, EyeOff } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -14,8 +14,10 @@ const AdminScrapeTargets = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [selectedId, setSelectedId] = useState(null);
   
-  const defaultTarget = { name: '', url: '', platform: 'Myntra', category_id: '', subcategory_id: '', is_active: true };
+  const defaultTarget = { name: '', url: '', platform: 'Myntra', category_id: '', is_active: true };
   const [currentTarget, setCurrentTarget] = useState(defaultTarget);
 
   useEffect(() => {
@@ -44,17 +46,30 @@ const AdminScrapeTargets = () => {
     }
   };
 
-  const handleEdit = (target) => {
-    setCurrentTarget(target);
+  const handleOpenDialog = (target = null) => {
+    if (target) {
+      setEditMode(true);
+      setCurrentTarget({
+        name: target.name,
+        url: target.url,
+        platform: target.platform,
+        category_id: target.category_id || '',
+        is_active: target.is_active !== false
+      });
+      setSelectedId(target.id);
+    } else {
+      setEditMode(false);
+      setCurrentTarget(defaultTarget);
+      setSelectedId(null);
+    }
     setDialogOpen(true);
   };
 
   const handleToggleActive = async (target) => {
     try {
-      // Toggle the boolean value
-      const updatedTarget = { ...target, is_active: !target.is_active };
-      await axiosInstance.put(`/admin/scrape-targets/${target.id}`, updatedTarget);
-      toast.success(`Target ${updatedTarget.is_active ? 'Activated' : 'Paused'}`);
+      const newStatus = target.is_active === false ? true : false;
+      await axiosInstance.put(`/admin/scrape-targets/${target.id}`, { ...target, is_active: newStatus });
+      toast.success(`Target ${newStatus ? 'activated' : 'deactivated'}`);
       fetchTargets();
     } catch (error) { 
       toast.error('Failed to update status'); 
@@ -63,35 +78,27 @@ const AdminScrapeTargets = () => {
 
   const handleSave = async () => {
     try {
-      if (currentTarget.id) {
-        // ISSUE 1 FIX: Update existing target
-        await axiosInstance.put(`/admin/scrape-targets/${currentTarget.id}`, currentTarget);
+      if (editMode) {
+        await axiosInstance.put(`/admin/scrape-targets/${selectedId}`, currentTarget);
         toast.success('Target updated successfully');
       } else {
-        // Create new target
         await axiosInstance.post('/admin/scrape-targets', currentTarget);
         toast.success('Target created successfully');
       }
-      
       setDialogOpen(false);
       fetchTargets();
-      setCurrentTarget(defaultTarget);
-      
     } catch (error) { 
-      // ISSUE 3 FIX: The MongoDB "Ghost Error" Interceptor
-      // If the backend threw an error but the DB actually saved it, we force a refresh to check.
-      setDialogOpen(false);
-      setCurrentTarget(defaultTarget);
-      fetchTargets(); 
-      toast.success('Target processed successfully');
+      // If the backend rejects "Ajio", it will now show the actual error message here
+      toast.error(error.response?.data?.detail || 'Failed to save target');
+      fetchTargets(); // Force a refresh just in case it was a ghost error
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete this target permanently?')) return;
+    if (!window.confirm('Are you sure you want to delete this target?')) return;
     try {
       await axiosInstance.delete(`/admin/scrape-targets/${id}`);
-      toast.success('Target deleted');
+      toast.success('Target deleted successfully');
       fetchTargets();
     } catch (error) { 
       toast.error('Failed to delete target'); 
@@ -106,7 +113,7 @@ const AdminScrapeTargets = () => {
             <h1 className="text-3xl font-black">Scraper Targets</h1>
             <p className="text-muted-foreground mt-1">Manage masterlist of automated links</p>
           </div>
-          <Button onClick={() => { setCurrentTarget(defaultTarget); setDialogOpen(true); }} className="rounded-sm uppercase font-bold">
+          <Button onClick={() => handleOpenDialog()} className="rounded-sm uppercase tracking-wide font-bold">
             <Plus className="h-4 w-4 mr-2" /> Add Target
           </Button>
         </div>
@@ -118,33 +125,39 @@ const AdminScrapeTargets = () => {
             <table className="w-full admin-table">
               <thead>
                 <tr className="border-b bg-secondary/50">
-                  <th className="text-left p-3 text-xs uppercase font-semibold">Name</th>
-                  <th className="text-left p-3 text-xs uppercase font-semibold">URL</th>
-                  <th className="text-left p-3 text-xs uppercase font-semibold">Platform</th>
-                  <th className="text-left p-3 text-xs uppercase font-semibold">Category</th>
-                  <th className="text-right p-3 text-xs uppercase font-semibold">Actions</th>
+                  <th className="text-left p-3 text-xs uppercase tracking-wider font-semibold">Name</th>
+                  <th className="text-left p-3 text-xs uppercase tracking-wider font-semibold">URL</th>
+                  <th className="text-left p-3 text-xs uppercase tracking-wider font-semibold">Platform</th>
+                  <th className="text-left p-3 text-xs uppercase tracking-wider font-semibold">Category</th>
+                  <th className="text-center p-3 text-xs uppercase tracking-wider font-semibold">Status</th>
+                  <th className="text-right p-3 text-xs uppercase tracking-wider font-semibold">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {targets.map((target) => (
-                  <tr key={target.id} className={`border-b transition-colors ${!target.is_active ? 'bg-secondary/30 opacity-60' : ''}`}>
-                    <td className="p-3 font-medium flex items-center gap-2">
-                      {!target.is_active && <EyeOff className="h-4 w-4 text-muted-foreground" />}
-                      {target.name}
-                    </td>
+                  <tr key={target.id} className="border-b">
+                    <td className="p-3 font-medium">{target.name}</td>
                     <td className="p-3 text-sm text-muted-foreground max-w-xs truncate" title={target.url}>{target.url}</td>
-                    <td className="p-3 text-sm font-semibold">{target.platform}</td>
-                    <td className="p-3 text-sm">
+                    <td className="p-3 text-sm">{target.platform}</td>
+                    <td className="p-3 text-sm text-muted-foreground">
                         {categories.find(c => c.id === target.category_id)?.name || target.category_id}
                     </td>
+                    <td className="p-3 text-center">
+                      <span className={`inline-block px-2 py-1 text-xs font-semibold uppercase ${
+                          target.is_active !== false
+                            ? 'bg-green-500/20 text-green-700 dark:text-green-400'
+                            : 'bg-red-500/20 text-red-700 dark:text-red-400'
+                        }`}>
+                        {target.is_active !== false ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
                     <td className="p-3 text-right">
-                      {/* ISSUE 1 FIX: Added Edit and Active/Inactive Toggles */}
-                      <div className="flex justify-end gap-1">
-                        <Button variant="ghost" size="sm" onClick={() => handleToggleActive(target)} title={target.is_active ? "Pause Target" : "Activate Target"}>
-                          {target.is_active ? <Eye className="h-4 w-4 text-emerald-500" /> : <EyeOff className="h-4 w-4 text-muted-foreground" />}
+                      <div className="flex items-center justify-end gap-2">
+                        <Button variant="ghost" size="sm" onClick={() => handleToggleActive(target)} title="Toggle Status">
+                          {target.is_active !== false ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                         </Button>
                         <Button variant="ghost" size="sm" onClick={() => handleEdit(target)} title="Edit Target">
-                          <Pencil className="h-4 w-4 text-blue-500" />
+                          <Edit className="h-4 w-4" />
                         </Button>
                         <Button variant="ghost" size="sm" onClick={() => handleDelete(target.id)} title="Delete Target">
                           <Trash2 className="h-4 w-4 text-destructive" />
@@ -163,33 +176,32 @@ const AdminScrapeTargets = () => {
         <DialogContent className="rounded-none max-w-lg">
           <DialogHeader>
             <DialogTitle className="font-black text-2xl">
-              {currentTarget.id ? 'Edit Scrape Target' : 'Add Scrape Target'}
+              {editMode ? 'Edit Scrape Target' : 'Add Scrape Target'}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div>
-              <Label className="text-xs uppercase font-semibold">Friendly Name</Label>
+              <Label className="text-xs uppercase tracking-wider font-semibold">Friendly Name</Label>
               <Input value={currentTarget.name} onChange={(e) => setCurrentTarget({ ...currentTarget, name: e.target.value })} className="mt-2 rounded-sm" placeholder="e.g. Mens Smartwatches" />
             </div>
             <div>
-              <Label className="text-xs uppercase font-semibold">URL (Link)</Label>
+              <Label className="text-xs uppercase tracking-wider font-semibold">URL (Link)</Label>
               <Input value={currentTarget.url} onChange={(e) => setCurrentTarget({ ...currentTarget, url: e.target.value })} className="mt-2 rounded-sm" placeholder="https://www.myntra.com/..." />
             </div>
             <div>
-              <Label className="text-xs uppercase font-semibold">Platform</Label>
+              <Label className="text-xs uppercase tracking-wider font-semibold">Platform</Label>
               <Select value={currentTarget.platform} onValueChange={(val) => setCurrentTarget({ ...currentTarget, platform: val })}>
                 <SelectTrigger className="mt-2 rounded-sm"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Myntra">Myntra</SelectItem>
                   <SelectItem value="Amazon">Amazon</SelectItem>
                   <SelectItem value="Flipkart">Flipkart</SelectItem>
-                  {/* ISSUE 2 FIX: Added Ajio to the Platform list */}
                   <SelectItem value="Ajio">Ajio</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div>
-              <Label className="text-xs uppercase font-semibold">Map to Category</Label>
+              <Label className="text-xs uppercase tracking-wider font-semibold">Map to Category</Label>
               <Select value={currentTarget.category_id} onValueChange={(val) => setCurrentTarget({ ...currentTarget, category_id: val })}>
                 <SelectTrigger className="mt-2 rounded-sm"><SelectValue placeholder="Select category" /></SelectTrigger>
                 <SelectContent>
@@ -199,9 +211,9 @@ const AdminScrapeTargets = () => {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => { setDialogOpen(false); setCurrentTarget(defaultTarget); }} className="rounded-sm">Cancel</Button>
-            <Button onClick={handleSave} className="rounded-sm uppercase font-bold">
-              {currentTarget.id ? 'Update Target' : 'Save Target'}
+            <Button variant="outline" onClick={() => setDialogOpen(false)} className="rounded-sm">Cancel</Button>
+            <Button onClick={handleSave} className="rounded-sm uppercase tracking-wide font-bold">
+              {editMode ? 'Update' : 'Create'}
             </Button>
           </DialogFooter>
         </DialogContent>
