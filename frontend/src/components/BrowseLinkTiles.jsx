@@ -1,11 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { API } from '@/App';
 import { ArrowRight } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
 
 const BrowseLinkTiles = ({ category = null, subcategory = null, platform = null, showTitle = true, maxLinks = 100, scrollable = false }) => {
   const [links, setLinks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const scrollRef = useRef(null);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const handleWheel = (e) => {
+      // Only trigger if scrolling vertically and there is room to scroll horizontally
+      if (e.deltaY !== 0 && el.scrollWidth > el.clientWidth) {
+        e.preventDefault(); 
+        el.scrollLeft += e.deltaY;
+      }
+    };
+
+    // { passive: false } is required so the browser allows us to block the vertical scroll
+    el.addEventListener('wheel', handleWheel, { passive: false });
+    return () => el.removeEventListener('wheel', handleWheel);
+  }, []);
 
   useEffect(() => {
     fetchBrowseLinks();
@@ -99,6 +118,7 @@ const BrowseLinkTiles = ({ category = null, subcategory = null, platform = null,
       
       {scrollable ? (
         <div 
+          ref={scrollRef}
           className="flex overflow-x-auto gap-3 pb-4 scrollbar-hide snap-x fade-edges transition-all"
           onScroll={handleScroll}>
           {links.map((link) => (

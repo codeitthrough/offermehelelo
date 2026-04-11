@@ -27,6 +27,26 @@ const HomeEnhanced = () => {
   const [selectedSubcategory, setSelectedSubcategory] = useState('all');
   const [minDiscount, setMinDiscount] = useState(0);
   const [selectedPlatform, setSelectedPlatform] = useState(null);
+
+  // --- HORIZONTAL SCROLL INTERCEPTOR ---
+  const categoryScrollRef = useRef(null);
+
+  useEffect(() => {
+    const el = categoryScrollRef.current;
+    if (!el) return;
+
+    const handleWheel = (e) => {
+      if (e.deltaY !== 0 && el.scrollWidth > el.clientWidth) {
+        e.preventDefault(); 
+        el.scrollLeft += e.deltaY;
+      }
+    };
+
+    // { passive: false } is required to block vertical scrolling
+    el.addEventListener('wheel', handleWheel, { passive: false });
+    return () => el.removeEventListener('wheel', handleWheel);
+  }, [categories]); // Re-attach if categories update
+  // -------------------------------------
   
   const [bestDealsToday, setBestDealsToday] = useState([]);
   const [lightningDeals, setLightningDeals] = useState([]);
@@ -263,7 +283,11 @@ const HomeEnhanced = () => {
           </h2>
 
           {/* CATEGORY PILLS */}
-          <div className="flex gap-2 overflow-x-auto pb-4 mb-4 scrollbar-hide fade-edges transition-all" onScroll={handleScrollMask}>
+          <div 
+            ref={categoryScrollRef} 
+            className="flex gap-2 overflow-x-auto pb-4 mb-4 scrollbar-hide fade-edges transition-all" 
+            onScroll={handleScrollMask}
+          >
             <button 
               onClick={() => handleCategoryChange('all')} 
               className={`px-5 py-2.5 text-xs font-black uppercase tracking-widest whitespace-nowrap border-2 rounded-full transition-all active:scale-95 ${selectedCategory === 'all' ? 'border-accent bg-accent text-black' : 'border-border/50 bg-background hover:border-accent/50 text-foreground'}`}
