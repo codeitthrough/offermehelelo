@@ -283,13 +283,26 @@ if __name__ == "__main__":
         ))
         all_scraped_deals.extend(deals)
 
-    # 3. Transmit the massive batch to the database
+    # 3. Transmit the massive batch to the database in chunks
     if all_scraped_deals:
-        print(f"\n🚀 Transmitting {len(all_scraped_deals)} TOTAL deals to the database...")
-        try:
-            intake_response = requests.post(f"{API_BASE}/scraper/intake", json=all_scraped_deals, timeout=30)
-            print(f"✅ Server Response: {intake_response.json()}")
-        except Exception as e:
-            print(f"❌ Failed to transmit to API: {e}")
+        print(f"\n🚀 Transmitting {len(all_scraped_deals)} TOTAL deals to the database in batches...")
+        
+        chunk_size = 50 # Send 50 deals at a time so Render doesn't choke
+        for i in range(0, len(all_scraped_deals), chunk_size):
+            chunk = all_scraped_deals[i:i + chunk_size]
+            batch_num = (i // chunk_size) + 1
+            print(f"➡️ Sending Batch {batch_num} ({len(chunk)} deals)...")
+            
+            try:
+                # Increased timeout to 60 seconds just to be safe
+                intake_response = requests.post(f"{API_BASE}/scraper/intake", json=chunk, timeout=60)
+                print(f"✅ Server Response: {intake_response.json()}")
+            except Exception as e:
+                print(f"❌ Failed to transmit Batch {batch_num}: {e}")
+            
+            # Brief pause between batches to let the server breathe
+            import time
+            time.sleep(2)
+            
     else:
         print("No valid deals found to transmit across any target.")

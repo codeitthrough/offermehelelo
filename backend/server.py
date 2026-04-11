@@ -72,6 +72,7 @@ class ScrapedDeal(BaseModel):
 async def scraper_intake(deals: List[ScrapedDeal]):
     new_deals_count = 0
     duplicate_count = 0
+    now = datetime.now(timezone.utc).isoformat()
     
     for deal in deals:
         # Check if this exact deal already exists in the database
@@ -84,8 +85,19 @@ async def scraper_intake(deals: List[ScrapedDeal]):
             duplicate_count += 1
             continue
             
-        # If it's a brand new deal, insert it!
-        await db.deals.insert_one(deal.dict())
+        # --- THE FIX: Format the document with required database fields ---
+        count = await db.deals.count_documents({})
+        deal_id = f"deal-{count + 1 + new_deals_count}"
+        
+        deal_doc = deal.model_dump()
+        deal_doc["id"] = deal_id
+        deal_doc["category_id"] = deal_doc.pop("category") # Rename to match DB schema
+        deal_doc["created_at"] = now
+        deal_doc["updated_at"] = now
+        deal_doc["deal_score"] = float(deal.discount_percentage * 0.6) # Add basic score
+        
+        # Insert the perfectly formatted deal!
+        await db.deals.insert_one(deal_doc)
         new_deals_count += 1
         
     return {
