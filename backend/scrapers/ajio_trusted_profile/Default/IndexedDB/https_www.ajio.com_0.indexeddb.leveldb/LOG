@@ -1,3 +1,5 @@
-2026/04/11-19:50:22.850 6238 Reusing MANIFEST C:\Users\akhil\Desktop\Biz\deal-striker\backend\scrapers\ajio_trusted_profile\Default\IndexedDB\https_www.ajio.com_0.indexeddb.leveldb/MANIFEST-000001
-2026/04/11-19:50:22.852 6238 Recovering log #31
-2026/04/11-19:50:22.887 6238 Reusing old log C:\Users\akhil\Desktop\Biz\deal-striker\backend\scrapers\ajio_trusted_profile\Default\IndexedDB\https_www.ajio.com_0.indexeddb.leveldb/000031.log 
+2026/04/11-20:57:29.700 3a24 Reusing MANIFEST C:\Users\akhil\Desktop\Biz\deal-striker\backend\scrapers\ajio_trusted_profile\Default\IndexedDB\https_www.ajio.com_0.indexeddb.leveldb/MANIFEST-000001
+2026/04/11-20:57:29.704 3a24 Recovering log #35
+2026/04/11-20:57:29.709 3a24 Reusing old log C:\Users\akhil\Desktop\Biz\deal-striker\backend\scrapers\ajio_trusted_profile\Default\IndexedDB\https_www.ajio.com_0.indexeddb.leveldb/000035.log 
+2026/04/11-20:57:29.710 3a24 Delete type=2 #33
+2026/04/11-20:57:29.711 3a24 Delete type=2 #36

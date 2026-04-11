@@ -52,6 +52,12 @@ class ScrapeTarget(BaseModel):
     subcategory_id: Optional[str] = None
     is_active: bool = True
 
+# 0. Provide Active Targets to the Scraper
+@app.get("/api/scraper/targets")
+async def get_active_scraper_targets():
+    # Only pull targets where is_active is NOT explicitly False
+    targets = await db.scrape_targets.find({"is_active": {"$ne": False}}, {"_id": 0}).to_list(100)
+    return targets
 
 # 1. Define the Expected Data Structure
 class ScrapedDeal(BaseModel):

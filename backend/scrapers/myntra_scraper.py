@@ -492,25 +492,25 @@ if __name__ == "__main__":
     import asyncio
     import requests
     
-    # YOUR ACTUAL DATABASE CATEGORIES
-    TARGETS = [
-        # Myntra Targets
-        {"url": "https://www.myntra.com/men-sneakers", "category_id": "cat-8", "platform": "Myntra"},
-        {"url": "https://www.myntra.com/smart-watches", "category_id": "cat-7", "platform": "Myntra"},
-        
-        # Ajio Targets
-        {"url": "https://www.ajio.com/men-sneakers/c/830207010", "category_id": "cat-8", "platform": "Ajio"},
-        {"url": "https://www.ajio.com/men-backpacks/c/830201001", "category_id": "cat-6", "platform": "Ajio"}
-    ]
-
     API_BASE = "https://deal-striker-backend.onrender.com/api"
 
-    print("🚀 INITIALIZING MASTER SCRAPER PIPELINE 🚀")
+    print("🚀 FETCHING TARGETS FROM DATABASE 🚀")
+    try:
+        # Call home to get the live targets you added in the Admin console
+        response = requests.get(f"{API_BASE}/scraper/targets", timeout=15)
+        response.raise_for_status()
+        TARGETS = response.json()
+        print(f"✅ Successfully loaded {len(TARGETS)} active targets from Render!")
+    except Exception as e:
+        print(f"❌ FATAL ERROR: Could not fetch targets from database. Is Render awake?\nError: {e}")
+        exit(1)
+
+    print("\n🚀 INITIALIZING MASTER SCRAPER PIPELINE 🚀")
     all_scraped_deals = []
 
     for target in TARGETS:
         print(f"\n==========================================")
-        print(f"🎯 Target: {target['url']}")
+        print(f"🎯 Target: {target.get('name', 'Unnamed')} | {target['url']}")
         print(f"==========================================")
         
         # Route to the correct scraper module
@@ -549,3 +549,5 @@ if __name__ == "__main__":
                 print(f"✅ Server Response: {intake_response.json()}")
             except Exception as e:
                 print(f"❌ Failed to transmit Batch {batch_num}: {e}")
+    else:
+        print("\n⚠️ No deals passed validation across any targets today.")

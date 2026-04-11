@@ -1,24 +1,26 @@
-2026/04/11-16:36:28.641 7264 Reusing MANIFEST C:\Users\akhil\Desktop\Biz\deal-striker\backend\scrapers\myntra_trusted_profile\Default\Local Storage\leveldb/MANIFEST-000001
-2026/04/11-16:36:28.654 7264 Recovering log #103
-2026/04/11-16:36:28.668 7264 Level-0 table #106: started
-2026/04/11-16:36:28.684 7264 Level-0 table #106: 285841 bytes OK
-2026/04/11-16:36:28.686 7264 Recovering log #105
-2026/04/11-16:36:28.695 7264 Level-0 table #107: started
-2026/04/11-16:36:28.707 7264 Level-0 table #107: 257429 bytes OK
-2026/04/11-16:36:28.714 7264 Delete type=0 #103
-2026/04/11-16:36:28.714 7264 Delete type=0 #105
-2026/04/11-16:36:41.113 260c Level-0 table #110: started
-2026/04/11-16:36:41.127 260c Level-0 table #110: 33457 bytes OK
-2026/04/11-16:36:41.131 260c Delete type=0 #108
-2026/04/11-16:36:41.134 260c Compacting 4@0 + 1@1 files
-2026/04/11-16:36:41.202 260c Generated table #111@0: 46 keys, 1226389 bytes
-2026/04/11-16:36:41.202 260c Compacted 4@0 + 1@1 files => 1226389 bytes
-2026/04/11-16:36:41.204 260c compacted to: files[ 0 1 1 0 0 0 0 ]
-2026/04/11-16:36:41.209 260c Delete type=2 #102
-2026/04/11-16:36:41.210 260c Delete type=2 #104
-2026/04/11-16:36:41.210 260c Delete type=2 #106
-2026/04/11-16:36:41.211 260c Delete type=2 #107
-2026/04/11-16:36:41.211 260c Delete type=2 #110
-2026/04/11-16:36:44.324 260c Level-0 table #113: started
-2026/04/11-16:36:44.363 260c Level-0 table #113: 281117 bytes OK
-2026/04/11-16:36:44.371 260c Delete type=0 #109
+2026/04/11-20:53:59.887 3ac0 Reusing MANIFEST C:\Users\akhil\Desktop\Biz\deal-striker\backend\scrapers\myntra_trusted_profile\Default\Local Storage\leveldb/MANIFEST-000001
+2026/04/11-20:53:59.903 3ac0 Recovering log #119
+2026/04/11-20:53:59.914 3ac0 Level-0 table #123: started
+2026/04/11-20:53:59.937 3ac0 Level-0 table #123: 205626 bytes OK
+2026/04/11-20:53:59.939 3ac0 Recovering log #122
+2026/04/11-20:53:59.950 3ac0 Level-0 table #124: started
+2026/04/11-20:53:59.976 3ac0 Level-0 table #124: 230454 bytes OK
+2026/04/11-20:54:00.001 3ac0 Delete type=0 #119
+2026/04/11-20:54:00.001 3ac0 Delete type=0 #122
+2026/04/11-20:54:10.219 51ec Level-0 table #127: started
+2026/04/11-20:54:10.224 51ec Level-0 table #127: 33675 bytes OK
+2026/04/11-20:54:10.226 51ec Delete type=0 #125
+2026/04/11-20:54:12.763 51ec Level-0 table #129: started
+2026/04/11-20:54:12.778 51ec Level-0 table #129: 126393 bytes OK
+2026/04/11-20:54:12.784 51ec Delete type=0 #126
+2026/04/11-20:54:12.788 51ec Compacting 4@0 + 1@1 files
+2026/04/11-20:54:12.871 51ec Generated table #130@0: 48 keys, 1418811 bytes
+2026/04/11-20:54:12.871 51ec Compacted 4@0 + 1@1 files => 1418811 bytes
+2026/04/11-20:54:12.873 51ec compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/04/11-20:54:12.876 51ec Delete type=2 #121
+2026/04/11-20:54:12.876 51ec Delete type=2 #123
+2026/04/11-20:54:12.876 51ec Delete type=2 #124
+2026/04/11-20:54:12.877 51ec Delete type=2 #127
+2026/04/11-20:54:12.877 51ec Delete type=2 #129
+2026/04/11-20:55:00.103 3ac0 Level-0 table #132: started
+2026/04/11-20:55:00.133 3ac0 Level-0 table #132: 126395 bytes OK
