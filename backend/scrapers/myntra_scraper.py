@@ -492,7 +492,7 @@ if __name__ == "__main__":
     import asyncio
     import requests
     
-    API_BASE = "https://deal-striker-backend.onrender.com/api"
+    API_BASE = "https://offermehelelo.onrender.com/api"
 
     print("🚀 FETCHING TARGETS FROM DATABASE 🚀")
     try:
