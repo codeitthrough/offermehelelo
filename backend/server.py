@@ -44,6 +44,65 @@ class Category(BaseModel):
     is_active: bool = True
     created_at: datetime
 
+class ScrapeTarget(BaseModel):
+    name: str
+    url: str
+    platform: str = "Myntra"
+    category_id: str
+    subcategory_id: Optional[str] = None
+    is_active: bool = True
+
+
+# 1. Define the Expected Data Structure
+class ScrapedDeal(BaseModel):
+    title: str
+    affiliate_link: str
+    platform: str
+    category: str
+    original_price: int
+    discounted_price: int
+    discount_percentage: int
+    image_url: str
+    rating: Optional[float] = None
+    review_count: Optional[int] = None
+    is_active: bool = True
+
+# 2. Create the Intake Endpoint
+@app.post("/api/scraper/intake")
+async def scraper_intake(deals: List[ScrapedDeal]):
+    new_deals_count = 0
+    duplicate_count = 0
+    
+    for deal in deals:
+        # Check if this exact deal already exists in the database
+        existing_deal = await db.deals.find_one({
+            "title": deal.title, 
+            "platform": deal.platform
+        })
+        
+        if existing_deal:
+            duplicate_count += 1
+            continue
+            
+        # If it's a brand new deal, insert it!
+        await db.deals.insert_one(deal.dict())
+        new_deals_count += 1
+        
+    return {
+        "status": "success", 
+        "received": len(deals), 
+        "inserted": new_deals_count,
+        "skipped_duplicates": duplicate_count
+    }
+
+class ScrapeTarget(BaseModel):
+    name: str
+    url: str
+    platform: str = "Myntra"
+    category_id: str
+    subcategory_id: Optional[str] = None
+    is_active: bool = True
+
 class CategoryCreate(BaseModel):
     name: str
     icon: Optional[str] = None
@@ -1373,6 +1432,31 @@ async def delete_browse_link(link_id: str, username: str = Depends(verify_token)
         raise HTTPException(status_code=404, detail="Browse link not found")
     
     return {"message": "Browse link deleted successfully"}
+
+# --- Admin Scrape Targets endpoints ---
+@api_router.get("/admin/scrape-targets")
+async def get_scrape_targets(username: str = Depends(verify_token)):
+    targets = await db.scrape_targets.find({}, {"_id": 0}).to_list(100)
+    return targets
+
+@api_router.post("/admin/scrape-targets")
+async def create_scrape_target(target: ScrapeTarget, username: str = Depends(verify_token)):
+    count = await db.scrape_targets.count_documents({})
+    target_id = f"target-{count + 1}"
+
+    target_doc = target.model_dump()
+    target_doc["id"] = target_id
+
+    await db.scrape_targets.insert_one(target_doc)
+    return target_doc
+
+@api_router.delete("/admin/scrape-targets/{target_id}")
+async def delete_scrape_target(target_id: str, username: str = Depends(verify_token)):
+    result = await db.scrape_targets.delete_one({"id": target_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Target not found")
+    return {"message": "Target deleted"}
+# --------------------------------------
 
 # Include router
 app.include_router(api_router)

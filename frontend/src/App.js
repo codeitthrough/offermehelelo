@@ -15,9 +15,11 @@ import AdminPlatforms from '@/pages/AdminPlatforms';
 import AdminScraperSettings from '@/pages/AdminScraperSettings';
 import AdminSuggestions from '@/pages/AdminSuggestions';
 import AdminBrowseLinks from '@/pages/AdminBrowseLinks';
+import AdminScrapeTargets from '@/pages/AdminScrapeTargets'; // Adjust path if needed
 import Contact from '@/pages/Contact';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import '@/App.css';
+
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 export const API = `${BACKEND_URL}/api`;
@@ -91,6 +93,14 @@ function App() {
                     <AdminCategories />
                   </ProtectedRoute>
                 }
+              />
+              <Route 
+                path="/admin/targets" 
+                element={
+                  <ProtectedRoute>
+                    <AdminScrapeTargets />
+                  </ProtectedRoute>
+                } 
               />
               <Route
                 path="/admin/deals"

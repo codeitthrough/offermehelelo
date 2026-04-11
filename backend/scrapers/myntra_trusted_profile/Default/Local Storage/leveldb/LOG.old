@@ -1,0 +1,22 @@
+2026/04/11-01:30:29.586 5fe0 Reusing MANIFEST C:\Users\akhil\Desktop\Biz\deal-striker\backend\scrapers\myntra_trusted_profile\Default\Local Storage\leveldb/MANIFEST-000001
+2026/04/11-01:30:29.598 5fe0 Recovering log #21
+2026/04/11-01:30:29.601 5fe0 Level-0 table #24: started
+2026/04/11-01:30:29.613 5fe0 Level-0 table #24: 94518 bytes OK
+2026/04/11-01:30:29.615 5fe0 Recovering log #23
+2026/04/11-01:30:29.616 5fe0 Level-0 table #25: started
+2026/04/11-01:30:29.627 5fe0 Level-0 table #25: 33782 bytes OK
+2026/04/11-01:30:29.636 5fe0 Delete type=0 #21
+2026/04/11-01:30:29.637 5fe0 Delete type=0 #23
+2026/04/11-01:30:29.640 6ee0 Compacting 5@0 + 1@1 files
+2026/04/11-01:30:29.678 6ee0 Generated table #27@0: 32 keys, 127647 bytes
+2026/04/11-01:30:29.678 6ee0 Compacted 5@0 + 1@1 files => 127647 bytes
+2026/04/11-01:30:29.684 6ee0 compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/04/11-01:30:29.688 6ee0 Delete type=2 #16
+2026/04/11-01:30:29.689 6ee0 Delete type=2 #18
+2026/04/11-01:30:29.689 6ee0 Delete type=2 #20
+2026/04/11-01:30:29.690 6ee0 Delete type=2 #22
+2026/04/11-01:30:29.690 6ee0 Delete type=2 #24
+2026/04/11-01:30:29.690 6ee0 Delete type=2 #25
+2026/04/11-01:30:42.116 6ee0 Level-0 table #29: started
+2026/04/11-01:30:42.150 6ee0 Level-0 table #29: 127492 bytes OK
+2026/04/11-01:30:42.170 6ee0 Delete type=0 #26

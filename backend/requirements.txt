@@ -10,3 +10,6 @@ email-validator
 bcrypt==4.0.1
 pandas
 openpyxl
+playwright==1.42.0
+requests==2.31.0
+playwright-stealth==1.0.6

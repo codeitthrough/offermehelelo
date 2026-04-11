@@ -1,0 +1,24 @@
+2026/04/11-01:46:52.047 24cc Reusing MANIFEST C:\Users\akhil\Desktop\Biz\deal-striker\backend\scrapers\myntra_trusted_profile\Default\Local Storage\leveldb/MANIFEST-000001
+2026/04/11-01:46:52.060 24cc Recovering log #28
+2026/04/11-01:46:52.065 24cc Level-0 table #31: started
+2026/04/11-01:46:52.078 24cc Level-0 table #31: 127702 bytes OK
+2026/04/11-01:46:52.080 24cc Recovering log #30
+2026/04/11-01:46:52.086 24cc Reusing old log C:\Users\akhil\Desktop\Biz\deal-striker\backend\scrapers\myntra_trusted_profile\Default\Local Storage\leveldb/000030.log 
+2026/04/11-01:46:52.090 24cc Delete type=0 #28
+2026/04/11-01:47:05.397 1c6c Level-0 table #33: started
+2026/04/11-01:47:05.416 1c6c Level-0 table #33: 33739 bytes OK
+2026/04/11-01:47:05.426 1c6c Delete type=0 #30
+2026/04/11-01:47:52.120 1c6c Level-0 table #35: started
+2026/04/11-01:47:52.127 1c6c Level-0 table #35: 94460 bytes OK
+2026/04/11-01:47:52.129 1c6c Delete type=0 #32
+2026/04/11-01:47:52.130 1c6c Compacting 4@0 + 1@1 files
+2026/04/11-01:47:52.139 1c6c Generated table #36@0: 32 keys, 95086 bytes
+2026/04/11-01:47:52.139 1c6c Compacted 4@0 + 1@1 files => 95086 bytes
+2026/04/11-01:47:52.140 1c6c compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/04/11-01:47:52.142 1c6c Delete type=2 #27
+2026/04/11-01:47:52.142 1c6c Delete type=2 #29
+2026/04/11-01:47:52.142 1c6c Delete type=2 #31
+2026/04/11-01:47:52.142 1c6c Delete type=2 #33
+2026/04/11-01:47:52.142 1c6c Delete type=2 #35
+2026/04/11-01:48:19.715 24cc Level-0 table #38: started
+2026/04/11-01:48:19.738 24cc Level-0 table #38: 126980 bytes OK
