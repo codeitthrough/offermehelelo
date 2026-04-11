@@ -72,7 +72,8 @@ const AdminScrapeTargets = () => {
       toast.success(`Target ${newStatus ? 'activated' : 'deactivated'}`);
       fetchTargets();
     } catch (error) { 
-      toast.error('Failed to update status'); 
+      // Added detailed error logging here to catch backend schema issues
+      toast.error(error.response?.data?.detail || 'Backend error: Does is_active exist in your DB?'); 
     }
   };
 
@@ -88,9 +89,8 @@ const AdminScrapeTargets = () => {
       setDialogOpen(false);
       fetchTargets();
     } catch (error) { 
-      // If the backend rejects "Ajio", it will now show the actual error message here
       toast.error(error.response?.data?.detail || 'Failed to save target');
-      fetchTargets(); // Force a refresh just in case it was a ghost error
+      fetchTargets(); 
     }
   };
 
@@ -156,7 +156,8 @@ const AdminScrapeTargets = () => {
                         <Button variant="ghost" size="sm" onClick={() => handleToggleActive(target)} title="Toggle Status">
                           {target.is_active !== false ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                         </Button>
-                        <Button variant="ghost" size="sm" onClick={() => handleEdit(target)} title="Edit Target">
+                        {/* FIX: Changed handleEdit to handleOpenDialog */}
+                        <Button variant="ghost" size="sm" onClick={() => handleOpenDialog(target)} title="Edit Target">
                           <Edit className="h-4 w-4" />
                         </Button>
                         <Button variant="ghost" size="sm" onClick={() => handleDelete(target.id)} title="Delete Target">
