@@ -1435,7 +1435,7 @@ async def delete_browse_link(link_id: str, username: str = Depends(verify_token)
 
 # --- Admin Scrape Targets endpoints ---
 @api_router.get("/admin/scrape-targets")
-async def get_scrape_targets(username: str = Depends(verify_token)):
+async def get_scrape_targets():
     targets = await db.scrape_targets.find({}, {"_id": 0}).to_list(100)
     return targets
 

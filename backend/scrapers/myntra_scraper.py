@@ -244,7 +244,7 @@ async def scrape_myntra_target(target_url: str, category_id: str, dry_run: bool 
 
 if __name__ == "__main__":
     # 1. Fetch Targets from your Server API
-    API_BASE = "http://localhost:8000/api" 
+    API_BASE = "https://offermehelelo.onrender.com/api" 
     # NOTE: You must provide a valid admin token to hit the protected endpoint. 
     # For local script execution, you might temporarily remove 'Depends(verify_token)' 
     # from the GET endpoint in server.py, or hardcode a valid token here in headers.
