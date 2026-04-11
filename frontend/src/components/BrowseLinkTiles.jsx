@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { API } from '@/App';
 import { ArrowRight } from 'lucide-react';
-import React, { useState, useEffect, useRef } from 'react';
 
 const BrowseLinkTiles = ({ category = null, subcategory = null, platform = null, showTitle = true, maxLinks = 100, scrollable = false }) => {
   const [links, setLinks] = useState([]);
