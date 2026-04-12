@@ -1,22 +1,10 @@
-2026/04/11-20:52:58.200 3d2c Reusing MANIFEST C:\Users\akhil\Desktop\Biz\deal-striker\backend\scrapers\myntra_trusted_profile\Default\Local Storage\leveldb/MANIFEST-000001
-2026/04/11-20:52:58.217 3d2c Recovering log #112
-2026/04/11-20:52:58.234 3d2c Level-0 table #115: started
-2026/04/11-20:52:58.265 3d2c Level-0 table #115: 281269 bytes OK
-2026/04/11-20:52:58.286 3d2c Delete type=0 #112
-2026/04/11-20:53:08.769 46f8 Level-0 table #118: started
-2026/04/11-20:53:08.781 46f8 Level-0 table #118: 205969 bytes OK
-2026/04/11-20:53:08.784 46f8 Delete type=0 #116
-2026/04/11-20:53:11.130 46f8 Level-0 table #120: started
-2026/04/11-20:53:11.151 46f8 Level-0 table #120: 33794 bytes OK
-2026/04/11-20:53:11.156 46f8 Delete type=0 #117
-2026/04/11-20:53:11.159 46f8 Compacting 4@0 + 1@1 files
-2026/04/11-20:53:11.248 46f8 Generated table #121@0: 48 keys, 1426371 bytes
-2026/04/11-20:53:11.251 46f8 Compacted 4@0 + 1@1 files => 1426371 bytes
-2026/04/11-20:53:11.254 46f8 compacted to: files[ 0 1 1 0 0 0 0 ]
-2026/04/11-20:53:11.257 46f8 Delete type=2 #111
-2026/04/11-20:53:11.257 46f8 Delete type=2 #113
-2026/04/11-20:53:11.257 46f8 Delete type=2 #115
-2026/04/11-20:53:11.257 46f8 Delete type=2 #118
-2026/04/11-20:53:11.258 46f8 Delete type=2 #120
-2026/04/11-20:53:54.374 46f8 Level-0 table #123: started
-2026/04/11-20:53:54.404 46f8 Level-0 table #123: 205626 bytes OK
+2026/04/11-21:39:56.814 4060 Reusing MANIFEST C:\Users\akhil\Desktop\Biz\deal-striker\backend\scrapers\myntra_trusted_profile\Default\Local Storage\leveldb/MANIFEST-000001
+2026/04/11-21:39:56.832 4060 Recovering log #140
+2026/04/11-21:39:56.834 4060 Level-0 table #143: started
+2026/04/11-21:39:56.847 4060 Level-0 table #143: 33718 bytes OK
+2026/04/11-21:39:56.863 4060 Delete type=0 #140
+2026/04/11-21:40:06.303 4060 Level-0 table #146: started
+2026/04/11-21:40:06.310 4060 Level-0 table #146: 33668 bytes OK
+2026/04/11-21:40:06.312 4060 Delete type=0 #144
+2026/04/11-21:40:55.642 4060 Level-0 table #148: started
+2026/04/11-21:40:55.658 4060 Level-0 table #148: 186123 bytes OK

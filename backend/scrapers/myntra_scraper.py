@@ -275,7 +275,7 @@ async def scrape_ajio_target(target_url: str, category_id: str, dry_run: bool = 
     
     async with async_playwright() as p:
         context = await p.chromium.launch_persistent_context(
-            user_data_dir="./ajio_trusted_profile", # Separate profile so cookies don't cross-contaminate
+            user_data_dir="./ajio_trusted_profile", 
             channel="chrome",
             headless=False,
             args=["--disable-blink-features=AutomationControlled", "--start-maximized"],
@@ -284,180 +284,150 @@ async def scrape_ajio_target(target_url: str, category_id: str, dry_run: bool = 
         page = context.pages[0]
 
         try:
-            print("Priming Ajio session...")
-            await page.goto("https://www.ajio.com/", timeout=60000, wait_until="domcontentloaded")
-            await asyncio.sleep(2)
+            print(f"Priming Ajio session and navigating directly to target: {target_url}")
+            # Navigate EXACTLY ONCE. No ?page= parameters.
+            await page.goto(target_url, timeout=60000, wait_until="domcontentloaded")
+            await asyncio.sleep(3)
 
-            for current_loop in range((end_page - start_page) + 1):
-                current_page_num = start_page + current_loop
-                
-                # Ajio Pagination
-                separator = "&" if "?" in target_url else "?"
-                actual_url = f"{target_url}{separator}page={current_page_num}"
-                
-                print(f"Navigating to Ajio Page {current_page_num}: {actual_url}")
-                await page.goto(actual_url, timeout=60000, wait_until="domcontentloaded")
-                
-                # Wait for loaders to disappear (Translating your VBA Do While Loop)
-                try:
-                    await page.wait_for_selector(".loader", state="hidden", timeout=15000)
-                except:
-                    pass
-                
-                # --- NEW: GRID DENSITY MAXIMIZER ---
-                try:
-                    print("Maximizing grid density (Switching to 5-column view)...")
-                    # Using the exact class from your screenshot
-                    five_grid_btn = await page.query_selector(".five-grid-container")
-                    if five_grid_btn:
-                        # Check if it's already active so we don't waste time clicking
-                        class_name = await five_grid_btn.get_attribute("class")
-                        if class_name and "active" not in class_name:
-                            await five_grid_btn.click()
-                            await asyncio.sleep(1.5) # Wait a second for React to re-render the smaller cards
-                except Exception:
-                    pass # If the button doesn't exist on this page, just keep going
-                # -----------------------------------
+            try:
+                await page.wait_for_selector(".loader", state="hidden", timeout=15000)
+            except:
+                pass
 
-                print("Executing Hybrid Scroll (Fast drop, then slow crawl)...")
+            # Calculate how many scroll cycles to perform based on the requested pages
+            scroll_batches = (end_page - start_page) + 1
+
+            for current_batch in range(scroll_batches):
+                print(f"Executing Deep Scroll Batch {current_batch + 1} of {scroll_batches}...")
                 
-                # 1. The Fast Jumps (Go 1500 twice almost instantly)
+                # 1. The Fast Jumps
                 for _ in range(5):
                     await page.evaluate("window.scrollBy(0, 500);")
-                    # Micro-pause so the browser registers two distinct scroll events instead of combining them
                     await asyncio.sleep(0.1) 
                 
-                # 2. The Deep Wait (Let the massive batch of new HTML nodes load)
+                # 2. The Deep Wait 
                 await asyncio.sleep(1.5) 
                 
-                # 3. The Slow Crawl (Go slow down, wait, go down)
+                # 3. The Slow Crawl 
                 for _ in range(20):
                     await page.evaluate("window.scrollBy(0, 300);")
                     await asyncio.sleep(1.8)
                     
-                # 4. Return to Top (As the rest of the scraper does)
-                await page.evaluate("window.scrollTo(0, 0);")
-                await asyncio.sleep(2) # Let the DOM settle
+            # Return to Top before querying the DOM
+            await page.evaluate("window.scrollTo(0, 0);")
+            await asyncio.sleep(2) 
 
-                # Find all products (Translating your VBA CSS Selector)
-                product_elements = await page.query_selector_all("[role*='gridcell']")
-                print(f"Found {len(product_elements)} Ajio products. Extracting...")
+            # Find all products loaded in the infinite scroll
+            product_elements = await page.query_selector_all("[role*='gridcell']")
+            print(f"Found {len(product_elements)} Ajio products. Extracting...")
 
-                for element in product_elements:
-                    title, discounted_price, original_price, image_url, raw_url = None, None, None, None, None
-                    rating, review_count = None, None
-                    
-                    try:
-                        # --- THE LASER-TARGETED LAZY LOAD FIX ---
-                        # Force the browser to physically look at this exact item to trigger its image
-                        await element.scroll_into_view_if_needed()
-                        await asyncio.sleep(0.05) 
-                        # ----------------------------------------
+            for element in product_elements:
+                title, discounted_price, original_price, image_url, raw_url = None, None, None, None, None
+                rating, review_count = None, None
+                
+                try:
+                    await element.scroll_into_view_if_needed()
+                    await asyncio.sleep(0.05) 
 
-                        # 1. URL & The "God String" (Your Column H)
-                        link_el = await element.query_selector("[class*='rilrtl-products-list__link']")
-                        if link_el:
-                            href = await link_el.get_attribute("href")
-                            if href and "banner" in href.lower(): 
-                                continue # Skip banners
+                    # 1. URL & The "God String" 
+                    link_el = await element.query_selector("[class*='rilrtl-products-list__link']")
+                    if link_el:
+                        href = await link_el.get_attribute("href")
+                        
+                        # Added javascript check to avoid empty clicks
+                        if href and ("banner" in href.lower() or "javascript" in href.lower()): 
+                            continue 
+                            
+                        # THE URL CONCATENATION FIX
+                        if href:
+                            raw_url = href if href.startswith("http") else f"https://www.ajio.com/{href.lstrip('/')}"
+                        
+                        aria_label = await link_el.get_attribute("aria-label")
+                        
+                        if aria_label:
+                            title_match = aria_label.split('.')
+                            if title_match:
+                                title = title_match[0].strip()
                                 
-                            raw_url = f"https://www.ajio.com{href}" if href.startswith("/") else href
-                            
-                            # Grab the aria-label string
-                            aria_label = await link_el.get_attribute("aria-label")
-                            
-                            if aria_label:
-                                # TRANSLATING YOUR EXCEL: =LEFT(H2,SEARCH(".",H2)-1)
-                                title_match = aria_label.split('.')
-                                if title_match:
-                                    title = title_match[0].strip()
-                                    
-                                # TRANSLATING YOUR EXCEL: =RIGHT(H2,LEN(H2)-SEARCH("; ₹",H2)-2)...
-                                disc_match = re.search(r"(?:Current price|Price)[^\d]*₹([\d,]+)", aria_label, re.IGNORECASE)
-                                if disc_match:
-                                    discounted_price = int(disc_match.group(1).replace(",", ""))
-                                    
-                                # TRANSLATING YOUR EXCEL: =RIGHT(H2,LEN(H2)-SEARCH("MRP ₹",H2)-4)...
-                                mrp_match = re.search(r"MRP ₹([\d,]+)", aria_label, re.IGNORECASE)
-                                if mrp_match:
-                                    original_price = int(mrp_match.group(1).replace(",", ""))
-
-                        # Deduping
-                        if title:
-                            clean_title = title.strip().lower()
-                            if clean_title in seen_titles: continue
-                            seen_titles.add(clean_title)
-
-                        # 2. Image (Still need data-src fallback for lazy loading)
-                        img_el = await element.query_selector("img")
-                        if img_el:
-                            image_url = await img_el.get_attribute("src")
-                            if not image_url or 'data:image' in image_url or 'placeholder' in image_url.lower() or '.gif' in image_url.lower():
-                                image_url = await img_el.get_attribute("data-src")
-
-                        # 3. DOM Prices Fallback (Safety net just in case the aria-label was missing prices)
-                        if not discounted_price:
-                            disc_price_el = await element.query_selector(".price, strong")
-                            if disc_price_el: 
-                                txt = await disc_price_el.inner_text()
-                                if txt.strip(): discounted_price = int(re.sub(r"[^\d]", "", txt))
-                            
-                        if not original_price:
-                            orig_price_el = await element.query_selector(".orginal-price, .original-price, .strike, del")
-                            if orig_price_el: 
-                                txt = await orig_price_el.inner_text()
-                                if txt.strip(): original_price = int(re.sub(r"[^\d]", "", txt))
+                            disc_match = re.search(r"(?:Current price|Price)[^\d]*₹([\d,]+)", aria_label, re.IGNORECASE)
+                            if disc_match:
+                                discounted_price = int(disc_match.group(1).replace(",", ""))
                                 
-                        if discounted_price and not original_price:
-                            original_price = discounted_price
+                            mrp_match = re.search(r"MRP ₹([\d,]+)", aria_label, re.IGNORECASE)
+                            if mrp_match:
+                                original_price = int(mrp_match.group(1).replace(",", ""))
 
-                        # --- PROBLEM 2 FIX: THE 0% ASSASSIN ---
-                        # If there is no original price, or the discount is 0%, drop it immediately.
-                        if not original_price or not discounted_price or discounted_price >= original_price:
-                            continue
+                    # Deduping
+                    if title:
+                        clean_title = title.strip().lower()
+                        if clean_title in seen_titles: continue
+                        seen_titles.add(clean_title)
+
+                    # 2. Image
+                    img_el = await element.query_selector("img")
+                    if img_el:
+                        image_url = await img_el.get_attribute("src")
+                        if not image_url or 'data:image' in image_url or 'placeholder' in image_url.lower() or '.gif' in image_url.lower():
+                            image_url = await img_el.get_attribute("data-src")
+
+                    # 3. DOM Prices Fallback 
+                    if not discounted_price:
+                        disc_price_el = await element.query_selector(".price, strong")
+                        if disc_price_el: 
+                            txt = await disc_price_el.inner_text()
+                            if txt.strip(): discounted_price = int(re.sub(r"[^\d]", "", txt))
+                        
+                    if not original_price:
+                        orig_price_el = await element.query_selector(".orginal-price, .original-price, .strike, del")
+                        if orig_price_el: 
+                            txt = await orig_price_el.inner_text()
+                            if txt.strip(): original_price = int(re.sub(r"[^\d]", "", txt))
                             
-                        # Calculate exact percentage now
-                        discount_pct = int(((original_price - discounted_price) / original_price) * 100)
-                        if discount_pct < 5: # Optionally require at least a 5% discount
-                            continue
-                        # --------------------------------------
+                    if discounted_price and not original_price:
+                        original_price = discounted_price
 
-                        # 4. Rating & Reviews
-                        rating_el = await element.query_selector("[class*='_2mae-']")
-                        if rating_el:
-                            rating_aria = await rating_el.get_attribute("aria-label")
-                            if rating_aria:
-                                r_match = re.search(r"([\d\.]+)", rating_aria)
-                                if r_match: rating = float(r_match.group(1))
-                                
-                                rev_match = re.search(r"and\s+([\d\.]+)(K)?\s*reviews", rating_aria, re.IGNORECASE)
-                                if rev_match:
-                                    base_num = float(rev_match.group(1))
-                                    review_count = int(base_num * 1000) if rev_match.group(2) else int(base_num)
-
-                        # VALIDATION GATE
-                        if not title or not original_price or not discounted_price or not image_url or not raw_url:
-                            print(f"⚠️ Dropped: {str(title)[:15]}... | Orig: {bool(original_price)} | Disc: {bool(discounted_price)} | Img: {bool(image_url)}")
-                            continue
-
-                        # WE ONLY SAVE RAW DATA HERE. EARNKARO HAPPENS CONCURRENTLY AT THE END.
-                        deal_data = {
-                            "title": title.strip(),
-                            "raw_url": raw_url, 
-                            "platform": "Ajio",
-                            "category": category_id,
-                            "original_price": original_price,
-                            "discounted_price": discounted_price,
-                            "discount_percentage": discount_pct,
-                            "image_url": image_url,
-                            "rating": rating,
-                            "review_count": review_count,
-                            "is_active": True
-                        }
-                        scraped_deals.append(deal_data)
-
-                    except Exception as e:
+                    # --- THE 0% ASSASSIN ---
+                    if not original_price or not discounted_price or discounted_price >= original_price:
                         continue
+                        
+                    discount_pct = int(((original_price - discounted_price) / original_price) * 100)
+                    if discount_pct < 5: 
+                        continue
+
+                    # 4. Rating & Reviews
+                    rating_el = await element.query_selector("[class*='_2mae-']")
+                    if rating_el:
+                        rating_aria = await rating_el.get_attribute("aria-label")
+                        if rating_aria:
+                            r_match = re.search(r"([\d\.]+)", rating_aria)
+                            if r_match: rating = float(r_match.group(1))
+                            
+                            rev_match = re.search(r"and\s+([\d\.]+)(K)?\s*reviews", rating_aria, re.IGNORECASE)
+                            if rev_match:
+                                base_num = float(rev_match.group(1))
+                                review_count = int(base_num * 1000) if rev_match.group(2) else int(base_num)
+
+                    # VALIDATION GATE
+                    if not title or not original_price or not discounted_price or not image_url or not raw_url:
+                        continue
+
+                    deal_data = {
+                        "title": title.strip(),
+                        "raw_url": raw_url, 
+                        "platform": "Ajio",
+                        "category": category_id,
+                        "original_price": original_price,
+                        "discounted_price": discounted_price,
+                        "discount_percentage": discount_pct,
+                        "image_url": image_url,
+                        "rating": rating,
+                        "review_count": review_count,
+                        "is_active": True
+                    }
+                    scraped_deals.append(deal_data)
+
+                except Exception as e:
+                    continue
 
         except Exception as e:
             print(f"Ajio Critical error: {e}")
@@ -465,24 +435,22 @@ async def scrape_ajio_target(target_url: str, category_id: str, dry_run: bool = 
             if 'context' in locals():
                 await context.close()
     
-    # --- PROBLEM 3 FIX: CONCURRENT EARNKARO CONVERSION ---
+    # CONCURRENT EARNKARO CONVERSION
     if scraped_deals:
         print(f"\n⚡ Firing {len(scraped_deals)} links to EarnKaro concurrently...")
+        semaphore = asyncio.Semaphore(5) # Throttled to prevent API blocks
         
         async def fetch_ek_link(deal):
-            # Run the blocking API call in a background thread so it doesn't freeze the scraper
-            ek_link = await asyncio.to_thread(convert_to_earnkaro, deal["raw_url"])
-            deal["affiliate_link"] = ek_link
-            del deal["raw_url"] # Clean up the dictionary for the database
-            return deal
+            async with semaphore:
+                ek_link = await asyncio.to_thread(convert_to_earnkaro, deal["raw_url"])
+                deal["affiliate_link"] = ek_link
+                del deal["raw_url"] 
+                return deal
             
-        # Execute ALL API calls at the exact same time
         scraped_deals = await asyncio.gather(*(fetch_ek_link(d) for d in scraped_deals))
-        print("✅ All links converted instantly!")
-    # -----------------------------------------------------
+        print("✅ All links converted!")
 
     if dry_run:
-        print(json.dumps(scraped_deals, indent=2))
         print(f"Total Validated Ajio Deals: {len(scraped_deals)}")
     
     return scraped_deals

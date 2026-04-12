@@ -1,3 +1,5 @@
-2026/04/11-20:52:58.573 3d2c Reusing MANIFEST C:\Users\akhil\Desktop\Biz\deal-striker\backend\scrapers\myntra_trusted_profile\Default\Session Storage/MANIFEST-000001
-2026/04/11-20:52:58.580 3d2c Recovering log #3
-2026/04/11-20:52:58.595 3d2c Reusing old log C:\Users\akhil\Desktop\Biz\deal-striker\backend\scrapers\myntra_trusted_profile\Default\Session Storage/000003.log 
+2026/04/11-21:39:57.190 4060 Reusing MANIFEST C:\Users\akhil\Desktop\Biz\deal-striker\backend\scrapers\myntra_trusted_profile\Default\Session Storage/MANIFEST-000001
+2026/04/11-21:39:57.197 4060 Recovering log #3
+2026/04/11-21:39:57.198 4060 Level-0 table #3: started
+2026/04/11-21:39:57.225 4060 Level-0 table #3: 17593 bytes OK
+2026/04/11-21:39:57.254 4060 Delete type=0 #3

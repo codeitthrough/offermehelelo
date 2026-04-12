@@ -1,10 +1,5 @@
-2026/04/11-20:55:08.066 5858 Reusing MANIFEST C:\Users\akhil\Desktop\Biz\deal-striker\backend\scrapers\ajio_trusted_profile\Default\IndexedDB\https_www.ajio.com_0.indexeddb.leveldb/MANIFEST-000001
-2026/04/11-20:55:08.067 5858 Recovering log #31
-2026/04/11-20:55:08.123 5858 Reusing old log C:\Users\akhil\Desktop\Biz\deal-striker\backend\scrapers\ajio_trusted_profile\Default\IndexedDB\https_www.ajio.com_0.indexeddb.leveldb/000031.log 
-2026/04/11-20:55:41.533 17f0 Level-0 table #36: started
-2026/04/11-20:55:41.565 17f0 Level-0 table #36: 904291 bytes OK
-2026/04/11-20:55:41.567 17f0 Delete type=0 #31
-2026/04/11-20:55:43.335 2628 Compacting 1@1 + 1@2 files
-2026/04/11-20:55:43.354 2628 Generated table #37@1: 856 keys, 150304 bytes
-2026/04/11-20:55:43.354 2628 Compacted 1@1 + 1@2 files => 150304 bytes
-2026/04/11-20:55:43.355 2628 compacted to: files[ 0 0 1 0 0 0 0 ]
+2026/04/11-21:43:23.315 6b28 Reusing MANIFEST C:\Users\akhil\Desktop\Biz\deal-striker\backend\scrapers\ajio_trusted_profile\Default\IndexedDB\https_www.ajio.com_0.indexeddb.leveldb/MANIFEST-000001
+2026/04/11-21:43:23.317 6b28 Recovering log #39
+2026/04/11-21:43:23.325 6b28 Reusing old log C:\Users\akhil\Desktop\Biz\deal-striker\backend\scrapers\ajio_trusted_profile\Default\IndexedDB\https_www.ajio.com_0.indexeddb.leveldb/000039.log 
+2026/04/11-21:43:23.326 6b28 Delete type=2 #37
+2026/04/11-21:43:23.327 6b28 Delete type=2 #40
