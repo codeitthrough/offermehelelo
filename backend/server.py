@@ -604,6 +604,24 @@ async def create_category(category: CategoryCreate, username: str = Depends(veri
     new_category['created_at'] = datetime.fromisoformat(new_category['created_at'])
     return Category(**new_category)
 
+class CategoryReorderItem(BaseModel):
+    id: str
+    sort_order: int
+
+@api_router.put("/admin/categories/reorder")
+async def reorder_categories(items: List[CategoryReorderItem], username: str = Depends(verify_token)):
+    from pymongo import UpdateOne
+    
+    operations = [
+        UpdateOne({"id": item.id}, {"$set": {"sort_order": item.sort_order}}) 
+        for item in items
+    ]
+    
+    if operations:
+        await db.categories.bulk_write(operations)
+        
+    return {"status": "success"}
+
 @api_router.put("/admin/categories/{category_id}", response_model=Category)
 async def update_category(category_id: str, category: CategoryUpdate, username: str = Depends(verify_token)):
     update_data = {k: v for k, v in category.model_dump().items() if v is not None}
@@ -637,24 +655,6 @@ async def delete_category(category_id: str, username: str = Depends(verify_token
         raise HTTPException(status_code=404, detail="Category not found")
     
     return {"message": "Category deleted successfully"}
-
-class CategoryReorderItem(BaseModel):
-    id: str
-    sort_order: int
-
-@api_router.put("/admin/categories/reorder")
-async def reorder_categories(items: List[CategoryReorderItem], username: str = Depends(verify_token)):
-    from pymongo import UpdateOne
-    
-    operations = [
-        UpdateOne({"id": item.id}, {"$set": {"sort_order": item.sort_order}}) 
-        for item in items
-    ]
-    
-    if operations:
-        await db.categories.bulk_write(operations)
-        
-    return {"status": "success"}
 
 # Admin Deal endpoints
 @api_router.get("/admin/deals", response_model=List[Deal])
