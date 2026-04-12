@@ -1,10 +1,12 @@
-2026/04/11-21:39:56.814 4060 Reusing MANIFEST C:\Users\akhil\Desktop\Biz\deal-striker\backend\scrapers\myntra_trusted_profile\Default\Local Storage\leveldb/MANIFEST-000001
-2026/04/11-21:39:56.832 4060 Recovering log #140
-2026/04/11-21:39:56.834 4060 Level-0 table #143: started
-2026/04/11-21:39:56.847 4060 Level-0 table #143: 33718 bytes OK
-2026/04/11-21:39:56.863 4060 Delete type=0 #140
-2026/04/11-21:40:06.303 4060 Level-0 table #146: started
-2026/04/11-21:40:06.310 4060 Level-0 table #146: 33668 bytes OK
-2026/04/11-21:40:06.312 4060 Delete type=0 #144
-2026/04/11-21:40:55.642 4060 Level-0 table #148: started
-2026/04/11-21:40:55.658 4060 Level-0 table #148: 186123 bytes OK
+2026/04/12-15:57:24.674 4ac8 Reusing MANIFEST C:\Users\akhil\Desktop\Biz\deal-striker\backend\scrapers\myntra_trusted_profile\Default\Local Storage\leveldb/MANIFEST-000001
+2026/04/12-15:57:24.690 4ac8 Recovering log #168
+2026/04/12-15:57:24.695 4ac8 Level-0 table #172: started
+2026/04/12-15:57:24.713 4ac8 Level-0 table #172: 174325 bytes OK
+2026/04/12-15:57:24.714 4ac8 Recovering log #171
+2026/04/12-15:57:24.720 4ac8 Reusing old log C:\Users\akhil\Desktop\Biz\deal-striker\backend\scrapers\myntra_trusted_profile\Default\Local Storage\leveldb/000171.log 
+2026/04/12-15:57:24.724 4ac8 Delete type=0 #168
+2026/04/12-15:57:34.036 551c Level-0 table #174: started
+2026/04/12-15:57:34.047 551c Level-0 table #174: 152890 bytes OK
+2026/04/12-15:57:34.050 551c Delete type=0 #171
+2026/04/12-15:58:24.294 4ac8 Level-0 table #176: started
+2026/04/12-15:58:24.309 4ac8 Level-0 table #176: 33404 bytes OK

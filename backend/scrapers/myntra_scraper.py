@@ -459,12 +459,17 @@ async def scrape_ajio_target(target_url: str, category_id: str, dry_run: bool = 
 if __name__ == "__main__":
     import asyncio
     import requests
+    import csv
+    import os
+    from datetime import datetime
     
-    API_BASE = "https://offermehelelo.onrender.com/api"
+    API_BASE = "https://deal-striker-backend.onrender.com/api"
+    
+    # REPORT PATH: Saved directly in your Biz folder, completely outside the Git repo
+    REPORT_PATH = r"C:\Users\akhil\Desktop\Biz\Logs\scraper_daily_report.csv"
 
     print("🚀 FETCHING TARGETS FROM DATABASE 🚀")
     try:
-        # Call home to get the live targets you added in the Admin console
         response = requests.get(f"{API_BASE}/scraper/targets", timeout=15)
         response.raise_for_status()
         TARGETS = response.json()
@@ -475,11 +480,17 @@ if __name__ == "__main__":
 
     print("\n🚀 INITIALIZING MASTER SCRAPER PIPELINE 🚀")
     all_scraped_deals = []
+    
+    # --- REPORTING TRACKER SETUP ---
+    report_rows = []
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     for target in TARGETS:
         print(f"\n==========================================")
         print(f"🎯 Target: {target.get('name', 'Unnamed')} | {target['url']}")
         print(f"==========================================")
+        
+        deals = [] # Temporary list to hold this specific target's output
         
         # Route to the correct scraper module
         if target["platform"] == "Myntra":
@@ -490,7 +501,6 @@ if __name__ == "__main__":
                 start_page=1, 
                 end_page=2
             ))
-            all_scraped_deals.extend(deals)
             
         elif target["platform"] == "Ajio":
             deals = asyncio.run(scrape_ajio_target(
@@ -500,7 +510,17 @@ if __name__ == "__main__":
                 start_page=1, 
                 end_page=2
             ))
-            all_scraped_deals.extend(deals)
+            
+        all_scraped_deals.extend(deals)
+        
+        # --- LOG THIS TARGET FOR THE REPORT ---
+        report_rows.append([
+            current_time,
+            target.get("platform", "Unknown"),
+            target.get("name", "Unnamed"),
+            len(deals),
+            target["url"]
+        ])
 
     # TRANSMIT TO SERVER
     if all_scraped_deals:
@@ -519,3 +539,28 @@ if __name__ == "__main__":
                 print(f"❌ Failed to transmit Batch {batch_num}: {e}")
     else:
         print("\n⚠️ No deals passed validation across any targets today.")
+
+    # --- SAVE THE EXCEL REPORT ---
+    print(f"\n📊 Saving execution report to {REPORT_PATH}...")
+    file_exists = os.path.isfile(REPORT_PATH)
+    
+    try:
+        # 'a' means append mode. It will add to the file without deleting history.
+        with open(REPORT_PATH, mode='a', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            
+            # If the file didn't exist before, write the column headers first
+            if not file_exists:
+                writer.writerow(["Date & Time", "Platform", "Target Name", "Deals Extracted", "URL"])
+            
+            # Write all the individual target rows
+            writer.writerows(report_rows)
+            
+            # Write a total summary row for this session
+            writer.writerow([current_time, "ALL", "TOTAL FOR RUN", len(all_scraped_deals), ""])
+            # Add a blank row to separate different runs cleanly
+            writer.writerow([])
+            
+        print("✅ Report saved successfully!")
+    except Exception as e:
+        print(f"⚠️ Could not save report: {e}\n(Make sure the file isn't currently open in Excel!)")

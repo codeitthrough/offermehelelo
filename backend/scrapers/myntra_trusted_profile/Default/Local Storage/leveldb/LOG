@@ -1,22 +1,23 @@
-2026/04/11-21:48:01.495 2c94 Reusing MANIFEST C:\Users\akhil\Desktop\Biz\deal-striker\backend\scrapers\myntra_trusted_profile\Default\Local Storage\leveldb/MANIFEST-000001
-2026/04/11-21:48:01.509 2c94 Recovering log #145
-2026/04/11-21:48:01.515 2c94 Level-0 table #148: started
-2026/04/11-21:48:01.534 2c94 Level-0 table #148: 186123 bytes OK
-2026/04/11-21:48:01.538 2c94 Recovering log #147
-2026/04/11-21:48:01.544 2c94 Level-0 table #149: started
-2026/04/11-21:48:01.575 2c94 Level-0 table #149: 182740 bytes OK
-2026/04/11-21:48:01.594 2c94 Delete type=0 #145
-2026/04/11-21:48:01.597 2c94 Delete type=0 #147
-2026/04/11-21:48:01.603 664c Compacting 5@0 + 1@1 files
-2026/04/11-21:48:01.770 664c Generated table #151@0: 50 keys, 1676329 bytes
-2026/04/11-21:48:01.771 664c Compacted 5@0 + 1@1 files => 1676329 bytes
-2026/04/11-21:48:01.776 664c compacted to: files[ 0 1 1 0 0 0 0 ]
-2026/04/11-21:48:01.786 664c Delete type=2 #139
-2026/04/11-21:48:01.789 664c Delete type=2 #141
-2026/04/11-21:48:01.789 664c Delete type=2 #143
-2026/04/11-21:48:01.789 664c Delete type=2 #146
-2026/04/11-21:48:01.789 664c Delete type=2 #148
-2026/04/11-21:48:01.789 664c Delete type=2 #149
-2026/04/11-21:48:11.216 664c Level-0 table #153: started
-2026/04/11-21:48:11.222 664c Level-0 table #153: 164950 bytes OK
-2026/04/11-21:48:11.224 664c Delete type=0 #150
+2026/04/12-16:06:53.480 4440 Reusing MANIFEST C:\Users\akhil\Desktop\Biz\deal-striker\backend\scrapers\myntra_trusted_profile\Default\Local Storage\leveldb/MANIFEST-000001
+2026/04/12-16:06:53.495 4440 Recovering log #173
+2026/04/12-16:06:53.495 4440 Level-0 table #176: started
+2026/04/12-16:06:53.505 4440 Level-0 table #176: 33404 bytes OK
+2026/04/12-16:06:53.506 4440 Recovering log #175
+2026/04/12-16:06:53.524 4440 Level-0 table #177: started
+2026/04/12-16:06:53.559 4440 Level-0 table #177: 181960 bytes OK
+2026/04/12-16:06:53.585 4440 Delete type=0 #173
+2026/04/12-16:06:53.588 4440 Delete type=0 #175
+2026/04/12-16:06:53.596 4dc4 Compacting 4@0 + 1@1 files
+2026/04/12-16:06:53.777 4dc4 Generated table #179@0: 53 keys, 1760219 bytes
+2026/04/12-16:06:53.778 4dc4 Compacted 4@0 + 1@1 files => 1760219 bytes
+2026/04/12-16:06:53.782 4dc4 compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/04/12-16:06:53.786 4dc4 Delete type=2 #170
+2026/04/12-16:06:53.787 4dc4 Delete type=2 #172
+2026/04/12-16:06:53.787 4dc4 Delete type=2 #174
+2026/04/12-16:06:53.787 4dc4 Delete type=2 #176
+2026/04/12-16:06:53.787 4dc4 Delete type=2 #177
+2026/04/12-16:07:04.646 4dc4 Level-0 table #181: started
+2026/04/12-16:07:04.662 4dc4 Level-0 table #181: 33679 bytes OK
+2026/04/12-16:07:04.666 4dc4 Delete type=0 #178
+2026/04/12-16:07:52.683 4440 Level-0 table #183: started
+2026/04/12-16:07:52.711 4440 Level-0 table #183: 146459 bytes OK
