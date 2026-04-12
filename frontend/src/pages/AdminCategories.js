@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { axiosInstance } from '@/App';
 import AdminLayout from '@/components/AdminLayout';
 import { toast } from 'sonner';
-import { Plus, Edit, Trash2, Eye, EyeOff, ChevronDown, ChevronRight, Tag } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, EyeOff, ChevronDown, ChevronRight, Tag, ArrowUp, ArrowDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -61,6 +61,38 @@ const AdminCategories = () => {
     }
   };
 
+  // --- REORDER FUNCTIONALITY ---
+  const handleMove = async (index, direction) => {
+    if (direction === 'up' && index === 0) return;
+    if (direction === 'down' && index === categories.length - 1) return;
+
+    const newCategories = [...categories];
+    const swapIndex = direction === 'up' ? index - 1 : index + 1;
+
+    // Swap the items in the array
+    const temp = newCategories[index];
+    newCategories[index] = newCategories[swapIndex];
+    newCategories[swapIndex] = temp;
+
+    // Instantly update UI for a snappy feel
+    setCategories(newCategories);
+
+    // Prepare payload for backend
+    const payload = newCategories.map((cat, idx) => ({
+      id: cat.id,
+      sort_order: idx
+    }));
+
+    try {
+      await axiosInstance.put('/admin/categories/reorder', payload);
+      toast.success('Categories reordered');
+    } catch (error) {
+      toast.error('Failed to save new order');
+      fetchCategories(); // Revert UI if server fails
+    }
+  };
+  // -----------------------------
+
   const handleOpenDialog = (category = null) => {
     if (category) {
       setEditMode(true);
@@ -102,7 +134,6 @@ const AdminCategories = () => {
       toast.success('Subcategory created successfully');
       setSubcatDialogOpen(false);
       fetchSubcategories(currentSubcategory.category_id);
-      // Auto expand the category to show the new subcategory
       setExpandedCategories((prev) => ({ ...prev, [currentSubcategory.category_id]: true }));
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Failed to create subcategory');
@@ -167,7 +198,7 @@ const AdminCategories = () => {
                 </tr>
               </thead>
               <tbody>
-                {categories.map((category) => (
+                {categories.map((category, index) => (
                   <React.Fragment key={category.id}>
                     <tr className="border-b" data-testid={`category-row-${category.id}`}>
                       <td className="p-3">
@@ -198,12 +229,37 @@ const AdminCategories = () => {
                         </span>
                       </td>
                       <td className="p-3">
-                        <div className="flex items-center justify-end gap-2">
+                        <div className="flex items-center justify-end gap-1">
+                          
+                          {/* UP ARROW */}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleMove(index, 'up')}
+                            disabled={index === 0}
+                            title="Move Up"
+                          >
+                            <ArrowUp className="h-4 w-4 text-muted-foreground hover:text-foreground" />
+                          </Button>
+
+                          {/* DOWN ARROW */}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleMove(index, 'down')}
+                            disabled={index === categories.length - 1}
+                            title="Move Down"
+                          >
+                            <ArrowDown className="h-4 w-4 text-muted-foreground hover:text-foreground" />
+                          </Button>
+
+                          <div className="w-px h-4 bg-border mx-1"></div>
+
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => handleOpenSubcatDialog(category)}
-                            className="rounded-sm text-xs"
+                            className="rounded-sm text-xs ml-1"
                             data-testid={`add-subcat-${category.id}`}
                           >
                             <Tag className="h-3 w-3 mr-1" />

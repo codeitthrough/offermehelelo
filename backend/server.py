@@ -403,7 +403,7 @@ async def fetch_deals_from_platforms():
 # Public endpoints
 @api_router.get("/categories", response_model=List[Category])
 async def get_categories():
-    categories = await db.categories.find({"is_active": True}, {"_id": 0}).to_list(100)
+    categories = await db.categories.find({"is_active": True}, {"_id": 0}).sort("sort_order", 1).to_list(100)
     for cat in categories:
         if isinstance(cat['created_at'], str):
             cat['created_at'] = datetime.fromisoformat(cat['created_at'])
@@ -579,7 +579,7 @@ async def verify_auth(username: str = Depends(verify_token)):
 # Admin Category endpoints
 @api_router.get("/admin/categories", response_model=List[Category])
 async def get_admin_categories(username: str = Depends(verify_token)):
-    categories = await db.categories.find({}, {"_id": 0}).to_list(100)
+    categories = await db.categories.find({}, {"_id": 0}).sort("sort_order", 1).to_list(100)
     for cat in categories:
         if isinstance(cat['created_at'], str):
             cat['created_at'] = datetime.fromisoformat(cat['created_at'])
@@ -637,6 +637,24 @@ async def delete_category(category_id: str, username: str = Depends(verify_token
         raise HTTPException(status_code=404, detail="Category not found")
     
     return {"message": "Category deleted successfully"}
+
+class CategoryReorderItem(BaseModel):
+    id: str
+    sort_order: int
+
+@api_router.put("/admin/categories/reorder")
+async def reorder_categories(items: List[CategoryReorderItem], username: str = Depends(verify_token)):
+    from pymongo import UpdateOne
+    
+    operations = [
+        UpdateOne({"id": item.id}, {"$set": {"sort_order": item.sort_order}}) 
+        for item in items
+    ]
+    
+    if operations:
+        await db.categories.bulk_write(operations)
+        
+    return {"status": "success"}
 
 # Admin Deal endpoints
 @api_router.get("/admin/deals", response_model=List[Deal])
