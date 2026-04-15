@@ -17,7 +17,7 @@ const AdminScrapeTargets = () => {
   const [editMode, setEditMode] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
   
-  const defaultTarget = { name: '', url: '', platform: 'Myntra', category_id: '', is_active: true };
+  const defaultTarget = { name: '', url: '', platform: 'Myntra', category_id: 'unselected', is_active: true };
   const [currentTarget, setCurrentTarget] = useState(defaultTarget);
 
   useEffect(() => {
@@ -39,12 +39,10 @@ const AdminScrapeTargets = () => {
 
   const fetchCategories = async () => {
     try {
-      // Switched to the public API endpoint to bypass admin caching
-      const response = await axiosInstance.get('/categories');
-      setCategories(response.data);
+      const response = await axiosInstance.get('/admin/categories');
+      setCategories(response.data.filter((c) => c.is_active));
     } catch (error) { 
-      toast.error('Failed to load category dropdown');
-      console.error(error);
+      console.error('Failed to fetch categories'); 
     }
   };
 
@@ -55,7 +53,7 @@ const AdminScrapeTargets = () => {
         name: target.name,
         url: target.url,
         platform: target.platform,
-        category_id: target.category_id || '',
+        category_id: target.category_id || 'unselected',
         is_active: target.is_active !== false
       });
       setSelectedId(target.id);
@@ -74,12 +72,16 @@ const AdminScrapeTargets = () => {
       toast.success(`Target ${newStatus ? 'activated' : 'deactivated'}`);
       fetchTargets();
     } catch (error) { 
-      // Added detailed error logging here to catch backend schema issues
-      toast.error(error.response?.data?.detail || 'Backend error: Does is_active exist in your DB?'); 
+      toast.error(error.response?.data?.detail || 'Backend error'); 
     }
   };
 
   const handleSave = async () => {
+    if (currentTarget.category_id === 'unselected') {
+      toast.error('Please map a category to this target.');
+      return;
+    }
+
     try {
       if (editMode) {
         await axiosInstance.put(`/admin/scrape-targets/${selectedId}`, currentTarget);
@@ -142,7 +144,7 @@ const AdminScrapeTargets = () => {
                     <td className="p-3 text-sm text-muted-foreground max-w-xs truncate" title={target.url}>{target.url}</td>
                     <td className="p-3 text-sm">{target.platform}</td>
                     <td className="p-3 text-sm text-muted-foreground">
-                        {categories.find(c => c.id === target.category_id) ? categories.find(c => c.id === target.category_id).name : `ID: ${target.category_id}`}
+                        {categories.find(c => c.id === target.category_id)?.name || `ID: ${target.category_id}`}
                     </td>
                     <td className="p-3 text-center">
                       <span className={`inline-block px-2 py-1 text-xs font-semibold uppercase ${
@@ -158,7 +160,6 @@ const AdminScrapeTargets = () => {
                         <Button variant="ghost" size="sm" onClick={() => handleToggleActive(target)} title="Toggle Status">
                           {target.is_active !== false ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                         </Button>
-                        {/* FIX: Changed handleEdit to handleOpenDialog */}
                         <Button variant="ghost" size="sm" onClick={() => handleOpenDialog(target)} title="Edit Target">
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -205,9 +206,12 @@ const AdminScrapeTargets = () => {
             </div>
             <div>
               <Label className="text-xs uppercase tracking-wider font-semibold">Map to Category</Label>
-              <Select value={currentTarget.category_id || undefined} onValueChange={(val) => setCurrentTarget({ ...currentTarget, category_id: val })}>
-                <SelectTrigger className="mt-2 rounded-sm"><SelectValue placeholder="Select category" /></SelectTrigger>
+              <Select value={currentTarget.category_id} onValueChange={(val) => setCurrentTarget({ ...currentTarget, category_id: val })}>
+                <SelectTrigger className="mt-2 rounded-sm">
+                  <SelectValue placeholder={categories.length === 0 ? "Loading categories..." : "Select category"} />
+                </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="unselected" disabled>Select a category...</SelectItem>
                   {categories.map((cat) => <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>)}
                 </SelectContent>
               </Select>
