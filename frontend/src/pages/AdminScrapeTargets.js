@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { axiosInstance } from '@/App';
 import AdminLayout from '@/components/AdminLayout';
 import { toast } from 'sonner';
-import { Plus, Edit, Trash2, Eye, EyeOff } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, EyeOff, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -19,6 +19,9 @@ const AdminScrapeTargets = () => {
   
   const defaultTarget = { name: '', url: '', platform: 'Myntra', category_id: '', is_active: true };
   const [currentTarget, setCurrentTarget] = useState(defaultTarget);
+
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     fetchTargets();
@@ -108,6 +111,38 @@ const AdminScrapeTargets = () => {
     }
   };
 
+  const handleBulkUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      setUploading(true);
+      toast.info('Uploading targets...');
+      
+      const response = await axiosInstance.post('/admin/link-targets/bulk-upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      
+      const { inserted, skipped, errors } = response.data;
+      toast.success(`Upload complete: ${inserted} inserted, ${skipped} skipped.`);
+      
+      if (errors && errors.length > 0) {
+        console.error('Upload Errors:', errors);
+        toast.error(`${errors.length} rows failed. Check browser console for details.`);
+      }
+      
+      fetchTargets();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Bulk upload failed');
+    } finally {
+      setUploading(false);
+      event.target.value = null; // Reset input so you can upload the same file again if needed
+    }
+  };
+
   return (
     <AdminLayout>
       <div className="space-y-6">
@@ -116,9 +151,27 @@ const AdminScrapeTargets = () => {
             <h1 className="text-3xl font-black">Scraper Targets</h1>
             <p className="text-muted-foreground mt-1">Manage masterlist of automated links</p>
           </div>
-          <Button onClick={() => handleOpenDialog()} className="rounded-sm uppercase tracking-wide font-bold">
-            <Plus className="h-4 w-4 mr-2" /> Add Target
-          </Button>
+          <div className="flex items-center gap-2">
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              className="hidden" 
+              accept=".csv, .xlsx, .xls" 
+              onChange={handleBulkUpload} 
+            />
+            <Button 
+              onClick={() => fileInputRef.current?.click()} 
+              variant="outline"
+              disabled={uploading}
+              className="rounded-sm uppercase tracking-wide font-bold"
+            >
+              <Upload className="h-4 w-4 mr-2" />
+              {uploading ? 'Uploading...' : 'Bulk Upload'}
+            </Button>
+            <Button onClick={() => handleOpenDialog()} className="rounded-sm uppercase tracking-wide font-bold">
+              <Plus className="h-4 w-4 mr-2" /> Add Target
+            </Button>
+          </div>
         </div>
 
         {loading ? (
