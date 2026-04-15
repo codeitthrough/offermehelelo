@@ -39,10 +39,12 @@ const AdminScrapeTargets = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axiosInstance.get('/admin/categories');
-      setCategories(response.data.filter((c) => c.is_active));
+      // Switched to the public API endpoint to bypass admin caching
+      const response = await axiosInstance.get('/categories');
+      setCategories(response.data);
     } catch (error) { 
-      console.error('Failed to fetch categories'); 
+      toast.error('Failed to load category dropdown');
+      console.error(error);
     }
   };
 
@@ -203,7 +205,7 @@ const AdminScrapeTargets = () => {
             </div>
             <div>
               <Label className="text-xs uppercase tracking-wider font-semibold">Map to Category</Label>
-              <Select value={currentTarget.category_id} onValueChange={(val) => setCurrentTarget({ ...currentTarget, category_id: val })}>
+              <Select value={currentTarget.category_id || undefined} onValueChange={(val) => setCurrentTarget({ ...currentTarget, category_id: val })}>
                 <SelectTrigger className="mt-2 rounded-sm"><SelectValue placeholder="Select category" /></SelectTrigger>
                 <SelectContent>
                   {categories.map((cat) => <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>)}
