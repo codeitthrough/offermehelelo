@@ -39,10 +39,12 @@ const AdminScrapeTargets = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axiosInstance.get('/admin/categories');
-      setCategories(response.data.filter((c) => c.is_active));
+      // Use the public route to guarantee it bypasses any stale admin tokens
+      const response = await axiosInstance.get('/categories');
+      setCategories(response.data);
     } catch (error) { 
-      console.error('Failed to fetch categories'); 
+      toast.error('Failed to load categories dropdown');
+      console.error(error);
     }
   };
 
@@ -206,13 +208,17 @@ const AdminScrapeTargets = () => {
             </div>
             <div>
               <Label className="text-xs uppercase tracking-wider font-semibold">Map to Category</Label>
-              <Select value={currentTarget.category_id} onValueChange={(val) => setCurrentTarget({ ...currentTarget, category_id: val })}>
+              <Select 
+                value={currentTarget.category_id || undefined} 
+                onValueChange={(val) => setCurrentTarget({ ...currentTarget, category_id: val })}
+              >
                 <SelectTrigger className="mt-2 rounded-sm">
-                  <SelectValue placeholder={categories.length === 0 ? "Loading categories..." : "Select category"} />
+                  <SelectValue placeholder={categories.length === 0 ? "Loading..." : "Select category"} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="unselected" disabled>Select a category...</SelectItem>
-                  {categories.map((cat) => <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>)}
+                  {categories.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
