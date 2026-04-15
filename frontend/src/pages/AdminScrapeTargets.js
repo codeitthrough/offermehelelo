@@ -94,9 +94,9 @@ const AdminScrapeTargets = () => {
       }
       setDialogOpen(false);
       fetchTargets();
-    } catch (error) { 
-      toast.error(error.response?.data?.detail || 'Failed to save target');
-      fetchTargets(); 
+    } catch (error) {
+      // Exposes network/CORS errors directly on screen
+      toast.error(error.message + " - " + (error.response?.data?.detail || 'Unknown Error'));
     }
   };
 
