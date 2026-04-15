@@ -140,7 +140,7 @@ const AdminScrapeTargets = () => {
                     <td className="p-3 text-sm text-muted-foreground max-w-xs truncate" title={target.url}>{target.url}</td>
                     <td className="p-3 text-sm">{target.platform}</td>
                     <td className="p-3 text-sm text-muted-foreground">
-                        {categories.find(c => c.id === target.category_id)?.name || target.category_id}
+                        {categories.find(c => c.id === target.category_id) ? categories.find(c => c.id === target.category_id).name : `ID: ${target.category_id}`}
                     </td>
                     <td className="p-3 text-center">
                       <span className={`inline-block px-2 py-1 text-xs font-semibold uppercase ${
