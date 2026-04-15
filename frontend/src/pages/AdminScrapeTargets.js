@@ -17,7 +17,7 @@ const AdminScrapeTargets = () => {
   const [editMode, setEditMode] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
   
-  const defaultTarget = { name: '', url: '', platform: 'Myntra', category_id: 'unselected', is_active: true };
+  const defaultTarget = { name: '', url: '', platform: 'Myntra', category_id: '', is_active: true };
   const [currentTarget, setCurrentTarget] = useState(defaultTarget);
 
   useEffect(() => {
@@ -39,12 +39,10 @@ const AdminScrapeTargets = () => {
 
   const fetchCategories = async () => {
     try {
-      // Use the public route to guarantee it bypasses any stale admin tokens
-      const response = await axiosInstance.get('/categories');
-      setCategories(response.data);
+      const response = await axiosInstance.get('/admin/categories');
+      setCategories(response.data.filter((c) => c.is_active));
     } catch (error) { 
-      toast.error('Failed to load categories dropdown');
-      console.error(error);
+      console.error('Failed to fetch categories'); 
     }
   };
 
@@ -55,7 +53,7 @@ const AdminScrapeTargets = () => {
         name: target.name,
         url: target.url,
         platform: target.platform,
-        category_id: target.category_id || 'unselected',
+        category_id: target.category_id || '',
         is_active: target.is_active !== false
       });
       setSelectedId(target.id);
@@ -79,7 +77,7 @@ const AdminScrapeTargets = () => {
   };
 
   const handleSave = async () => {
-    if (currentTarget.category_id === 'unselected') {
+    if (!currentTarget.category_id) {
       toast.error('Please map a category to this target.');
       return;
     }
@@ -95,7 +93,6 @@ const AdminScrapeTargets = () => {
       setDialogOpen(false);
       fetchTargets();
     } catch (error) {
-      // Exposes network/CORS errors directly on screen
       toast.error(error.message + " - " + (error.response?.data?.detail || 'Unknown Error'));
     }
   };
@@ -209,11 +206,11 @@ const AdminScrapeTargets = () => {
             <div>
               <Label className="text-xs uppercase tracking-wider font-semibold">Map to Category</Label>
               <Select 
-                value={currentTarget.category_id || undefined} 
+                value={currentTarget.category_id ? currentTarget.category_id : undefined} 
                 onValueChange={(val) => setCurrentTarget({ ...currentTarget, category_id: val })}
               >
                 <SelectTrigger className="mt-2 rounded-sm">
-                  <SelectValue placeholder={categories.length === 0 ? "Loading..." : "Select category"} />
+                  <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
                   {categories.map((cat) => (
