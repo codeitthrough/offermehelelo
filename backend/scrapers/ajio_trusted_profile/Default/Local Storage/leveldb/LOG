@@ -1,6 +1,0 @@
-2026/04/12-16:04:56.951 5020 Reusing MANIFEST C:\Users\akhil\Desktop\Biz\deal-striker\backend\scrapers\ajio_trusted_profile\Default\Local Storage\leveldb/MANIFEST-000001
-2026/04/12-16:04:56.964 5020 Recovering log #52
-2026/04/12-16:04:56.974 5020 Reusing old log C:\Users\akhil\Desktop\Biz\deal-striker\backend\scrapers\ajio_trusted_profile\Default\Local Storage\leveldb/000052.log 
-2026/04/12-16:05:56.995 5a0c Level-0 table #55: started
-2026/04/12-16:05:57.002 5a0c Level-0 table #55: 17222 bytes OK
-2026/04/12-16:05:57.004 5a0c Delete type=0 #52

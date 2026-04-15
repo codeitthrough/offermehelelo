@@ -352,6 +352,9 @@ const HomeEnhanced = () => {
           <p className="font-bold">OFFER ME HE LELO!</p>
           <p className="mt-2">Smart scoring • Real-time tracking • Premium curation</p>
         </div>
+        <div className="mt-8 border-t border-gray-200 pt-4 text-center text-xs text-gray-500">
+          <p>Offer Me He Lelo is reader-supported. When you buy through links on our site, we may earn an affiliate commission. As an Amazon Associate, we earn from qualifying purchases.</p>
+        </div>
       </footer>
 
       <StickyDealButton deal={topDeal} onTrackClick={trackClick} />

@@ -78,3 +78,23 @@ agenthub/agents/youtube/db
 
 # Mobile development
 android-sdk/ 
+
+
+# --- SECRETS & KEYS ---
+.env
+*.session
+*.session-journal
+
+# --- THE LOCAL MUSCLE (DO NOT UPLOAD) ---
+worker.py
+amazon_ghost.py
+
+# --- BROWSER PROFILES (MASSIVE FILES) ---
+amazon_trusted_profile/
+myntra_trusted_profile/
+ajio_trusted_profile/
+*_trusted_profile/
+
+# --- PYTHON CACHE ---
+__pycache__/
+*.pyc
