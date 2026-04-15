@@ -28,7 +28,7 @@ const AdminScrapeTargets = () => {
   const fetchTargets = async () => {
     try {
       setLoading(true);
-      const response = await axiosInstance.get('/admin/scrape-targets');
+      const response = await axiosInstance.get('/admin/link-targets');
       setTargets(response.data);
     } catch (error) { 
       toast.error('Failed to fetch targets'); 
@@ -70,7 +70,7 @@ const AdminScrapeTargets = () => {
   const handleToggleActive = async (target) => {
     try {
       const newStatus = target.is_active === false ? true : false;
-      await axiosInstance.put(`/admin/scrape-targets/${target.id}`, { ...target, is_active: newStatus });
+      await axiosInstance.put(`/admin/link-targets/${target.id}`, { ...target, is_active: newStatus });
       toast.success(`Target ${newStatus ? 'activated' : 'deactivated'}`);
       fetchTargets();
     } catch (error) { 
@@ -86,10 +86,10 @@ const AdminScrapeTargets = () => {
 
     try {
       if (editMode) {
-        await axiosInstance.put(`/admin/scrape-targets/${selectedId}`, currentTarget);
+        await axiosInstance.put(`/admin/link-targets/${selectedId}`, currentTarget);
         toast.success('Target updated successfully');
       } else {
-        await axiosInstance.post('/admin/scrape-targets', currentTarget);
+        await axiosInstance.post('/admin/link-targets', currentTarget);
         toast.success('Target created successfully');
       }
       setDialogOpen(false);
@@ -103,7 +103,7 @@ const AdminScrapeTargets = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this target?')) return;
     try {
-      await axiosInstance.delete(`/admin/scrape-targets/${id}`);
+      await axiosInstance.delete(`/admin/link-targets/${id}`);
       toast.success('Target deleted successfully');
       fetchTargets();
     } catch (error) { 
