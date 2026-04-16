@@ -21,8 +21,7 @@ import { ThemeProvider } from '@/contexts/ThemeContext';
 import '@/App.css';
 
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-export const API = `${BACKEND_URL}/api`;
+export const API = "https://offermehelelo-api.onrender.com/api";
 
 export const axiosInstance = axios.create({
   baseURL: API,
