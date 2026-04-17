@@ -278,9 +278,14 @@ const HomeEnhanced = () => {
         )}
 
         <section className="py-8 mt-4 border-t">
-          <h2 className="text-2xl font-black uppercase tracking-tight mb-6">
+          <h2 className="text-2xl font-black uppercase tracking-tight mb-2">
             {selectedPlatform ? `Filter ${selectedPlatform} By Category` : 'Browse By Category'}
           </h2>
+          
+          {/* SEO CATEGORY DESCRIPTION INJECTION */}
+          <p className="text-sm text-muted-foreground mb-6">
+            Find the highest discounted {selectedCategory === 'all' ? 'fashion and electronics' : selectedCategory.replace(/-/g, ' ')} from top platforms. Validated and updated hourly.
+          </p>
 
           {/* CATEGORY PILLS */}
           <div 

@@ -19,6 +19,7 @@ import AdminScrapeTargets from '@/pages/AdminScrapeTargets'; // Adjust path if n
 import Contact from '@/pages/Contact';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import '@/App.css';
+import { Analytics } from "@vercel/analytics/react";
 
 
 export const API = "https://offermehelelo-api.onrender.com/api";
@@ -161,6 +162,8 @@ function App() {
             </Routes>
           </BrowserRouter>
           <Toaster position="top-right" />
+          {/* Vercel Analytics injected here */}
+          <Analytics />
         </div>
       </ThemeProvider>
     </HelmetProvider>

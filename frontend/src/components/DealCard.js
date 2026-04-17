@@ -14,6 +14,24 @@ const DealCard = ({ deal, section = 'general', page = 'home', onTrackClick }) =>
   return (
     <div className="deal-card border rounded-lg bg-card shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group flex flex-col h-full relative">
       
+      {/* SEO SCHEMA INJECTION */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org/",
+            "@type": "Product",
+            "name": deal.title,
+            "image": deal.image_url,
+            "offers": {
+              "@type": "Offer",
+              "priceCurrency": "INR",
+              "price": deal.discounted_price
+            }
+          })
+        }}
+      />
+
       {/* IMAGE: Aspect Ratio 4:5 for apparel/e-commerce standard */}
       <div className="relative w-full aspect-square bg-secondary/40 shrink-0 overflow-hidden">
         <img
