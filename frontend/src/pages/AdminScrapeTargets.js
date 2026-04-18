@@ -82,8 +82,12 @@ const AdminScrapeTargets = () => {
 
   const handleToggleActive = async (target) => {
     try {
-      const newStatus = target.is_active === false ? true : false;
-      await axiosInstance.put(`/admin/link-targets/${target.id}`, { ...target, is_active: newStatus });
+      const currentStatus = target.is_active !== false; 
+      const newStatus = !currentStatus;
+      
+      // Only send the exact field being updated, not the whole object
+      await axiosInstance.put(`/admin/link-targets/${target.id}`, { is_active: newStatus });
+      
       toast.success(`Target ${newStatus ? 'activated' : 'deactivated'}`);
       fetchTargets();
     } catch (error) { 
@@ -271,6 +275,7 @@ const AdminScrapeTargets = () => {
             <div>
               <Label className="text-xs uppercase tracking-wider font-semibold">Map to Subcategory (Optional)</Label>
               <Select 
+                key={`sub-${currentTarget.category_id}-${subcategories.length}`}
                 value={currentTarget.subcategory_id || "none"} 
                 onValueChange={(val) => setCurrentTarget({ ...currentTarget, subcategory_id: val === "none" ? "" : val })}
                 disabled={!currentTarget.category_id || subcategories.length === 0}
@@ -288,7 +293,7 @@ const AdminScrapeTargets = () => {
               <Label className="text-xs uppercase tracking-wider font-semibold">Map to Category</Label>
               <Select 
                 value={currentTarget.category_id ? currentTarget.category_id : undefined} 
-                onValueChange={(val) => setCurrentTarget({ ...currentTarget, category_id: val })}
+                onValueChange={(val) => setCurrentTarget({ ...currentTarget, category_id: val, subcategory_id: '' })}
               >
                 <SelectTrigger className="mt-2 rounded-sm">
                   <SelectValue placeholder="Select category" />
