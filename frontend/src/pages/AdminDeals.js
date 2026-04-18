@@ -378,7 +378,7 @@ const AdminDeals = () => {
               <Label className="text-xs uppercase tracking-wider font-semibold">Category</Label>
               <Select
                 value={currentDeal.category_id}
-                onValueChange={(val) => setCurrentDeal({ ...currentDeal, category_id: val })}
+                onValueChange={(val) => setCurrentDeal({ ...currentDeal, category_id: val, subcategory: '' })}
               >
                 <SelectTrigger className="mt-2 rounded-sm" data-testid="deal-category-select">
                   <SelectValue placeholder="Select category" />
