@@ -69,10 +69,12 @@ const AdminScrapeTargets = () => {
         url: target.url,
         platform: target.platform,
         category_id: target.category_id || '',
+        subcategory_id: target.subcategory_id || '', // Added this
         is_active: target.is_active !== false
       });
       setSelectedId(target.id);
-    } else {
+    } 
+    else {
       setEditMode(false);
       setCurrentTarget(defaultTarget);
       setSelectedId(null);
