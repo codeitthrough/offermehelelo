@@ -41,12 +41,25 @@ const AdminDeals = () => {
     affiliate_link: '',
     platform: 'Amazon',
   });
+
   const [selectedId, setSelectedId] = useState(null);
 
   useEffect(() => {
     fetchDeals();
     fetchCategories();
   }, []);
+
+  const [subcategories, setSubcategories] = useState([]);
+
+  useEffect(() => {
+    if (currentDeal.category_id) {
+      axiosInstance.get(`/subcategories?category_id=${currentDeal.category_id}`)
+        .then(res => setSubcategories(res.data))
+        .catch(() => setSubcategories([]));
+    } else {
+      setSubcategories([]);
+    }
+  }, [currentDeal.category_id]);
 
   const fetchDeals = async () => {
     try {
@@ -76,6 +89,7 @@ const AdminDeals = () => {
         title: deal.title,
         description: deal.description || '',
         category_id: deal.category_id,
+        subcategory: ''
         image_url: deal.image_url || '',
         original_price: deal.original_price.toString(),
         discounted_price: deal.discounted_price.toString(),
@@ -89,6 +103,7 @@ const AdminDeals = () => {
         title: '',
         description: '',
         category_id: '',
+        subcategory: ''
         image_url: '',
         original_price: '',
         discounted_price: '',
@@ -183,6 +198,24 @@ const AdminDeals = () => {
     }
   };
 
+
+  const handleDownloadAll = () => {
+    if (deals.length === 0) return toast.error('No deals to download');
+    
+    const headers = ['title', 'affiliate_link', 'platform', 'category', 'subcategory', 'original_price', 'discounted_price', 'image_url', 'description', 'rating', 'review_count'];
+    const rows = deals.map(d => {
+      return `"${(d.title || '').replace(/"/g, '""')}","${d.affiliate_link}","${d.platform}","${d.category_name}","${d.subcategory || ''}",${d.original_price},${d.discounted_price},"${d.image_url || ''}","${(d.description || '').replace(/"/g, '""')}","${d.rating || ''}","${d.review_count || ''}"`;
+    });
+    
+    const csvContent = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `all_deals_backup_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+  };
+
+
   return (
     <AdminLayout>
       <div className="space-y-6" data-testid="admin-deals">
@@ -192,6 +225,9 @@ const AdminDeals = () => {
             <p className="text-muted-foreground mt-1">Manage affiliate deals</p>
           </div>
           <div className="flex items-center gap-2">
+            <Button onClick={handleDownloadAll} variant="outline" className="rounded-sm uppercase tracking-wide font-bold">
+              Download All
+            </Button>
             {selectedDeals.length > 0 && (
               <Button
                 onClick={handleBulkDelete}
@@ -352,6 +388,22 @@ const AdminDeals = () => {
                     <SelectItem key={cat.id} value={cat.id}>
                       {cat.name}
                     </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xs uppercase tracking-wider font-semibold">Subcategory (Optional)</Label>
+              <Select
+                value={currentDeal.subcategory || "none"}
+                onValueChange={(val) => setCurrentDeal({ ...currentDeal, subcategory: val === "none" ? "" : val })}
+                disabled={!currentDeal.category_id || subcategories.length === 0}
+              >
+                <SelectTrigger className="mt-2 rounded-sm"><SelectValue placeholder="Select subcategory" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
+                  {subcategories.map((sub) => (
+                    <SelectItem key={sub.id} value={sub.slug}>{sub.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>

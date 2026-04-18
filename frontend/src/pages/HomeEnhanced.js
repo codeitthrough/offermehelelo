@@ -309,6 +309,27 @@ const HomeEnhanced = () => {
               </button>
             ))}
           </div>
+          
+          {/* SUBCATEGORY PILLS */}
+          {subcategories.length > 0 && (
+            <div className="flex gap-2 overflow-x-auto pb-4 mb-4 scrollbar-hide fade-edges transition-all">
+              <button 
+                onClick={() => setSelectedSubcategory('all')} 
+                className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap border-2 rounded-full transition-all active:scale-95 ${selectedSubcategory === 'all' ? 'border-accent bg-accent text-black' : 'border-border/50 bg-secondary hover:border-accent/50 text-foreground'}`}
+              >
+                All {categories.find(c => c.id === selectedCategory)?.name || ''}
+              </button>
+              {subcategories.map((sub) => (
+                <button 
+                  key={sub.id} 
+                  onClick={() => setSelectedSubcategory(sub.slug)} 
+                  className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap border-2 rounded-full transition-all active:scale-95 ${selectedSubcategory === sub.slug ? 'border-accent bg-accent text-black' : 'border-border/50 bg-secondary hover:border-accent/50 text-foreground'}`}
+                >
+                  {sub.name}
+                </button>
+              ))}
+            </div>
+          )}
 
           <div className="flex items-center gap-4 mb-8">
             <Select value={minDiscount.toString()} onValueChange={(val) => setMinDiscount(Number(val))}>

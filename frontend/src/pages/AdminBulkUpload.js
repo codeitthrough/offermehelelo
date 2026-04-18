@@ -56,11 +56,12 @@ const AdminBulkUpload = () => {
   };
 
   const downloadTemplate = () => {
-    const csv = `title,affiliate_link,platform,category,original_price,discounted_price,image_url,description,rating,review_count
-"Samsung Galaxy S24 Ultra","https://amazon.in/samsung-s24","Amazon","Mobile Accessories",129999,89999,"https://images.unsplash.com/photo-1610945415295-d9bbf067e59c","Latest flagship smartphone",4.8,12450
-"Sony WH-1000XM5","https://flipkart.com/sony-headphones","Flipkart","Audio (Headphones, Earbuds, Speakers)",29990,14990,"https://images.unsplash.com/photo-1546435770-a3e426bf472b","Noise cancelling headphones",4.5,850`;
+    const csv = `title,affiliate_link,platform,category,subcategory,original_price,discounted_price,image_url,description,rating,review_count
+"Samsung Galaxy S24 Ultra","https://amazon.in/samsung-s24","Amazon","Mobile Accessories","",129999,89999,"https://images.unsplash.com/photo-1610945415295-d9bbf067e59c","Latest flagship smartphone",4.8,12450
+"Sony WH-1000XM5","https://flipkart.com/sony-headphones","Flipkart","Audio (Headphones, Earbuds, Speakers)","",29990,14990,"https://images.unsplash.com/photo-1546435770-a3e426bf472b","Noise cancelling headphones",4.5,850`;
     
     const blob = new Blob([csv], { type: 'text/csv' });
+// ... rest of the function remains the same
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -129,6 +130,7 @@ const AdminBulkUpload = () => {
                 <li>• affiliate_link - Product URL</li>
                 <li>• platform - Amazon, Flipkart, etc.</li>
                 <li>• category - Must match existing category</li>
+                <li>• subcategory - Must match existing subcategory slug (optional)</li>
                 <li>• original_price - Original price (number)</li>
                 <li>• discounted_price - Sale price (number)</li>
                 <li>• image_url - Product image URL (optional)</li>

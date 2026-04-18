@@ -17,8 +17,20 @@ const AdminScrapeTargets = () => {
   const [editMode, setEditMode] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
   
-  const defaultTarget = { name: '', url: '', platform: 'Myntra', category_id: '', is_active: true };
+  const defaultTarget = { name: '', url: '', platform: 'Myntra', category_id: '', subcategory_id: '', is_active: true };
   const [currentTarget, setCurrentTarget] = useState(defaultTarget);
+
+  const [subcategories, setSubcategories] = useState([]);
+
+  useEffect(() => {
+    if (currentTarget.category_id) {
+      axiosInstance.get(`/subcategories?category_id=${currentTarget.category_id}`)
+        .then(res => setSubcategories(res.data))
+        .catch(() => setSubcategories([]));
+    } else {
+      setSubcategories([]);
+    }
+  }, [currentTarget.category_id]);
 
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef(null);
@@ -253,6 +265,22 @@ const AdminScrapeTargets = () => {
                   <SelectItem value="Amazon">Amazon</SelectItem>
                   <SelectItem value="Flipkart">Flipkart</SelectItem>
                   <SelectItem value="Ajio">Ajio</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xs uppercase tracking-wider font-semibold">Map to Subcategory (Optional)</Label>
+              <Select 
+                value={currentTarget.subcategory_id || "none"} 
+                onValueChange={(val) => setCurrentTarget({ ...currentTarget, subcategory_id: val === "none" ? "" : val })}
+                disabled={!currentTarget.category_id || subcategories.length === 0}
+              >
+                <SelectTrigger className="mt-2 rounded-sm"><SelectValue placeholder="Select subcategory" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
+                  {subcategories.map((sub) => (
+                    <SelectItem key={sub.id} value={sub.id}>{sub.name}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
