@@ -26,6 +26,7 @@ import {
 const AdminDeals = () => {
   const [deals, setDeals] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [platforms, setPlatforms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
@@ -47,6 +48,7 @@ const AdminDeals = () => {
   useEffect(() => {
     fetchDeals();
     fetchCategories();
+    fetchPlatforms();
   }, []);
 
   const [subcategories, setSubcategories] = useState([]);
@@ -79,6 +81,15 @@ const AdminDeals = () => {
       setCategories(response.data.filter((c) => c.is_active));
     } catch (error) {
       console.error('Failed to fetch categories');
+    }
+  };
+
+  const fetchPlatforms = async () => {
+    try {
+      const response = await axiosInstance.get('/admin/platforms');
+      setPlatforms(response.data.filter((p) => p.is_active));
+    } catch (error) {
+      console.error('Failed to fetch platforms');
     }
   };
 
@@ -395,6 +406,7 @@ const AdminDeals = () => {
             <div>
               <Label className="text-xs uppercase tracking-wider font-semibold">Subcategory (Optional)</Label>
               <Select
+                key={`sub-${currentDeal.category_id}-${subcategories.length}`}
                 value={currentDeal.subcategory || "none"}
                 onValueChange={(val) => setCurrentDeal({ ...currentDeal, subcategory: val === "none" ? "" : val })}
                 disabled={!currentDeal.category_id || subcategories.length === 0}
@@ -411,16 +423,16 @@ const AdminDeals = () => {
             <div>
               <Label className="text-xs uppercase tracking-wider font-semibold">Platform</Label>
               <Select
-                value={currentDeal.platform}
+                value={currentDeal.platform || ""}
                 onValueChange={(val) => setCurrentDeal({ ...currentDeal, platform: val })}
               >
                 <SelectTrigger className="mt-2 rounded-sm" data-testid="deal-platform-select">
-                  <SelectValue />
+                  <SelectValue placeholder="Select platform" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Amazon">Amazon</SelectItem>
-                  <SelectItem value="Flipkart">Flipkart</SelectItem>
-                  <SelectItem value="EarnKaro">EarnKaro</SelectItem>
+                  {platforms.map((p) => (
+                    <SelectItem key={p.id} value={p.name}>{p.name}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
