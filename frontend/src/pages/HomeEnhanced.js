@@ -284,7 +284,11 @@ const HomeEnhanced = () => {
           
           {/* SEO CATEGORY DESCRIPTION INJECTION */}
           <p className="text-sm text-muted-foreground mb-6">
-            Find the highest discounted {selectedCategory === 'all' ? 'fashion and electronics' : selectedCategory.replace(/-/g, ' ')} from top platforms. Validated and updated hourly.
+            Find the highest discounted {
+              selectedCategory === 'all' 
+                ? 'fashion and electronics' 
+                : categories.find(c => c.id === selectedCategory)?.name || selectedCategory.replace(/-/g, ' ')
+            } from top platforms. Validated and updated hourly.
           </p>
 
           {/* CATEGORY PILLS */}
