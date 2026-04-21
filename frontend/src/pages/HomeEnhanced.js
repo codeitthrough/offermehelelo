@@ -27,6 +27,8 @@ const HomeEnhanced = () => {
   const [selectedSubcategory, setSelectedSubcategory] = useState('all');
   const [minDiscount, setMinDiscount] = useState(0);
   const [selectedPlatform, setSelectedPlatform] = useState(null);
+  const [banners, setBanners] = useState([]);
+  const bannerScrollRef = useRef(null);
 
   // --- HORIZONTAL SCROLL INTERCEPTOR ---
   const categoryScrollRef = useRef(null);
@@ -81,6 +83,8 @@ const HomeEnhanced = () => {
     fetchHighlights();
     fetchActivePlatforms();
     
+    axios.get(`${API}/banners`).then(res => setBanners(res.data)).catch(() => {});
+
     const timer = setTimeout(() => setMinTimePassed(true), 800);
     const handleScroll = () => setShowScrollTop(window.scrollY > 500);
     window.addEventListener('scroll', handleScroll);
@@ -283,6 +287,53 @@ const HomeEnhanced = () => {
 
       <main className="max-w-[1600px] mx-auto px-4 md:px-8 py-6">
         
+        {/* BIG MOVING BANNER SECTION */}
+        {banners.length > 0 && !selectedPlatform && (
+          <div className="mb-8 overflow-hidden rounded-xl bg-card border shadow-sm relative group">
+            <div 
+              ref={bannerScrollRef}
+              className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide scroll-smooth"
+            >
+              {banners.map((banner, idx) => (
+                <a 
+                  key={banner.id} 
+                  href={banner.affiliate_link} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-full flex-shrink-0 snap-center relative aspect-[21/9] md:aspect-[32/9] cursor-pointer"
+                  onClick={() => trackClick(banner.id, banner.affiliate_link, 'top-banner', 'home')}
+                >
+                  <img 
+                    src={banner.image_url} 
+                    alt={banner.name}
+                    className="w-full h-full object-cover"
+                  />
+                  {/* Subtle platform badge */}
+                  <div className="absolute bottom-4 left-4 bg-black/70 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-sm">
+                    {banner.platform} Offer
+                  </div>
+                </a>
+              ))}
+            </div>
+            
+            {/* Auto-Scroll Logic */}
+            {useEffect(() => {
+              if (banners.length <= 1) return;
+              const interval = setInterval(() => {
+                if (bannerScrollRef.current) {
+                  const { scrollLeft, scrollWidth, clientWidth } = bannerScrollRef.current;
+                  if (scrollLeft + clientWidth >= scrollWidth - 10) {
+                    bannerScrollRef.current.scrollTo({ left: 0, behavior: 'smooth' });
+                  } else {
+                    bannerScrollRef.current.scrollBy({ left: clientWidth, behavior: 'smooth' });
+                  }
+                }
+              }, 4000); // Slides every 4 seconds
+              return () => clearInterval(interval);
+            }, [banners])}
+          </div>
+        )}
+
         {!selectedPlatform ? (
           <>
             <DealSection title="🔥 Best Deals Today" icon={Flame} deals={bestDealsToday} loading={highlightsLoading} section="best-today" onTrackClick={trackClick} />
