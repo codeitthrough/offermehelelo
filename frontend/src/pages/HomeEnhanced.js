@@ -108,6 +108,23 @@ const HomeEnhanced = () => {
     else { setSubcategories([]); setSelectedSubcategory('all'); }
   }, [selectedCategory]);
 
+  // --- BANNER AUTO-SCROLL LOGIC ---
+  useEffect(() => {
+    if (banners.length <= 1) return;
+    const interval = setInterval(() => {
+      if (bannerScrollRef.current) {
+        const { scrollLeft, scrollWidth, clientWidth } = bannerScrollRef.current;
+        if (scrollLeft + clientWidth >= scrollWidth - 10) {
+          bannerScrollRef.current.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+          bannerScrollRef.current.scrollBy({ left: clientWidth, behavior: 'smooth' });
+        }
+      }
+    }, 4000); 
+    return () => clearInterval(interval);
+  }, [banners]);
+  // --------------------------------
+
   const lastDealElementRef = useCallback(node => {
     if (gridLoading || isFetchingMore) return;
     if (observer.current) observer.current.disconnect();
@@ -316,21 +333,7 @@ const HomeEnhanced = () => {
               ))}
             </div>
             
-            {/* Auto-Scroll Logic */}
-            {useEffect(() => {
-              if (banners.length <= 1) return;
-              const interval = setInterval(() => {
-                if (bannerScrollRef.current) {
-                  const { scrollLeft, scrollWidth, clientWidth } = bannerScrollRef.current;
-                  if (scrollLeft + clientWidth >= scrollWidth - 10) {
-                    bannerScrollRef.current.scrollTo({ left: 0, behavior: 'smooth' });
-                  } else {
-                    bannerScrollRef.current.scrollBy({ left: clientWidth, behavior: 'smooth' });
-                  }
-                }
-              }, 4000); // Slides every 4 seconds
-              return () => clearInterval(interval);
-            }, [banners])}
+            
           </div>
         )}
 
