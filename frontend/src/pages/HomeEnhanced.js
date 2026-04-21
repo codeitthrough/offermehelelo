@@ -155,18 +155,23 @@ const HomeEnhanced = () => {
     } catch (error) {} finally { setHighlightsLoading(false); }
   };
 
+  // FIND THIS FUNCTION IN HomeEnhanced.js
   const fetchCategoryDeals = async (pageNum, isNewFilter = false) => {
     const currentFetchId = ++fetchIdRef.current;
-    
+  
     try {
       if (isNewFilter) setGridLoading(true);
       else setIsFetchingMore(true);
 
+      // FIX: Start with base URL
       let url = `${API}/deals?sort_by=score&skip=${pageNum * 12}&limit=12`;
-      if (selectedCategory !== 'all') url += `&category_id=${selectedCategory}`;
-      if (selectedSubcategory !== 'all') url += `&subcategory=${selectedSubcategory}`;
+    
+      // ONLY append filters if they are NOT 'all'
+      if (selectedCategory && selectedCategory !== 'all') url += `&category_id=${selectedCategory}`;
+      if (selectedSubcategory && selectedSubcategory !== 'all') url += `&subcategory=${selectedSubcategory}`;
       if (minDiscount > 0) url += `&min_discount=${minDiscount}`;
       if (selectedPlatform) url += `&platform=${selectedPlatform}`;
+    
       
       // Cache check for first pages
       const cacheKey = `deals_${url}`;
@@ -194,7 +199,13 @@ const HomeEnhanced = () => {
   };
 
   const handleCategoryChange = (catId) => { setSelectedCategory(catId); setSelectedSubcategory('all'); };
-  const handlePlatformClick = (platformName) => { setSelectedPlatform(platformName); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  
+  const handlePlatformClick = (platformName) => { 
+  setSelectedPlatform(platformName); 
+  setSelectedCategory('all');      // ADD THIS
+  setSelectedSubcategory('all');   // ADD THIS
+  window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  
   const trackClick = async (dealId, productUrl, section, page) => { try { await axios.post(`${API}/track/click`, { deal_id: dealId, product_url: productUrl, section, page }); } catch (error) {} };
   const showEmptyState = !gridLoading && minTimePassed && categoryDeals.length === 0;
 

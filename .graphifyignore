@@ -17,3 +17,9 @@ package-lock.json
 test_reports/
 *.csv
 *test_results.json
+Website archives/
+Trash files/
+indexnow_quickie.py
+Templates and Files/
+Logs/
+.ipynb_checkpoints/
