@@ -20,6 +20,7 @@ import Contact from '@/pages/Contact';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import '@/App.css';
 import { Analytics } from "@vercel/analytics/react";
+import AdminBanners from './pages/AdminBanners';
 
 
 export const API = "https://offermehelelo-api.onrender.com/api";
@@ -85,6 +86,14 @@ function App() {
                     <AdminDashboard />
                   </ProtectedRoute>
                 }
+              />
+              <Route 
+                path="/admin/banners" 
+                element={
+                  <ProtectedRoute>
+                    <AdminBanners />
+                  </ProtectedRoute>
+                } 
               />
               <Route
                 path="/admin/categories"
