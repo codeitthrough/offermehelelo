@@ -34,6 +34,7 @@ const AdminBrowseLinks = () => {
   const [currentLink, setCurrentLink] = useState({
     title: '',
     platform: '',
+    image_url: '',
     affiliate_link: '',
     category_id: '',
     subcategory: '',
@@ -100,6 +101,7 @@ const AdminBrowseLinks = () => {
       setCurrentLink({
         title: link.title,
         platform: link.platform,
+        image_url: link.image_url || '',
         affiliate_link: link.affiliate_link,
         category_id: link.category_id || '',
         subcategory: link.subcategory || '',
@@ -111,6 +113,7 @@ const AdminBrowseLinks = () => {
       setCurrentLink({
         title: '',
         platform: '',
+        image_url: '',
         affiliate_link: '',
         category_id: '',
         subcategory: '',
@@ -334,6 +337,21 @@ const AdminBrowseLinks = () => {
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+            
+            <div>
+              <Label className="text-xs uppercase tracking-wider font-semibold">
+                Promo Image URL (Optional)
+              </Label>
+              <Input
+                value={currentLink.image_url || ''}
+                onChange={(e) => setCurrentLink({ ...currentLink, image_url: e.target.value })}
+                className="mt-2 rounded-sm"
+                placeholder="https://..."
+              />
+              {currentLink.image_url && (
+                <img src={currentLink.image_url} alt="Preview" className="mt-2 h-24 w-full rounded border object-cover" />
+              )}
             </div>
 
             <div>

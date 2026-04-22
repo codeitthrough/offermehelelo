@@ -22,7 +22,7 @@ const AdminCategories = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [subcatDialogOpen, setSubcatDialogOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [currentCategory, setCurrentCategory] = useState({ name: '', icon: '' });
+  const [currentCategory, setCurrentCategory] = useState({ name: '', icon: '', image_url: '' });
   const [currentSubcategory, setCurrentSubcategory] = useState({ name: '', category_id: '' });
   const [selectedId, setSelectedId] = useState(null);
   const [selectedCategoryName, setSelectedCategoryName] = useState('');
@@ -96,11 +96,11 @@ const AdminCategories = () => {
   const handleOpenDialog = (category = null) => {
     if (category) {
       setEditMode(true);
-      setCurrentCategory({ name: category.name, icon: category.icon || '' });
+      setCurrentCategory({ name: category.name, icon: category.icon || '', image_url: category.image_url || '' });
       setSelectedId(category.id);
     } else {
       setEditMode(false);
-      setCurrentCategory({ name: '', icon: '' });
+      setCurrentCategory({ name: '', icon: '', image_url: '' });
       setSelectedId(null);
     }
     setDialogOpen(true);
@@ -372,6 +372,24 @@ const AdminCategories = () => {
                 data-testid="category-icon-input"
               />
             </div>
+
+            <div>
+              <Label htmlFor="category-image" className="text-xs uppercase tracking-wider font-semibold">
+                Category Cover Image URL
+              </Label>
+              <Input
+                id="category-image"
+                value={currentCategory.image_url || ''}
+                onChange={(e) => setCurrentCategory({ ...currentCategory, image_url: e.target.value })}
+                className="mt-2 rounded-sm"
+                placeholder="https://..."
+              />
+              {currentCategory.image_url && (
+                <img src={currentCategory.image_url} alt="Preview" className="mt-2 h-20 w-auto rounded border object-cover" />
+              )}
+            </div>
+            {/* --------------------------------------------- */}
+
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)} className="rounded-sm">
