@@ -320,6 +320,7 @@ const AdminCategories = () => {
                                   {subcategories[category.id].map((subcat) => (
                                     <button
                                       key={subcat.id}
+                                      type="button" // Important so it doesn't submit the whole form!
                                       onClick={() => handleOpenSubcatDialog(category, subcat)}
                                       className="px-3 py-1.5 bg-background border rounded-sm text-sm font-medium hover:border-accent hover:text-accent transition-colors"
                                       title="Click to edit subcategory"
@@ -430,6 +431,24 @@ const AdminCategories = () => {
                 data-testid="subcat-name-input"
               />
             </div>
+
+            {/* --- PASTE THIS NEW IMAGE BLOCK RIGHT HERE --- */}
+            <div>
+              <Label htmlFor="subcat-image" className="text-xs uppercase tracking-wider font-semibold">
+                Subcategory Image URL
+              </Label>
+              <Input
+                id="subcat-image"
+                value={currentSubcategory.image_url || ''}
+                onChange={(e) => setCurrentSubcategory({ ...currentSubcategory, image_url: e.target.value })}
+                className="mt-2 rounded-sm"
+                placeholder="https://..."
+              />
+              {currentSubcategory.image_url && (
+                <img src={currentSubcategory.image_url} alt="Preview" className="mt-2 h-16 w-16 rounded-full border object-cover" />
+              )}
+            </div>
+            {/* --------------------------------------------- */}
             
           </div>
           <DialogFooter>
