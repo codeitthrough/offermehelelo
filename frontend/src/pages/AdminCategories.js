@@ -22,8 +22,9 @@ const AdminCategories = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [subcatDialogOpen, setSubcatDialogOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [currentCategory, setCurrentCategory] = useState({ name: '', icon: '', image_url: '' });
-  const [currentSubcategory, setCurrentSubcategory] = useState({ name: '', category_id: '' });
+  const [currentCategory, setCurrentCategory] = useState({ name: '', icon: '' });
+  const [currentSubcategory, setCurrentSubcategory] = useState({ id: null, name: '', category_id: '', image_url: '' });
+  const [isEditSubcat, setIsEditSubcat] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
   const [selectedCategoryName, setSelectedCategoryName] = useState('');
 
@@ -96,18 +97,24 @@ const AdminCategories = () => {
   const handleOpenDialog = (category = null) => {
     if (category) {
       setEditMode(true);
-      setCurrentCategory({ name: category.name, icon: category.icon || '', image_url: category.image_url || '' });
+      setCurrentCategory({ name: category.name, icon: category.icon || '' });
       setSelectedId(category.id);
     } else {
       setEditMode(false);
-      setCurrentCategory({ name: '', icon: '', image_url: '' });
+      setCurrentCategory({ name: '', icon: '' });
       setSelectedId(null);
     }
     setDialogOpen(true);
   };
 
-  const handleOpenSubcatDialog = (category) => {
-    setCurrentSubcategory({ name: '', category_id: category.id });
+  const handleOpenSubcatDialog = (category, subcat = null) => {
+    if (subcat) {
+      setCurrentSubcategory({ id: subcat.id, name: subcat.name, category_id: category.id, image_url: subcat.image_url || '' });
+      setIsEditSubcat(true);
+    } else {
+      setCurrentSubcategory({ id: null, name: '', category_id: category.id, image_url: '' });
+      setIsEditSubcat(false);
+    }
     setSelectedCategoryName(category.name);
     setSubcatDialogOpen(true);
   };
@@ -130,13 +137,20 @@ const AdminCategories = () => {
 
   const handleSaveSubcategory = async () => {
     try {
-      await axiosInstance.post('/admin/subcategories', currentSubcategory);
-      toast.success('Subcategory created successfully');
+      if (isEditSubcat) {
+        await axiosInstance.put(`/admin/subcategories/${currentSubcategory.id}`, {
+          name: currentSubcategory.name,
+          image_url: currentSubcategory.image_url
+        });
+        toast.success('Subcategory updated');
+      } else {
+        await axiosInstance.post('/admin/subcategories', currentSubcategory);
+        toast.success('Subcategory created');
+      }
       setSubcatDialogOpen(false);
       fetchSubcategories(currentSubcategory.category_id);
-      setExpandedCategories((prev) => ({ ...prev, [currentSubcategory.category_id]: true }));
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to create subcategory');
+      toast.error(error.response?.data?.detail || 'Failed to save subcategory');
     }
   };
 
@@ -304,13 +318,14 @@ const AdminCategories = () => {
                                 </p>
                                 <div className="flex flex-wrap gap-2">
                                   {subcategories[category.id].map((subcat) => (
-                                    <span
+                                    <button
                                       key={subcat.id}
-                                      className="px-3 py-1.5 bg-background border rounded-sm text-sm font-medium"
-                                      data-testid={`subcat-${subcat.id}`}
+                                      onClick={() => handleOpenSubcatDialog(category, subcat)}
+                                      className="px-3 py-1.5 bg-background border rounded-sm text-sm font-medium hover:border-accent hover:text-accent transition-colors"
+                                      title="Click to edit subcategory"
                                     >
                                       {subcat.name}
-                                    </span>
+                                    </button>
                                   ))}
                                 </div>
                               </div>
@@ -373,23 +388,6 @@ const AdminCategories = () => {
               />
             </div>
 
-            <div>
-              <Label htmlFor="category-image" className="text-xs uppercase tracking-wider font-semibold">
-                Category Cover Image URL
-              </Label>
-              <Input
-                id="category-image"
-                value={currentCategory.image_url || ''}
-                onChange={(e) => setCurrentCategory({ ...currentCategory, image_url: e.target.value })}
-                className="mt-2 rounded-sm"
-                placeholder="https://..."
-              />
-              {currentCategory.image_url && (
-                <img src={currentCategory.image_url} alt="Preview" className="mt-2 h-20 w-auto rounded border object-cover" />
-              )}
-            </div>
-            {/* --------------------------------------------- */}
-
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)} className="rounded-sm">
@@ -432,6 +430,7 @@ const AdminCategories = () => {
                 data-testid="subcat-name-input"
               />
             </div>
+            
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setSubcatDialogOpen(false)} className="rounded-sm">

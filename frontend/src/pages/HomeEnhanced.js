@@ -393,22 +393,37 @@ const HomeEnhanced = () => {
             ))}
           </div>
           
-          {/* SUBCATEGORY PILLS */}
+          {/* VISUAL SUBCATEGORY CIRCLES */}
           {subcategories.length > 0 && (
-            <div className="flex gap-2 overflow-x-auto pb-4 mb-4 scrollbar-hide fade-edges transition-all">
+            <div className="flex gap-4 overflow-x-auto pb-4 mb-6 scrollbar-hide fade-edges transition-all items-start pt-2">
+              
+              {/* The "ALL" Circle (No Image) */}
               <button 
                 onClick={() => setSelectedSubcategory('all')} 
-                className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap border-2 rounded-full transition-all active:scale-95 ${selectedSubcategory === 'all' ? 'border-accent bg-accent text-black' : 'border-border/50 bg-secondary hover:border-accent/50 text-foreground'}`}
+                className="flex flex-col items-center gap-2 group min-w-[72px]"
               >
-                All {categories.find(c => c.id === selectedCategory)?.name || ''}
+                <div className={`w-16 h-16 rounded-full border flex items-center justify-center transition-all ${selectedSubcategory === 'all' ? 'border-accent bg-accent/10 shadow-md' : 'border-border/50 bg-secondary group-hover:border-accent/50 group-hover:shadow-sm'}`}>
+                  <span className="text-[10px] font-black uppercase text-center leading-tight">All<br/>{categories.find(c => c.id === selectedCategory)?.name?.split(' ')[0] || ''}</span>
+                </div>
               </button>
+
+              {/* Subcategory Circles (With Images) */}
               {subcategories.map((sub) => (
                 <button 
                   key={sub.id} 
                   onClick={() => setSelectedSubcategory(sub.slug)} 
-                  className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap border-2 rounded-full transition-all active:scale-95 ${selectedSubcategory === sub.slug ? 'border-accent bg-accent text-black' : 'border-border/50 bg-secondary hover:border-accent/50 text-foreground'}`}
+                  className="flex flex-col items-center gap-2 group min-w-[72px]"
                 >
-                  {sub.name}
+                  <div className={`w-16 h-16 rounded-full border overflow-hidden transition-all flex items-center justify-center bg-secondary ${selectedSubcategory === sub.slug ? 'border-accent shadow-md ring-2 ring-accent/20' : 'border-border/50 group-hover:border-accent/50 group-hover:shadow-sm'}`}>
+                    {sub.image_url ? (
+                      <img src={sub.image_url} alt={sub.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-[10px] font-bold text-muted-foreground uppercase">{sub.name.substring(0,2)}</span>
+                    )}
+                  </div>
+                  <span className={`text-[10px] font-bold uppercase tracking-wider text-center line-clamp-1 ${selectedSubcategory === sub.slug ? 'text-accent' : 'text-muted-foreground group-hover:text-foreground'}`}>
+                    {sub.name}
+                  </span>
                 </button>
               ))}
             </div>
