@@ -5,6 +5,7 @@ import { Flame, Zap, TrendingDown, TrendingUp, Moon, Sun, Filter, MessageSquare,
 import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Slider } from '@/components/ui/slider';
 import SEO from '@/components/SEO';
 import DealSection from '@/components/DealSection';
 import DealCard from '@/components/DealCard';
@@ -26,9 +27,12 @@ const HomeEnhanced = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedSubcategory, setSelectedSubcategory] = useState('all');
   const [minDiscount, setMinDiscount] = useState(0);
+  const [priceRange, setPriceRange] = useState([0, 5000]); // Controls the visual movement
+  const [activePriceRange, setActivePriceRange] = useState([0, 5000]); // Triggers the actual backend fetch
   const [selectedPlatform, setSelectedPlatform] = useState(null);
   const [banners, setBanners] = useState([]);
   const bannerScrollRef = useRef(null);
+
 
   // --- HORIZONTAL SCROLL INTERCEPTOR ---
   const categoryScrollRef = useRef(null);
@@ -97,7 +101,7 @@ const HomeEnhanced = () => {
     setCategoryDeals([]);
     setHasMore(true);
     fetchCategoryDeals(0, true);
-  }, [selectedCategory, selectedSubcategory, minDiscount, selectedPlatform]); // selectedPlatform MUST be here
+  }, [selectedCategory, selectedSubcategory, minDiscount, selectedPlatform, activePriceRange]); // selectedPlatform MUST be here
 
   useEffect(() => {
     if (page > 0) fetchCategoryDeals(page, false);
@@ -176,7 +180,7 @@ const HomeEnhanced = () => {
     } catch (error) {} finally { setHighlightsLoading(false); }
   };
 
-  // FIND THIS FUNCTION IN HomeEnhanced.js
+  
   const fetchCategoryDeals = async (pageNum, isNewFilter = false) => {
     const currentFetchId = ++fetchIdRef.current;
   
@@ -198,6 +202,14 @@ const HomeEnhanced = () => {
       }
       if (minDiscount > 0) {
         url += `&min_discount=${minDiscount}`;
+      }
+      // --- NEW SLIDER PRICE LOGIC ---
+      if (activePriceRange[0] > 0) {
+        url += `&min_price=${activePriceRange[0]}`;
+      }
+      // If it's at the absolute max (5000), we don't set a max price so it fetches everything above 5000 too
+      if (activePriceRange[1] < 5000) {
+        url += `&max_price=${activePriceRange[1]}`;
       }
       if (selectedPlatform) {
         url += `&platform=${selectedPlatform}`;
@@ -429,16 +441,42 @@ const HomeEnhanced = () => {
             </div>
           )}
 
-          <div className="flex items-center gap-4 mb-8">
+          {/* FILTER CONTROLS */}
+          <div className="flex items-center gap-6 mb-8 overflow-x-auto pb-4 scrollbar-hide pt-2">
+            {/* Discount Filter */}
             <Select value={minDiscount.toString()} onValueChange={(val) => setMinDiscount(Number(val))}>
-              <SelectTrigger className="w-[180px] rounded-full border-2 border-border/50 font-bold text-xs uppercase tracking-wider h-10"><SelectValue placeholder="Min Discount" /></SelectTrigger>
+              <SelectTrigger className="w-[180px] flex-shrink-0 rounded-full border-2 border-border/50 font-bold text-xs uppercase tracking-wider h-10">
+                <SelectValue placeholder="Min Discount" />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="0">All Discounts</SelectItem>
                 <SelectItem value="30">30% or more</SelectItem>
                 <SelectItem value="50">50% or more</SelectItem>
-                <SelectItem value="75">75% or more</SelectItem>
+                <SelectItem value="70">70% or more</SelectItem>
               </SelectContent>
             </Select>
+
+            {/* NEW: DUAL-THUMB PRICE SLIDER */}
+            <div className="flex flex-col w-[220px] flex-shrink-0 px-2">
+              <div className="flex justify-between items-center mb-3">
+                <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Price</span>
+              </div>
+              
+              <Slider
+                defaultValue={[0, 5000]}
+                max={5000}
+                step={100}
+                value={priceRange}
+                onValueChange={setPriceRange}             // Updates visually instantly
+                onValueCommit={setActivePriceRange}       // Only fetches deals when they let go of the mouse
+                className="w-full cursor-grab active:cursor-grabbing"
+              />
+              
+              <div className="text-xs font-bold mt-3 text-center tracking-wide">
+                ₹{priceRange[0]} - {priceRange[1] >= 5000 ? '₹5,000+' : `₹${priceRange[1]}`}
+              </div>
+            </div>
+            
           </div>
 
           <BrowseLinkTiles category={selectedCategory !== 'all' ? selectedCategory : null} subcategory={selectedSubcategory !== 'all' ? selectedSubcategory : null} platform={selectedPlatform} showTitle={true} maxLinks={selectedPlatform ? 100 : (selectedCategory !== 'all' ? 100 : 12)} scrollable={!selectedPlatform && selectedCategory === 'all'} />
