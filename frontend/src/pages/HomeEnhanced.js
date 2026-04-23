@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { API } from '@/App';
-import { Flame, Zap, TrendingDown, TrendingUp, Moon, Sun, Filter, MessageSquare, ArrowUp, ArrowLeft, Home, Search, Heart, User } from 'lucide-react';
+import { Flame, Zap, TrendingDown, TrendingUp, Moon, Sun, Filter, MessageSquare, ArrowUp, ArrowLeft, ArrowRight, Home, Search, Heart, User, Send, MessageCircle, X } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -32,6 +32,7 @@ const HomeEnhanced = () => {
   const [selectedPlatform, setSelectedPlatform] = useState(null);
   const [banners, setBanners] = useState([]);
   const bannerScrollRef = useRef(null);
+  const [showTgPopup, setShowTgPopup] = useState(false);
 
 
   // --- HORIZONTAL SCROLL INTERCEPTOR ---
@@ -88,6 +89,20 @@ const HomeEnhanced = () => {
     fetchActivePlatforms();
     
     axios.get(`${API}/banners`).then(res => setBanners(res.data)).catch(() => {});
+
+    // --- TELEGRAM POPUP LOGIC ---
+    const popupDismissed = localStorage.getItem('tg_popup_dismissed');
+    const dismissedTime = localStorage.getItem('tg_popup_time');
+    const now = new Date().getTime();
+    
+    // If never dismissed, or if it has been more than 24 hours (86400000 ms) since last dismissal
+    if (!popupDismissed || (now - parseInt(dismissedTime)) > 86400000) {
+      const timer = setTimeout(() => {
+        setShowTgPopup(true);
+      }, 5000); // Pops up after 5 seconds
+      return () => clearTimeout(timer);
+    }
+
 
     const timer = setTimeout(() => setMinTimePassed(true), 800);
     const handleScroll = () => setShowScrollTop(window.scrollY > 500);
@@ -264,6 +279,14 @@ const HomeEnhanced = () => {
     return `🔥 ${name}`;
   };
 
+  const closeTgPopup = () => {
+    setShowTgPopup(false);
+    localStorage.setItem('tg_popup_dismissed', 'true');
+    localStorage.setItem('tg_popup_time', new Date().getTime().toString());
+  };
+
+
+
   return (
     <div className="min-h-screen noise-bg pb-safe md:pb-0">
       <SEO title="Offer Me He Lelo! - Best Deals" description="Find the hottest deals. Updated hourly!" url="/" />
@@ -276,15 +299,28 @@ const HomeEnhanced = () => {
               <h1 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight cursor-pointer" onClick={() => { setSelectedPlatform(null); window.scrollTo({top:0, behavior:'smooth'}); }}>
                 OFFER ME HE LELO!
               </h1>
-              <div className="flex items-center gap-2 sm:gap-3">
-                {/* This is now visible on mobile & desktop */}
-                <a href="/contact" className="hover:text-accent flex items-center gap-1 sm:gap-1.5 font-bold text-[10px] sm:text-xs uppercase tracking-wider transition-colors mr-1 sm:mr-2">
+              <div className="flex items-center gap-2 sm:gap-4">
+                
+                {/* SOCIAL PLATFORMS */}
+                <div className="flex items-center gap-2 mr-2 border-r pr-2 sm:pr-4 border-border/50">
+                  <a href="https://t.me/offermehelelo" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-[#0088cc] transition-colors" title="Join our Telegram">
+                    <Send className="h-4 w-4 sm:h-5 sm:w-5" />
+                  </a>
+                  <a href="https://whatsapp.com/channel/0029Vb7rhfrHgZWXi4IUVc2z" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-[#25D366] transition-colors" title="Join our WhatsApp">
+                    <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />
+                  </a>
+                  {/* Future Insta/FB/YT buttons go here */}
+                </div>
+
+                <a href="/contact" className="hover:text-accent flex items-center gap-1 sm:gap-1.5 font-bold text-[10px] sm:text-xs uppercase tracking-wider transition-colors">
                   <MessageSquare className="h-4 w-4" /> 
-                  <span className="hidden min-[380px]:inline">Talk To Us</span>
+                  <span className="hidden min-[450px]:inline">Talk To Us</span>
                 </a>
+                
                 <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-full h-8 w-8 sm:h-10 sm:w-10">
                   {theme === 'dark' ? <Sun className="h-4 w-4 sm:h-5 sm:w-5" /> : <Moon className="h-4 w-4 sm:h-5 sm:w-5" />}
                 </Button>
+                
                 <Button variant="outline" onClick={() => (window.location.href = '/admin/login')} className="uppercase text-xs font-bold tracking-widest rounded-full hidden sm:flex">
                   Login
                 </Button>
@@ -553,6 +589,63 @@ const HomeEnhanced = () => {
         <Button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="fixed bottom-24 right-4 md:bottom-8 md:right-8 rounded-full shadow-2xl z-50 h-12 w-12 p-0 bg-accent hover:bg-accent/90">
           <ArrowUp className="h-6 w-6 text-white" />
         </Button>
+      )}
+
+      {/* PHASE 6: TELEGRAM POPUP MODAL */}
+      {showTgPopup && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-card border shadow-2xl rounded-2xl w-full max-w-md overflow-hidden relative animate-in zoom-in-95 duration-300">
+            
+            {/* Close Button */}
+            <button 
+              onClick={closeTgPopup}
+              className="absolute top-3 right-3 p-1.5 bg-black/20 hover:bg-black/40 rounded-full text-white transition-colors z-10"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            {/* Header Area */}
+            <div className="bg-gradient-to-r from-[#0088cc] to-[#00a8ff] p-6 text-center text-white relative overflow-hidden">
+              <div className="absolute -right-4 -top-4 opacity-20">
+                <Send className="h-32 w-32" />
+              </div>
+              <div className="relative z-10 flex flex-col items-center">
+                <div className="bg-white text-[#0088cc] p-3 rounded-full mb-4 shadow-lg">
+                  <Send className="h-8 w-8 ml-[-2px] mt-[2px]" />
+                </div>
+                <h2 className="text-2xl font-black uppercase tracking-tight mb-1">Never Miss a Loot Deal!</h2>
+                <p className="text-white/90 text-sm font-medium">Get instant alerts before stock runs out.</p>
+              </div>
+            </div>
+
+            {/* Body Area */}
+            <div className="p-6 text-center space-y-4">
+              <div className="flex justify-center gap-2 mb-2">
+                <span className="bg-secondary px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-sm">🔥 90% Off</span>
+                <span className="bg-secondary px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-sm">⚡ Price Drops</span>
+                <span className="bg-secondary px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-sm">🐛 Price Bugs</span>
+              </div>
+              
+              <a 
+                href="https://t.me/your_telegram_channel" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                onClick={closeTgPopup}
+                className="w-full flex items-center justify-center gap-2 bg-[#0088cc] hover:bg-[#0077b3] text-white py-3.5 rounded-xl font-black uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-xl"
+              >
+                Join Telegram Free <ArrowRight className="h-5 w-5" />
+              </a>
+              
+              <button 
+                onClick={closeTgPopup}
+                className="text-xs text-muted-foreground hover:text-foreground font-bold tracking-widest uppercase transition-colors"
+              >
+                Maybe Later
+              </button>
+            </div>
+            
+          </div>
+        </div>
       )}
     </div>
   );
