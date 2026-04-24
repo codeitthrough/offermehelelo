@@ -33,6 +33,8 @@ const HomeEnhanced = () => {
   const [banners, setBanners] = useState([]);
   const bannerScrollRef = useRef(null);
   const [showTgPopup, setShowTgPopup] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [sortBy, setSortBy] = useState('score');
 
 
   // --- HORIZONTAL SCROLL INTERCEPTOR ---
@@ -116,7 +118,8 @@ const HomeEnhanced = () => {
     setCategoryDeals([]);
     setHasMore(true);
     fetchCategoryDeals(0, true);
-  }, [selectedCategory, selectedSubcategory, minDiscount, selectedPlatform, activePriceRange]); // selectedPlatform MUST be here
+  }, [selectedCategory, selectedSubcategory, minDiscount, selectedPlatform, activePriceRange, sortBy]);
+
 
   useEffect(() => {
     if (page > 0) fetchCategoryDeals(page, false);
@@ -206,7 +209,7 @@ const HomeEnhanced = () => {
       // C:\Users\akhil\Desktop\Biz\deal-striker\frontend\src\pages\HomeEnhanced.js
 
       // FIX: Start with base URL
-      let url = `${API}/deals?sort_by=score&skip=${pageNum * 12}&limit=12`;
+      let url = `${API}/deals?sort_by=${sortBy}&skip=${pageNum * 12}&limit=12`;
 
       // DO NOT append if value is 'all' - the backend interprets 'all' as a literal ID search
       if (selectedCategory && selectedCategory !== 'all') {
@@ -371,7 +374,7 @@ const HomeEnhanced = () => {
                   <img 
                     src={banner.image_url} 
                     alt={banner.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain bg-secondary/20"
                   />
                   {/* Subtle platform badge */}
                   <div className="absolute bottom-4 left-4 bg-black/70 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-sm">
@@ -418,28 +421,146 @@ const HomeEnhanced = () => {
             } from top platforms. Validated and updated hourly.
           </p>
 
-          {/* CATEGORY PILLS */}
-          <div 
-            ref={categoryScrollRef} 
-            className="flex gap-2 overflow-x-auto pb-4 mb-4 scrollbar-hide fade-edges transition-all" 
-            onScroll={handleScrollMask}
-          >
-            <button 
-              onClick={() => handleCategoryChange('all')} 
-              className={`px-5 py-2.5 text-xs font-black uppercase tracking-widest whitespace-nowrap border-2 rounded-full transition-all active:scale-95 ${selectedCategory === 'all' ? 'border-accent bg-accent text-black' : 'border-border/50 bg-background hover:border-accent/50 text-foreground'}`}
+          {/* CATEGORY PILLS WITH FIXED FILTER BUTTON */}
+          <div className="relative flex items-center justify-between mb-4 border-b pb-2">
+            <div 
+              ref={categoryScrollRef} 
+              className="flex gap-2 overflow-x-auto scrollbar-hide pr-16 fade-edges"
+              onScroll={handleScrollMask}
             >
-              All Categories
-            </button>
-            {categories.map((cat) => (
               <button 
-                key={cat.id} 
-                onClick={() => handleCategoryChange(cat.id)} 
-                className={`px-5 py-2.5 text-xs font-black uppercase tracking-widest whitespace-nowrap border-2 rounded-full transition-all active:scale-95 ${selectedCategory === cat.id ? 'border-accent bg-accent text-black' : 'border-border/50 bg-background hover:border-accent/50 text-foreground'}`}
+                onClick={() => handleCategoryChange('all')} 
+                className={`px-5 py-2.5 text-xs font-black uppercase tracking-widest whitespace-nowrap border-2 rounded-full transition-all active:scale-95 ${selectedCategory === 'all' ? 'border-accent bg-accent text-black' : 'border-border/50 bg-background hover:border-accent/50 text-foreground'}`}
               >
-                {cat.name}
+                All Categories
               </button>
-            ))}
+              {categories.map((cat) => (
+                <button 
+                  key={cat.id} 
+                  onClick={() => handleCategoryChange(cat.id)} 
+                  className={`px-5 py-2.5 text-xs font-black uppercase tracking-widest whitespace-nowrap border-2 rounded-full transition-all active:scale-95 ${selectedCategory === cat.id ? 'border-accent bg-accent text-black' : 'border-border/50 bg-background hover:border-accent/50 text-foreground'}`}
+                >
+                  {cat.name}
+                </button>
+              ))}
+            </div>
+            
+            {/* Sticky Filter Button */}
+            <div className="absolute right-0 top-0 h-full flex items-center bg-gradient-to-l from-background via-background to-transparent pl-8 pr-1">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setIsFilterOpen(true)}
+                className="rounded-full shadow-sm border-accent/50 bg-background"
+              >
+                <Filter className="h-4 w-4 md:mr-2" />
+                <span className="hidden md:inline text-[10px] font-black uppercase tracking-widest">Filter</span>
+              </Button>
+            </div>
           </div>
+
+          {/* FILTER DRAWER OVERLAY */}
+          {isFilterOpen && (
+            <div className="fixed inset-0 z-[100] flex justify-end bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+              <div className="bg-background w-full max-w-sm h-full border-l shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
+                
+                <div className="flex items-center justify-between p-4 border-b">
+                  <h3 className="text-lg font-black uppercase tracking-tight flex items-center gap-2">
+                    <Filter className="h-5 w-5" /> Filters
+                  </h3>
+                  <Button variant="ghost" size="icon" onClick={() => setIsFilterOpen(false)} className="rounded-full">
+                    <X className="h-5 w-5" />
+                  </Button>
+                </div>
+
+                <div className="flex-1 overflow-y-auto p-6 space-y-8">
+                  
+                  {/* Sorting */}
+                  <div className="space-y-3">
+                    <label className="text-xs font-black text-muted-foreground uppercase tracking-widest">Sort By</label>
+                    <Select value={sortBy} onValueChange={setSortBy}>
+                      <SelectTrigger className="w-full rounded-lg font-bold">
+                        <SelectValue placeholder="Sort Deals" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="score">Recommended (Score)</SelectItem>
+                        <SelectItem value="newest">Newest First</SelectItem>
+                        <SelectItem value="price_asc">Price: Low to High</SelectItem>
+                        <SelectItem value="price_desc">Price: High to Low</SelectItem>
+                        <SelectItem value="discount">Highest Discount</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Subcategories */}
+                  {subcategories.length > 0 && (
+                    <div className="space-y-3">
+                      <label className="text-xs font-black text-muted-foreground uppercase tracking-widest">Subcategories</label>
+                      <div className="grid grid-cols-3 gap-3">
+                        <button 
+                          onClick={() => setSelectedSubcategory('all')} 
+                          className={`p-2 rounded-lg border flex flex-col items-center gap-2 text-center transition-all ${selectedSubcategory === 'all' ? 'border-accent bg-accent/10 ring-1 ring-accent' : 'border-border/50 hover:border-accent/50'}`}
+                        >
+                          <span className="text-[10px] font-black uppercase">All</span>
+                        </button>
+                        {subcategories.map((sub) => (
+                          <button 
+                            key={sub.id} 
+                            onClick={() => setSelectedSubcategory(sub.slug)} 
+                            className={`p-2 rounded-lg border flex flex-col items-center gap-2 text-center transition-all ${selectedSubcategory === sub.slug ? 'border-accent bg-accent/10 ring-1 ring-accent' : 'border-border/50 hover:border-accent/50'}`}
+                          >
+                            <span className="text-[10px] font-bold uppercase truncate w-full">{sub.name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Discount */}
+                  <div className="space-y-3">
+                    <label className="text-xs font-black text-muted-foreground uppercase tracking-widest">Minimum Discount</label>
+                    <Select value={minDiscount.toString()} onValueChange={(val) => setMinDiscount(Number(val))}>
+                      <SelectTrigger className="w-full rounded-lg font-bold">
+                        <SelectValue placeholder="Any Discount" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">All Discounts</SelectItem>
+                        <SelectItem value="30">30% or more</SelectItem>
+                        <SelectItem value="50">50% or more</SelectItem>
+                        <SelectItem value="70">70% or more</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Price Range */}
+                  <div className="space-y-3 pt-2">
+                    <div className="flex justify-between items-center">
+                      <label className="text-xs font-black text-muted-foreground uppercase tracking-widest">Price Range</label>
+                      <span className="text-xs font-bold text-accent">
+                        ₹{priceRange[0]} - {priceRange[1] >= 5000 ? '₹5,000+' : `₹${priceRange[1]}`}
+                      </span>
+                    </div>
+                    <Slider
+                      defaultValue={[0, 5000]}
+                      max={5000}
+                      step={100}
+                      value={priceRange}
+                      onValueChange={setPriceRange}
+                      onValueCommit={setActivePriceRange}
+                      className="w-full cursor-grab active:cursor-grabbing mt-4"
+                    />
+                  </div>
+
+                </div>
+
+                <div className="p-4 border-t bg-card">
+                  <Button className="w-full font-black uppercase tracking-widest" onClick={() => setIsFilterOpen(false)}>
+                    Apply Filters
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
           
           {/* VISUAL SUBCATEGORY CIRCLES */}
           {subcategories.length > 0 && (
@@ -521,7 +642,7 @@ const HomeEnhanced = () => {
             <><LoadingMessages /><DealSkeleton /></>
           ) : (
             <>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-3">
                 {categoryDeals.map((deal, index) => {
                   const isLast = categoryDeals.length === index + 1;
                   return (

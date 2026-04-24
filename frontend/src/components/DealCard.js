@@ -80,7 +80,7 @@ const DealCard = ({ deal, section = 'general', page = 'home', onTrackClick }) =>
         </div>
 
         {/* Product Title */}
-        <p className="text-xs text-muted-foreground line-clamp-1 mb-1.5 leading-snug">
+        <p className="text-xs text-muted-foreground whitespace-normal mb-1.5 leading-snug">
           {deal.title}
         </p>
         

@@ -26,7 +26,7 @@ const PlatformTiles = () => {
     return (
       <section className="py-8">
         <h2 className="text-2xl font-black uppercase tracking-tight mb-6">Popular Platforms</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="h-32 bg-secondary/50 animate-pulse rounded-none"></div>
           ))}
@@ -40,7 +40,7 @@ const PlatformTiles = () => {
   return (
     <section className="py-8">
       <h2 className="text-2xl font-black uppercase tracking-tight mb-6">Popular Platforms</h2>
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
         {platforms.map((platform) => (
           <a
             key={platform.id}
@@ -51,15 +51,15 @@ const PlatformTiles = () => {
           >
             <div className="p-4 flex flex-col items-center justify-center h-32">
               {platform.image_url ? (
-                <img src={platform.image_url} alt={platform.name} className="h-12 w-auto object-contain mb-2 group-hover:scale-110 transition-transform" />
+                <img src={platform.image_url} alt={platform.name} className="h-8 w-auto object-contain mb-1.5 group-hover:scale-110 transition-transform" />
               ) : (
                 <div className="h-12 w-12 bg-secondary rounded-full flex items-center justify-center mb-2">
                   <span className="text-xl font-black">{platform.name.charAt(0)}</span>
                 </div>
               )}
-              <h3 className="font-bold text-sm text-center">{platform.name}</h3>
+              <h3 className="font-bold text-xs text-center">{platform.name}</h3>
               {platform.offer_percentage > 0 && (
-                <p className="text-xs text-emerald-600 dark:text-emerald-400 font-bold mt-1">
+                <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold mt-0.5">
                   Up to {platform.offer_percentage}% off
                 </p>
               )}

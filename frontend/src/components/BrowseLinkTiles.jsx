@@ -1,12 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { API } from '@/App';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ArrowLeft } from 'lucide-react';
 
 const BrowseLinkTiles = ({ category = null, subcategory = null, platform = null, showTitle = true, maxLinks = 100, scrollable = false }) => {
   const [links, setLinks] = useState([]);
   const [loading, setLoading] = useState(true);
   const scrollRef = useRef(null);
+  const scroll = (direction) => {
+    if (scrollRef.current) {
+      const scrollAmount = 250; 
+      scrollRef.current.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
+    }
+  };
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -97,8 +103,8 @@ const BrowseLinkTiles = ({ category = null, subcategory = null, platform = null,
     <div className="flex flex-col h-full min-h-[100px]">
       {/* NEW: Display the uploaded cover image if it exists */}
       {link.image_url && (
-        <div className="w-full h-32 sm:h-40 bg-secondary border-b overflow-hidden flex-shrink-0">
-          <img 
+        <div className="w-full h-24 sm:h-28 bg-secondary border-b overflow-hidden flex-shrink-0">
+            <img 
             src={link.image_url} 
             alt={link.title} 
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
@@ -107,7 +113,7 @@ const BrowseLinkTiles = ({ category = null, subcategory = null, platform = null,
       )}
       
       {/* Existing text content */}
-      <div className="p-4 flex flex-col flex-grow">
+      <div className="p-2.5 flex flex-col flex-grow">
         <div className="flex items-center gap-2 mb-2">
           {link.platform_logo ? (
             <img src={link.platform_logo} alt={link.platform} className="h-5 w-auto object-contain" />
@@ -127,12 +133,22 @@ const BrowseLinkTiles = ({ category = null, subcategory = null, platform = null,
 
   return (
     <section className="py-6">
-      {showTitle && <h3 className="text-lg font-bold uppercase tracking-tight mb-4">Shop by Store {platform && `for ${platform}`}</h3>}
-      
+      {showTitle && (
+        <div className="flex justify-between items-center mb-4 pr-1">
+          <h3 className="text-lg font-bold uppercase tracking-tight">Shop by Store {platform && `for ${platform}`}</h3>
+          {scrollable && (
+            <div className="flex gap-1">
+              <button onClick={() => scroll('left')} className="p-1.5 border border-border/50 rounded-full hover:bg-secondary transition-colors"><ArrowLeft className="h-4 w-4 text-muted-foreground"/></button>
+              <button onClick={() => scroll('right')} className="p-1.5 border border-border/50 rounded-full hover:bg-secondary transition-colors"><ArrowRight className="h-4 w-4 text-muted-foreground"/></button>
+            </div>
+          )}
+        </div>
+      )}
+
       {scrollable ? (
         <div 
           ref={scrollRef}
-          className="flex overflow-x-auto gap-3 pb-4 scrollbar-hide snap-x fade-edges transition-all"
+          className="flex overflow-x-auto gap-2 pb-4 scrollbar-hide snap-x fade-edges transition-all"
           onScroll={handleScroll}>
           {links.map((link) => (
             <button
