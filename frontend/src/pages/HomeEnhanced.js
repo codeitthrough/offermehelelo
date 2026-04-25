@@ -25,7 +25,7 @@ const HomeEnhanced = () => {
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [selectedSubcategory, setSelectedSubcategory] = useState('all');
+  const [selectedSubcategory, setSelectedSubcategory] = useState([]); // Empty array means 'all'
   const [minDiscount, setMinDiscount] = useState(0);
   const [priceRange, setPriceRange] = useState([0, 5000]); // Controls the visual movement
   const [activePriceRange, setActivePriceRange] = useState([0, 5000]); // Triggers the actual backend fetch
@@ -36,10 +36,29 @@ const HomeEnhanced = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [sortBy, setSortBy] = useState('score');
   const [draftCategory, setDraftCategory] = useState('all');
-  const [draftSubcategory, setDraftSubcategory] = useState('all');
+  const [draftSubcategory, setDraftSubcategory] = useState([]);
   const [draftSortBy, setDraftSortBy] = useState('score');
   const [draftMinDiscount, setDraftMinDiscount] = useState(0);
   const [draftPriceRange, setDraftPriceRange] = useState([0, 5000]);
+
+  const toggleSubcategory = (slug, isDraft = false) => {
+    const current = isDraft ? draftSubcategory : selectedSubcategory;
+    const setFunc = isDraft ? setDraftSubcategory : setSelectedSubcategory;
+    
+    if (slug === 'all') {
+      setFunc([]); // Clear array to mean 'all'
+      return;
+    }
+    
+    let newArr = [...current];
+    if (newArr.includes(slug)) {
+      newArr = newArr.filter(s => s !== slug); // Remove if already selected
+    } else {
+      newArr.push(slug); // Add if not selected
+    }
+    setFunc(newArr);
+  };
+
 
   const openFilter = () => {
     setDraftCategory(selectedCategory);
@@ -148,6 +167,17 @@ const HomeEnhanced = () => {
     if (page > 0) fetchCategoryDeals(page, false);
   }, [page]);
 
+  // Fetch subcategories based on whether the drawer is open or closed
+  const activeCat = isFilterOpen ? draftCategory : selectedCategory;
+  useEffect(() => {
+    if (activeCat && activeCat !== 'all') {
+      fetchSubcategories(activeCat);
+    } else { 
+      setSubcategories([]); 
+    }
+  }, [activeCat, isFilterOpen]);
+
+
   // Auto-scroll the selected category pill into view
   useEffect(() => {
     if (categoryScrollRef.current) {
@@ -244,8 +274,8 @@ const HomeEnhanced = () => {
       if (selectedCategory && selectedCategory !== 'all') {
         url += `&category_id=${selectedCategory}`;
       }
-      if (selectedSubcategory && selectedSubcategory !== 'all') {
-        url += `&subcategory=${selectedSubcategory}`;
+      if (selectedSubcategory && selectedSubcategory.length > 0) {
+        url += `&subcategory=${selectedSubcategory.join(',')}`;
       }
       if (minDiscount > 0) {
         url += `&min_discount=${minDiscount}`;
@@ -288,7 +318,7 @@ const HomeEnhanced = () => {
     }
   };
 
-  const handleCategoryChange = (catId) => { setSelectedCategory(catId); setSelectedSubcategory('all'); };
+  const handleCategoryChange = (catId) => { setSelectedCategory(catId); setSelectedSubcategory([]); };
   
   const handlePlatformClick = (platformName) => { 
     setSelectedPlatform(platformName); 
@@ -450,6 +480,8 @@ const HomeEnhanced = () => {
             } from top platforms. Validated and updated hourly.
           </p>
 
+          
+
           {/* CATEGORY PILLS WITH FIXED FILTER BUTTON */}
           <div className="relative flex items-center justify-between mb-4 border-b">
             <div 
@@ -487,6 +519,47 @@ const HomeEnhanced = () => {
             </div>
           </div>
 
+          {/* VISUAL SUBCATEGORY CIRCLES (Multi-select) */}
+          {!selectedPlatform && subcategories.length > 0 && (
+            <div className="flex gap-4 overflow-x-auto pb-4 mb-6 scrollbar-hide fade-edges transition-all items-start pt-2">
+              <button 
+                onClick={() => toggleSubcategory('all', false)} 
+                className="flex flex-col items-center gap-2 group min-w-[72px]"
+              >
+                <div className={`w-16 h-16 rounded-full border flex items-center justify-center transition-all ${selectedSubcategory.length === 0 ? 'border-accent bg-accent/10 shadow-md' : 'border-border/50 bg-secondary group-hover:border-accent/50 group-hover:shadow-sm'}`}>
+                  <span className="text-[10px] font-black uppercase text-center leading-tight">All<br/>{categories.find(c => c.id === selectedCategory)?.name?.split(' ')[0] || ''}</span>
+                </div>
+              </button>
+              
+              {subcategories.map((sub) => (
+                <button 
+                  key={sub.id} 
+                  onClick={() => toggleSubcategory(sub.slug, false)} 
+                  className="flex flex-col items-center gap-2 group min-w-[72px]"
+                >
+                  <div className={`w-16 h-16 rounded-full border overflow-hidden transition-all flex items-center justify-center bg-secondary relative ${selectedSubcategory.includes(sub.slug) ? 'border-accent shadow-md ring-2 ring-accent/20' : 'border-border/50 group-hover:border-accent/50 group-hover:shadow-sm'}`}>
+                    {sub.image_url ? (
+                      <img src={sub.image_url} alt={sub.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-[10px] font-bold text-muted-foreground uppercase">{sub.name.substring(0,2)}</span>
+                    )}
+                    {/* Visual Checkmark for selection */}
+                    {selectedSubcategory.includes(sub.slug) && (
+                      <div className="absolute inset-0 bg-accent/20 flex items-center justify-center">
+                        <div className="bg-accent text-black rounded-full p-1 shadow-md">
+                           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <span className={`text-[10px] font-bold uppercase tracking-wider text-center line-clamp-1 ${selectedSubcategory.includes(sub.slug) ? 'text-accent' : 'text-muted-foreground group-hover:text-foreground'}`}>
+                    {sub.name}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+
           {/* FILTER DRAWER OVERLAY */}
           {isFilterOpen && (
             <div className="fixed inset-0 z-[100] flex justify-end bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
@@ -506,7 +579,7 @@ const HomeEnhanced = () => {
                   {/* Category Dropdown */}
                   <div className="space-y-2">
                     <label className="text-xs font-black text-muted-foreground uppercase tracking-widest">Category</label>
-                    <Select value={draftCategory} onValueChange={(val) => { setDraftCategory(val); setDraftSubcategory('all'); }}>
+                    <Select value={draftCategory} onValueChange={(val) => { setDraftCategory(val); setDraftSubcategory([]); }}>
                       <SelectTrigger className="w-full rounded-lg font-bold">
                         <SelectValue placeholder="All Categories" />
                       </SelectTrigger>
@@ -519,24 +592,32 @@ const HomeEnhanced = () => {
                     </Select>
                   </div>
 
-                  {/* Subcategory Dropdown (Always visible, disables if no parent category) */}
-                  <div className="space-y-2">
-                    <label className="text-xs font-black text-muted-foreground uppercase tracking-widest">Subcategory</label>
-                    <Select 
-                      value={draftSubcategory} 
-                      onValueChange={setDraftSubcategory}
-                      disabled={draftCategory === 'all' || subcategories.length === 0}
-                    >
-                      <SelectTrigger className="w-full rounded-lg font-bold">
-                        <SelectValue placeholder={draftCategory === 'all' ? "Select a category first" : "All Subcategories"} />
-                      </SelectTrigger>
-                      <SelectContent className="z-[110]">
-                        <SelectItem value="all">All Subcategories</SelectItem>
+                  {/* Subcategories Multi-Select Grid */}
+                  <div className="space-y-3">
+                    <label className="text-xs font-black text-muted-foreground uppercase tracking-widest">Subcategories</label>
+                    {draftCategory === 'all' ? (
+                      <p className="text-xs text-muted-foreground italic">Select a category first.</p>
+                    ) : subcategories.length === 0 ? (
+                      <p className="text-xs text-muted-foreground italic">No subcategories available.</p>
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        <button 
+                          onClick={() => toggleSubcategory('all', true)}
+                          className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-full border transition-all ${draftSubcategory.length === 0 ? 'bg-accent border-accent text-black' : 'bg-secondary border-border/50 text-foreground hover:border-accent/50'}`}
+                        >
+                          All
+                        </button>
                         {subcategories.map(sub => (
-                          <SelectItem key={sub.id} value={sub.slug}>{sub.name}</SelectItem>
+                          <button 
+                            key={sub.id}
+                            onClick={() => toggleSubcategory(sub.slug, true)}
+                            className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-full border transition-all flex items-center gap-1 ${draftSubcategory.includes(sub.slug) ? 'bg-accent/20 border-accent text-foreground' : 'bg-secondary border-border/50 text-foreground hover:border-accent/50'}`}
+                          >
+                            {sub.name}
+                          </button>
                         ))}
-                      </SelectContent>
-                    </Select>
+                      </div>
+                    )}
                   </div>
 
                   {/* Sorting */}
