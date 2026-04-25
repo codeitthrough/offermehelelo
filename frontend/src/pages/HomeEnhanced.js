@@ -148,9 +148,15 @@ const HomeEnhanced = () => {
     if (page > 0) fetchCategoryDeals(page, false);
   }, [page]);
 
+  // Auto-scroll the selected category pill into view
   useEffect(() => {
-    if (selectedCategory !== 'all') fetchSubcategories(selectedCategory);
-    else { setSubcategories([]); setSelectedSubcategory('all'); }
+    if (categoryScrollRef.current) {
+      // Find the button that has the active 'bg-accent' class
+      const activeBtn = categoryScrollRef.current.querySelector('.bg-accent');
+      if (activeBtn) {
+        activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      }
+    }
   }, [selectedCategory]);
 
   // --- BANNER AUTO-SCROLL LOGIC ---
@@ -513,23 +519,25 @@ const HomeEnhanced = () => {
                     </Select>
                   </div>
 
-                  {/* Subcategories (Only show if a specific category is selected) */}
-                  {draftCategory !== 'all' && subcategories.length > 0 && (
-                    <div className="space-y-2">
-                      <label className="text-xs font-black text-muted-foreground uppercase tracking-widest">Subcategory</label>
-                      <Select value={draftSubcategory} onValueChange={setDraftSubcategory}>
-                        <SelectTrigger className="w-full rounded-lg font-bold">
-                          <SelectValue placeholder="All Subcategories" />
-                        </SelectTrigger>
-                        <SelectContent className="z-[110]">
-                          <SelectItem value="all">All Subcategories</SelectItem>
-                          {subcategories.map(sub => (
-                            <SelectItem key={sub.id} value={sub.slug}>{sub.name}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
+                  {/* Subcategory Dropdown (Always visible, disables if no parent category) */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-black text-muted-foreground uppercase tracking-widest">Subcategory</label>
+                    <Select 
+                      value={draftSubcategory} 
+                      onValueChange={setDraftSubcategory}
+                      disabled={draftCategory === 'all' || subcategories.length === 0}
+                    >
+                      <SelectTrigger className="w-full rounded-lg font-bold">
+                        <SelectValue placeholder={draftCategory === 'all' ? "Select a category first" : "All Subcategories"} />
+                      </SelectTrigger>
+                      <SelectContent className="z-[110]">
+                        <SelectItem value="all">All Subcategories</SelectItem>
+                        {subcategories.map(sub => (
+                          <SelectItem key={sub.id} value={sub.slug}>{sub.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
                   {/* Sorting */}
                   <div className="space-y-2">
@@ -629,43 +637,6 @@ const HomeEnhanced = () => {
             </div>
           )}
 
-          {/* FILTER CONTROLS */}
-          <div className="flex items-center gap-6 mb-8 overflow-x-auto pb-4 scrollbar-hide pt-2">
-            {/* Discount Filter */}
-            <Select value={minDiscount.toString()} onValueChange={(val) => setMinDiscount(Number(val))}>
-              <SelectTrigger className="w-[180px] flex-shrink-0 rounded-full border-2 border-border/50 font-bold text-xs uppercase tracking-wider h-10">
-                <SelectValue placeholder="Min Discount" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="0">All Discounts</SelectItem>
-                <SelectItem value="30">30% or more</SelectItem>
-                <SelectItem value="50">50% or more</SelectItem>
-                <SelectItem value="70">70% or more</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {/* NEW: DUAL-THUMB PRICE SLIDER */}
-            <div className="flex flex-col w-[220px] flex-shrink-0 px-2">
-              <div className="flex justify-between items-center mb-3">
-                <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Price</span>
-              </div>
-              
-              <Slider
-                defaultValue={[0, 5000]}
-                max={5000}
-                step={100}
-                value={priceRange}
-                onValueChange={setPriceRange}             // Updates visually instantly
-                onValueCommit={setActivePriceRange}       // Only fetches deals when they let go of the mouse
-                className="w-full cursor-grab active:cursor-grabbing"
-              />
-              
-              <div className="text-xs font-bold mt-3 text-center tracking-wide">
-                ₹{priceRange[0]} - {priceRange[1] >= 5000 ? '₹5,000+' : `₹${priceRange[1]}`}
-              </div>
-            </div>
-            
-          </div>
 
           <BrowseLinkTiles category={selectedCategory !== 'all' ? selectedCategory : null} subcategory={selectedSubcategory !== 'all' ? selectedSubcategory : null} platform={selectedPlatform} showTitle={true} maxLinks={selectedPlatform ? 100 : (selectedCategory !== 'all' ? 100 : 12)} scrollable={!selectedPlatform && selectedCategory === 'all'} />
 
