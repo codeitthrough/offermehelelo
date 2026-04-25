@@ -519,25 +519,23 @@ const HomeEnhanced = () => {
                     </Select>
                   </div>
 
-                  {/* Subcategory Dropdown (Always visible, disables if no parent category) */}
-                  <div className="space-y-2">
-                    <label className="text-xs font-black text-muted-foreground uppercase tracking-widest">Subcategory</label>
-                    <Select 
-                      value={draftSubcategory} 
-                      onValueChange={setDraftSubcategory}
-                      disabled={draftCategory === 'all' || subcategories.length === 0}
-                    >
-                      <SelectTrigger className="w-full rounded-lg font-bold">
-                        <SelectValue placeholder={draftCategory === 'all' ? "Select a category first" : "All Subcategories"} />
-                      </SelectTrigger>
-                      <SelectContent className="z-[110]">
-                        <SelectItem value="all">All Subcategories</SelectItem>
-                        {subcategories.map(sub => (
-                          <SelectItem key={sub.id} value={sub.slug}>{sub.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  {/* Subcategories (Only show if a specific category is selected) */}
+                  {draftCategory !== 'all' && subcategories.length > 0 && (
+                    <div className="space-y-2">
+                      <label className="text-xs font-black text-muted-foreground uppercase tracking-widest">Subcategory</label>
+                      <Select value={draftSubcategory} onValueChange={setDraftSubcategory}>
+                        <SelectTrigger className="w-full rounded-lg font-bold">
+                          <SelectValue placeholder="All Subcategories" />
+                        </SelectTrigger>
+                        <SelectContent className="z-[110]">
+                          <SelectItem value="all">All Subcategories</SelectItem>
+                          {subcategories.map(sub => (
+                            <SelectItem key={sub.id} value={sub.slug}>{sub.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
 
                   {/* Sorting */}
                   <div className="space-y-2">
