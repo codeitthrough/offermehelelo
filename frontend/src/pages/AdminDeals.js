@@ -100,7 +100,7 @@ const AdminDeals = () => {
         title: deal.title,
         description: deal.description || '',
         category_id: deal.category_id,
-        subcategory: '',
+        subcategory: deal.subcategory || '',
         image_url: deal.image_url || '',
         original_price: deal.original_price.toString(),
         discounted_price: deal.discounted_price.toString(),
