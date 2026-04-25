@@ -35,6 +35,29 @@ const HomeEnhanced = () => {
   const [showTgPopup, setShowTgPopup] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [sortBy, setSortBy] = useState('score');
+  const [draftCategory, setDraftCategory] = useState('all');
+  const [draftSubcategory, setDraftSubcategory] = useState('all');
+  const [draftSortBy, setDraftSortBy] = useState('score');
+  const [draftMinDiscount, setDraftMinDiscount] = useState(0);
+  const [draftPriceRange, setDraftPriceRange] = useState([0, 5000]);
+
+  const openFilter = () => {
+    setDraftCategory(selectedCategory);
+    setDraftSubcategory(selectedSubcategory);
+    setDraftSortBy(sortBy);
+    setDraftMinDiscount(minDiscount);
+    setDraftPriceRange(activePriceRange);
+    setIsFilterOpen(true);
+  };
+
+  const applyFilter = () => {
+    setSelectedCategory(draftCategory);
+    setSelectedSubcategory(draftSubcategory);
+    setSortBy(draftSortBy);
+    setMinDiscount(draftMinDiscount);
+    setActivePriceRange(draftPriceRange);
+    setIsFilterOpen(false);
+  };
 
 
   // --- HORIZONTAL SCROLL INTERCEPTOR ---
@@ -422,15 +445,15 @@ const HomeEnhanced = () => {
           </p>
 
           {/* CATEGORY PILLS WITH FIXED FILTER BUTTON */}
-          <div className="relative flex items-center justify-between mb-4 border-b pb-2">
+          <div className="relative flex items-center justify-between mb-4 border-b">
             <div 
               ref={categoryScrollRef} 
-              className="flex gap-2 overflow-x-auto scrollbar-hide pr-16 fade-edges"
+              className="flex gap-2 overflow-x-auto scrollbar-hide pr-28 pb-2 fade-edges"
               onScroll={handleScrollMask}
             >
               <button 
                 onClick={() => handleCategoryChange('all')} 
-                className={`px-5 py-2.5 text-xs font-black uppercase tracking-widest whitespace-nowrap border-2 rounded-full transition-all active:scale-95 ${selectedCategory === 'all' ? 'border-accent bg-accent text-black' : 'border-border/50 bg-background hover:border-accent/50 text-foreground'}`}
+                className={`px-5 py-2 text-xs font-black uppercase tracking-widest whitespace-nowrap border-2 rounded-full transition-all active:scale-95 ${selectedCategory === 'all' ? 'border-accent bg-accent text-black' : 'border-border/50 bg-background hover:border-accent/50 text-foreground'}`}
               >
                 All Categories
               </button>
@@ -438,24 +461,23 @@ const HomeEnhanced = () => {
                 <button 
                   key={cat.id} 
                   onClick={() => handleCategoryChange(cat.id)} 
-                  className={`px-5 py-2.5 text-xs font-black uppercase tracking-widest whitespace-nowrap border-2 rounded-full transition-all active:scale-95 ${selectedCategory === cat.id ? 'border-accent bg-accent text-black' : 'border-border/50 bg-background hover:border-accent/50 text-foreground'}`}
+                  className={`px-5 py-2 text-xs font-black uppercase tracking-widest whitespace-nowrap border-2 rounded-full transition-all active:scale-95 ${selectedCategory === cat.id ? 'border-accent bg-accent text-black' : 'border-border/50 bg-background hover:border-accent/50 text-foreground'}`}
                 >
                   {cat.name}
                 </button>
               ))}
             </div>
             
-            {/* Sticky Filter Button */}
-            <div className="absolute right-0 top-0 h-full flex items-center bg-gradient-to-l from-background via-background to-transparent pl-8 pr-1">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => setIsFilterOpen(true)}
-                className="rounded-full shadow-sm border-accent/50 bg-background"
+            {/* Sticky Filter Tunnel/Bar */}
+            <div className="absolute right-0 top-0 bottom-0 flex items-center bg-background pl-4">
+              <div className="absolute left-0 top-0 bottom-0 w-8 -ml-8 bg-gradient-to-r from-transparent to-background pointer-events-none"></div>
+              <button 
+                onClick={openFilter}
+                className="h-full px-5 mb-2 bg-black text-white flex items-center gap-2 text-[10px] sm:text-xs font-black uppercase tracking-widest hover:bg-black/80 transition-colors shadow-[-4px_0_10px_rgba(0,0,0,0.1)] rounded-l-md"
               >
-                <Filter className="h-4 w-4 md:mr-2" />
-                <span className="hidden md:inline text-[10px] font-black uppercase tracking-widest">Filter</span>
-              </Button>
+                <Filter className="h-4 w-4" />
+                <span>Filter</span>
+              </button>
             </div>
           </div>
 
@@ -473,16 +495,50 @@ const HomeEnhanced = () => {
                   </Button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-6 space-y-8">
+                <div className="flex-1 overflow-y-auto p-6 space-y-6">
                   
+                  {/* Category Dropdown */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-black text-muted-foreground uppercase tracking-widest">Category</label>
+                    <Select value={draftCategory} onValueChange={(val) => { setDraftCategory(val); setDraftSubcategory('all'); }}>
+                      <SelectTrigger className="w-full rounded-lg font-bold">
+                        <SelectValue placeholder="All Categories" />
+                      </SelectTrigger>
+                      <SelectContent className="z-[110]">
+                        <SelectItem value="all">All Categories</SelectItem>
+                        {categories.map(cat => (
+                          <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Subcategories (Only show if a specific category is selected) */}
+                  {draftCategory !== 'all' && subcategories.length > 0 && (
+                    <div className="space-y-2">
+                      <label className="text-xs font-black text-muted-foreground uppercase tracking-widest">Subcategory</label>
+                      <Select value={draftSubcategory} onValueChange={setDraftSubcategory}>
+                        <SelectTrigger className="w-full rounded-lg font-bold">
+                          <SelectValue placeholder="All Subcategories" />
+                        </SelectTrigger>
+                        <SelectContent className="z-[110]">
+                          <SelectItem value="all">All Subcategories</SelectItem>
+                          {subcategories.map(sub => (
+                            <SelectItem key={sub.id} value={sub.slug}>{sub.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+
                   {/* Sorting */}
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     <label className="text-xs font-black text-muted-foreground uppercase tracking-widest">Sort By</label>
-                    <Select value={sortBy} onValueChange={setSortBy}>
+                    <Select value={draftSortBy} onValueChange={setDraftSortBy}>
                       <SelectTrigger className="w-full rounded-lg font-bold">
                         <SelectValue placeholder="Sort Deals" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="z-[110]">
                         <SelectItem value="score">Recommended (Score)</SelectItem>
                         <SelectItem value="newest">Newest First</SelectItem>
                         <SelectItem value="price_asc">Price: Low to High</SelectItem>
@@ -492,38 +548,14 @@ const HomeEnhanced = () => {
                     </Select>
                   </div>
 
-                  {/* Subcategories */}
-                  {subcategories.length > 0 && (
-                    <div className="space-y-3">
-                      <label className="text-xs font-black text-muted-foreground uppercase tracking-widest">Subcategories</label>
-                      <div className="grid grid-cols-3 gap-3">
-                        <button 
-                          onClick={() => setSelectedSubcategory('all')} 
-                          className={`p-2 rounded-lg border flex flex-col items-center gap-2 text-center transition-all ${selectedSubcategory === 'all' ? 'border-accent bg-accent/10 ring-1 ring-accent' : 'border-border/50 hover:border-accent/50'}`}
-                        >
-                          <span className="text-[10px] font-black uppercase">All</span>
-                        </button>
-                        {subcategories.map((sub) => (
-                          <button 
-                            key={sub.id} 
-                            onClick={() => setSelectedSubcategory(sub.slug)} 
-                            className={`p-2 rounded-lg border flex flex-col items-center gap-2 text-center transition-all ${selectedSubcategory === sub.slug ? 'border-accent bg-accent/10 ring-1 ring-accent' : 'border-border/50 hover:border-accent/50'}`}
-                          >
-                            <span className="text-[10px] font-bold uppercase truncate w-full">{sub.name}</span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
                   {/* Discount */}
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     <label className="text-xs font-black text-muted-foreground uppercase tracking-widest">Minimum Discount</label>
-                    <Select value={minDiscount.toString()} onValueChange={(val) => setMinDiscount(Number(val))}>
+                    <Select value={draftMinDiscount.toString()} onValueChange={(val) => setDraftMinDiscount(Number(val))}>
                       <SelectTrigger className="w-full rounded-lg font-bold">
                         <SelectValue placeholder="Any Discount" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="z-[110]">
                         <SelectItem value="0">All Discounts</SelectItem>
                         <SelectItem value="30">30% or more</SelectItem>
                         <SelectItem value="50">50% or more</SelectItem>
@@ -533,20 +565,19 @@ const HomeEnhanced = () => {
                   </div>
 
                   {/* Price Range */}
-                  <div className="space-y-3 pt-2">
+                  <div className="space-y-2 pt-2">
                     <div className="flex justify-between items-center">
                       <label className="text-xs font-black text-muted-foreground uppercase tracking-widest">Price Range</label>
                       <span className="text-xs font-bold text-accent">
-                        ₹{priceRange[0]} - {priceRange[1] >= 5000 ? '₹5,000+' : `₹${priceRange[1]}`}
+                        ₹{draftPriceRange[0]} - {draftPriceRange[1] >= 5000 ? '₹5,000+' : `₹${draftPriceRange[1]}`}
                       </span>
                     </div>
                     <Slider
                       defaultValue={[0, 5000]}
                       max={5000}
                       step={100}
-                      value={priceRange}
-                      onValueChange={setPriceRange}
-                      onValueCommit={setActivePriceRange}
+                      value={draftPriceRange}
+                      onValueChange={setDraftPriceRange}
                       className="w-full cursor-grab active:cursor-grabbing mt-4"
                     />
                   </div>
@@ -554,7 +585,7 @@ const HomeEnhanced = () => {
                 </div>
 
                 <div className="p-4 border-t bg-card">
-                  <Button className="w-full font-black uppercase tracking-widest" onClick={() => setIsFilterOpen(false)}>
+                  <Button className="w-full font-black uppercase tracking-widest bg-black text-white hover:bg-black/80" onClick={applyFilter}>
                     Apply Filters
                   </Button>
                 </div>

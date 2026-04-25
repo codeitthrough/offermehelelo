@@ -28,7 +28,7 @@ const PlatformTiles = () => {
         <h2 className="text-2xl font-black uppercase tracking-tight mb-6">Popular Platforms</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="h-32 bg-secondary/50 animate-pulse rounded-none"></div>
+            <div key={i} className="h-20 bg-secondary/50 animate-pulse rounded-none"></div>
           ))}
         </div>
       </section>
@@ -49,12 +49,12 @@ const PlatformTiles = () => {
             rel="noopener noreferrer"
             className="platform-tile group border rounded-none bg-card hover:bg-secondary/50 transition-all duration-300 hover:shadow-lg overflow-hidden"
           >
-            <div className="p-4 flex flex-col items-center justify-center h-32">
+            <div className="p-2 flex flex-col items-center justify-center h-20">
               {platform.image_url ? (
                 <img src={platform.image_url} alt={platform.name} className="h-8 w-auto object-contain mb-1.5 group-hover:scale-110 transition-transform" />
               ) : (
-                <div className="h-12 w-12 bg-secondary rounded-full flex items-center justify-center mb-2">
-                  <span className="text-xl font-black">{platform.name.charAt(0)}</span>
+                <div className="h-8 w-8 bg-secondary rounded-full flex items-center justify-center mb-1.5">
+                  <span className="text-sm font-black">{platform.name.charAt(0)}</span>
                 </div>
               )}
               <h3 className="font-bold text-xs text-center">{platform.name}</h3>

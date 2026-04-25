@@ -138,8 +138,8 @@ const BrowseLinkTiles = ({ category = null, subcategory = null, platform = null,
           <h3 className="text-lg font-bold uppercase tracking-tight">Shop by Store {platform && `for ${platform}`}</h3>
           {scrollable && (
             <div className="flex gap-1">
-              <button onClick={() => scroll('left')} className="p-1.5 border border-border/50 rounded-full hover:bg-secondary transition-colors"><ArrowLeft className="h-4 w-4 text-muted-foreground"/></button>
-              <button onClick={() => scroll('right')} className="p-1.5 border border-border/50 rounded-full hover:bg-secondary transition-colors"><ArrowRight className="h-4 w-4 text-muted-foreground"/></button>
+              <button onClick={() => scroll('left')} className="p-2 bg-black text-white rounded-full hover:bg-black/80 transition-colors shadow-md"><ArrowLeft className="h-4 w-4"/></button>
+              <button onClick={() => scroll('right')} className="p-2 bg-black text-white rounded-full hover:bg-black/80 transition-colors shadow-md"><ArrowRight className="h-4 w-4"/></button>
             </div>
           )}
         </div>
