@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { axiosInstance } from '@/App';
 import AdminLayout from '@/components/AdminLayout';
 import { toast } from 'sonner';
-import { Plus, Edit, Trash2, Eye, EyeOff, ChevronDown, ChevronRight, Tag, ArrowUp, ArrowDown } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, EyeOff, ChevronDown, ChevronRight, Tag, ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -25,6 +25,7 @@ const AdminCategories = () => {
   const [currentCategory, setCurrentCategory] = useState({ name: '', icon: '' });
   const [currentSubcategory, setCurrentSubcategory] = useState({ id: null, name: '', category_id: '', image_url: '' });
   const [isEditSubcat, setIsEditSubcat] = useState(false);
+  const [currentSubcategoryIndex, setCurrentSubcategoryIndex] = useState(-1);
   const [selectedId, setSelectedId] = useState(null);
   const [selectedCategoryName, setSelectedCategoryName] = useState('');
 
@@ -107,13 +108,15 @@ const AdminCategories = () => {
     setDialogOpen(true);
   };
 
-  const handleOpenSubcatDialog = (category, subcat = null) => {
+  const handleOpenSubcatDialog = (category, subcat = null, index = -1) => {
     if (subcat) {
       setCurrentSubcategory({ id: subcat.id, name: subcat.name, category_id: category.id, image_url: subcat.image_url || '' });
       setIsEditSubcat(true);
+      setCurrentSubcategoryIndex(index);
     } else {
       setCurrentSubcategory({ id: null, name: '', category_id: category.id, image_url: '' });
       setIsEditSubcat(false);
+      setCurrentSubcategoryIndex(-1);
     }
     setSelectedCategoryName(category.name);
     setSubcatDialogOpen(true);
@@ -151,6 +154,44 @@ const AdminCategories = () => {
       fetchSubcategories(currentSubcategory.category_id);
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Failed to save subcategory');
+    }
+  };
+
+  const handleDeleteSubcategory = async () => {
+    if (!window.confirm('Delete this subcategory? Deals inside it will be moved back to the main category.')) return;
+    try {
+      await axiosInstance.delete(`/admin/subcategories/${currentSubcategory.id}`);
+      toast.success('Subcategory deleted');
+      setSubcatDialogOpen(false);
+      fetchSubcategories(currentSubcategory.category_id);
+    } catch (error) {
+      toast.error('Failed to delete subcategory');
+    }
+  };
+
+  const handleMoveSubcategory = async (direction) => {
+    const categoryId = currentSubcategory.category_id;
+    const index = currentSubcategoryIndex;
+    const list = [...(subcategories[categoryId] || [])];
+
+    if (direction === 'left' && index === 0) return;
+    if (direction === 'right' && index === list.length - 1) return;
+
+    const swapIndex = direction === 'left' ? index - 1 : index + 1;
+    const temp = list[index];
+    list[index] = list[swapIndex];
+    list[swapIndex] = temp;
+
+    setSubcategories(prev => ({ ...prev, [categoryId]: list }));
+    setCurrentSubcategoryIndex(swapIndex);
+
+    const payload = list.map((sub, idx) => ({ id: sub.id, sort_order: idx }));
+    try {
+      await axiosInstance.put('/admin/subcategories/reorder', payload);
+      toast.success('Order saved');
+    } catch (error) {
+      toast.error('Failed to reorder');
+      fetchSubcategories(categoryId);
     }
   };
 
@@ -317,11 +358,11 @@ const AdminCategories = () => {
                                   Subcategories
                                 </p>
                                 <div className="flex flex-wrap gap-2">
-                                  {subcategories[category.id].map((subcat) => (
+                                  {subcategories[category.id].map((subcat, idx) => (
                                     <button
                                       key={subcat.id}
-                                      type="button" // Important so it doesn't submit the whole form!
-                                      onClick={() => handleOpenSubcatDialog(category, subcat)}
+                                      type="button" 
+                                      onClick={() => handleOpenSubcatDialog(category, subcat, idx)}
                                       className="px-3 py-1.5 bg-background border rounded-sm text-sm font-medium hover:border-accent hover:text-accent transition-colors"
                                       title="Click to edit subcategory"
                                     >
@@ -409,7 +450,9 @@ const AdminCategories = () => {
       <Dialog open={subcatDialogOpen} onOpenChange={setSubcatDialogOpen}>
         <DialogContent className="rounded-none">
           <DialogHeader>
-            <DialogTitle className="font-black text-2xl">Add Subcategory</DialogTitle>
+            <DialogTitle className="font-black text-2xl">
+              {isEditSubcat ? 'Edit Subcategory' : 'Add Subcategory'}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="bg-secondary/50 p-3 rounded-sm">
@@ -451,17 +494,34 @@ const AdminCategories = () => {
             {/* --------------------------------------------- */}
             
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setSubcatDialogOpen(false)} className="rounded-sm">
-              Cancel
-            </Button>
-            <Button
-              onClick={handleSaveSubcategory}
-              className="rounded-sm uppercase tracking-wide font-bold"
-              data-testid="save-subcat-btn"
-            >
-              Create Subcategory
-            </Button>
+          <DialogFooter className="flex w-full justify-between items-center sm:justify-between">
+            <div className="flex gap-2">
+              {isEditSubcat && (
+                <>
+                  <Button type="button" variant="outline" size="icon" onClick={() => handleMoveSubcategory('left')} disabled={currentSubcategoryIndex === 0}>
+                    <ArrowLeft className="h-4 w-4" />
+                  </Button>
+                  <Button type="button" variant="outline" size="icon" onClick={() => handleMoveSubcategory('right')} disabled={currentSubcategoryIndex === (subcategories[currentSubcategory.category_id]?.length - 1)}>
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                  <Button type="button" variant="destructive" size="icon" onClick={handleDeleteSubcategory}>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </>
+              )}
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => setSubcatDialogOpen(false)} className="rounded-sm">
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSaveSubcategory}
+                className="rounded-sm uppercase tracking-wide font-bold"
+                data-testid="save-subcat-btn"
+              >
+                {isEditSubcat ? 'Update' : 'Create'}
+              </Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>
