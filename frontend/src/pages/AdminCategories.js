@@ -355,7 +355,7 @@ const AdminCategories = () => {
                             {subcategories[category.id]?.length > 0 ? (
                               <div className="space-y-2">
                                 <p className="text-xs uppercase tracking-wider font-semibold text-muted-foreground mb-3">
-                                  Subcategories
+                                  Subcategories (Multi-Select)
                                 </p>
                                 <div className="flex flex-wrap gap-2">
                                   {subcategories[category.id].map((subcat, idx) => (
