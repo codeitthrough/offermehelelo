@@ -24,6 +24,28 @@ import {
 } from '@/components/ui/select';
 
 const AdminDeals = () => {
+  const handleExportCSV = async () => {
+    try {
+      toast.loading('Preparing export...');
+      const response = await axiosInstance.get('/admin/deals/export', {
+        responseType: 'blob',
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `deals_db_backup_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      toast.dismiss();
+      toast.success('Export downloaded');
+    } catch (error) {
+      toast.dismiss();
+      toast.error("Export failed: " + (error.response?.data?.detail || "Server error"));
+    }
+  };
   const [deals, setDeals] = useState([]);
   const [categories, setCategories] = useState([]);
   const [platforms, setPlatforms] = useState([]);
@@ -236,7 +258,7 @@ const AdminDeals = () => {
             <p className="text-muted-foreground mt-1">Manage affiliate deals</p>
           </div>
           <div className="flex items-center gap-2">
-            <Button onClick={handleDownloadAll} variant="outline" className="rounded-sm uppercase tracking-wide font-bold">
+            <Button onClick={handleExportCSV} variant="outline" className="rounded-sm uppercase tracking-wide font-bold">
               Download All
             </Button>
             {selectedDeals.length > 0 && (

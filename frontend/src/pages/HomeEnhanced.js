@@ -309,7 +309,16 @@ const HomeEnhanced = () => {
       if (isNewFilter) cache.set(cacheKey, newData);
       
       if (newData.length < 12) setHasMore(false);
-      setCategoryDeals(prev => isNewFilter ? newData : [...prev, ...newData]);
+      
+      // NEW DUPLICATE SAFEGUARD
+      setCategoryDeals(prev => {
+        if (isNewFilter) return newData; // If it's a new filter, just use the fresh data
+        
+        // If appending (scrolling), check for duplicates by ID
+        const existingIds = new Set(prev.map(d => d.id));
+        const uniqueNewData = newData.filter(d => !existingIds.has(d.id));
+        return [...prev, ...uniqueNewData];
+      });
     } catch (error) {} finally {
       if (currentFetchId === fetchIdRef.current) {
         setGridLoading(false);
