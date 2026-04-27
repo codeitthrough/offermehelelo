@@ -492,7 +492,8 @@ const HomeEnhanced = () => {
           
 
           {/* CATEGORY PILLS WITH FIXED FILTER BUTTON */}
-          <div className="relative flex items-center justify-between mb-4 border-b">
+          {/* Note: Change top-0 to top-[60px] (or similar) if your main site header is also sticky */}
+          <div className="sticky top-0 z-[40] bg-background flex items-center justify-between mb-4 border-b pb-3 pt-2">
             <div 
               ref={categoryScrollRef} 
               className="flex gap-2 overflow-x-auto scrollbar-hide pr-28 pb-2 fade-edges"
