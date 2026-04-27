@@ -494,7 +494,7 @@ const HomeEnhanced = () => {
           
 
           {/* STICKY CONTAINER: FIXING GAP AND ALIGNMENT */}
-          <div className="sticky top-[110px] z-[40] bg-background">
+          <div className="sticky top-[105px] z-[40] bg-background">
             <div className="relative border-b">
               <div 
                 ref={categoryScrollRef} 
