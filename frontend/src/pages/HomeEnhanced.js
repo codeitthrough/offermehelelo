@@ -475,10 +475,12 @@ const HomeEnhanced = () => {
           </div>
         )}
 
-        <section className="py-8 mt-4 border-t">
-          <h2 className="text-2xl font-black uppercase tracking-tight mb-2">
-            {selectedPlatform ? `Filter ${selectedPlatform} By Category` : 'Browse By Category'}
-          </h2>
+        <section className="py-8 mt-4">
+          <div className="border-t pt-8 mb-2">
+            <h2 className="text-2xl font-black uppercase tracking-tight">
+              {selectedPlatform ? `Filter ${selectedPlatform} By Category` : 'Browse By Category'}
+            </h2>
+          </div>
           
           {/* SEO CATEGORY DESCRIPTION INJECTION */}
           <p className="text-sm text-muted-foreground mb-6">
@@ -491,84 +493,62 @@ const HomeEnhanced = () => {
 
           
 
-          {/* CATEGORY PILLS WITH FIXED FILTER BUTTON */}
-          {/* Note: Change top-0 to top-[60px] (or similar) if your main site header is also sticky */}
-          <div className="sticky top-0 z-[40] bg-background flex items-center justify-between mb-4 border-b pb-3 pt-2">
-            <div 
-              ref={categoryScrollRef} 
-              className="flex gap-2 overflow-x-auto scrollbar-hide pr-28 pb-2 fade-edges"
-              onScroll={handleScrollMask}
-            >
-              <button 
-                onClick={() => handleCategoryChange('all')} 
-                className={`px-5 py-2 text-xs font-black uppercase tracking-widest whitespace-nowrap border-2 rounded-full transition-all active:scale-95 ${selectedCategory === 'all' ? 'border-accent bg-accent text-black' : 'border-border/50 bg-background hover:border-accent/50 text-foreground'}`}
+          {/* STICKY CONTAINER FOR CATEGORY & FILTERS */}
+          <div className="sticky top-[120px] z-[40] bg-background shadow-[0_10px_10px_-10px_rgba(0,0,0,0.05)]">
+            <div className="flex items-center justify-between border-b pb-3 pt-2">
+              <div 
+                ref={categoryScrollRef} 
+                className="flex gap-2 overflow-x-auto scrollbar-hide pr-28 pb-2 fade-edges"
+                onScroll={handleScrollMask}
               >
-                All Categories
-              </button>
-              {categories.map((cat) => (
                 <button 
-                  key={cat.id} 
-                  onClick={() => handleCategoryChange(cat.id)} 
-                  className={`px-5 py-2 text-xs font-black uppercase tracking-widest whitespace-nowrap border-2 rounded-full transition-all active:scale-95 ${selectedCategory === cat.id ? 'border-accent bg-accent text-black' : 'border-border/50 bg-background hover:border-accent/50 text-foreground'}`}
+                  onClick={() => handleCategoryChange('all')} 
+                  className={`px-5 py-2 text-xs font-black uppercase tracking-widest whitespace-nowrap border-2 rounded-full transition-all active:scale-95 ${selectedCategory === 'all' ? 'border-accent bg-accent text-black' : 'border-border/50 bg-background hover:border-accent/50 text-foreground'}`}
                 >
-                  {cat.name}
+                  All Categories
                 </button>
-              ))}
-            </div>
-            
-            {/* Sticky Filter Tunnel/Bar */}
-            <div className="absolute right-0 top-0 bottom-0 flex items-center bg-background pl-4">
-              <div className="absolute left-0 top-0 bottom-0 w-8 -ml-8 bg-gradient-to-r from-transparent to-background pointer-events-none"></div>
-              <button 
-                onClick={openFilter}
-                className="h-full px-5 mb-2 bg-black text-white flex items-center gap-2 text-[10px] sm:text-xs font-black uppercase tracking-widest hover:bg-black/80 transition-colors shadow-[-4px_0_10px_rgba(0,0,0,0.1)] rounded-l-md"
-              >
-                <Filter className="h-4 w-4" />
-                <span>Filter</span>
-              </button>
-            </div>
-          </div>
-
-          {/* VISUAL SUBCATEGORY CIRCLES (Multi-select) */}
-          {!selectedPlatform && subcategories.length > 0 && (
-            <div className="flex gap-4 overflow-x-auto pb-4 mb-6 scrollbar-hide fade-edges transition-all items-start pt-2">
-              <button 
-                onClick={() => toggleSubcategory('all', false)} 
-                className="flex flex-col items-center gap-2 group min-w-[72px]"
-              >
-                <div className={`w-16 h-16 rounded-full border flex items-center justify-center transition-all ${selectedSubcategory.length === 0 ? 'border-accent bg-accent/10 shadow-md' : 'border-border/50 bg-secondary group-hover:border-accent/50 group-hover:shadow-sm'}`}>
-                  <span className="text-[10px] font-black uppercase text-center leading-tight">All<br/>{categories.find(c => c.id === selectedCategory)?.name?.split(' ')[0] || ''}</span>
-                </div>
-              </button>
+                {categories.map((cat) => (
+                  <button 
+                    key={cat.id} 
+                    onClick={() => handleCategoryChange(cat.id)} 
+                    className={`px-5 py-2 text-xs font-black uppercase tracking-widest whitespace-nowrap border-2 rounded-full transition-all active:scale-95 ${selectedCategory === cat.id ? 'border-accent bg-accent text-black' : 'border-border/50 bg-background hover:border-accent/50 text-foreground'}`}
+                  >
+                    {cat.name}
+                  </button>
+                ))}
+              </div>
               
-              {subcategories.map((sub) => (
+              <div className="absolute right-0 top-0 bottom-0 flex items-center bg-background pl-4">
+                <div className="absolute left-0 top-0 bottom-0 w-8 -ml-8 bg-gradient-to-r from-transparent to-background pointer-events-none"></div>
                 <button 
-                  key={sub.id} 
-                  onClick={() => toggleSubcategory(sub.slug, false)} 
-                  className="flex flex-col items-center gap-2 group min-w-[72px]"
+                  onClick={openFilter}
+                  className="h-[44px] px-5 bg-black text-white flex items-center gap-2 text-[10px] sm:text-xs font-black uppercase tracking-widest hover:bg-black/80 transition-colors rounded-l-md"
                 >
-                  <div className={`w-16 h-16 rounded-full border overflow-hidden transition-all flex items-center justify-center bg-secondary relative ${selectedSubcategory.includes(sub.slug) ? 'border-accent shadow-md ring-2 ring-accent/20' : 'border-border/50 group-hover:border-accent/50 group-hover:shadow-sm'}`}>
-                    {sub.image_url ? (
-                      <img src={sub.image_url} alt={sub.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-[10px] font-bold text-muted-foreground uppercase">{sub.name.substring(0,2)}</span>
-                    )}
-                    {/* Visual Checkmark for selection */}
-                    {selectedSubcategory.includes(sub.slug) && (
-                      <div className="absolute inset-0 bg-accent/20 flex items-center justify-center">
-                        <div className="bg-accent text-black rounded-full p-1 shadow-md">
-                           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  <span className={`text-[10px] font-bold uppercase tracking-wider text-center line-clamp-1 ${selectedSubcategory.includes(sub.slug) ? 'text-accent' : 'text-muted-foreground group-hover:text-foreground'}`}>
-                    {sub.name}
-                  </span>
+                  <Filter className="h-4 w-4" />
+                  <span>Filter</span>
                 </button>
-              ))}
+              </div>
             </div>
-          )}
+
+            {/* OPTIONAL: VISUAL SUBCATEGORY CIRCLES (Now part of the sticky block) */}
+            {!selectedPlatform && subcategories.length > 0 && (
+              <div className="flex gap-4 overflow-x-auto py-4 scrollbar-hide fade-edges transition-all items-start bg-background border-b">
+                <button onClick={() => toggleSubcategory('all', false)} className="flex flex-col items-center gap-2 group min-w-[72px]">
+                  <div className={`w-12 h-12 rounded-full border flex items-center justify-center transition-all ${selectedSubcategory.length === 0 ? 'border-accent bg-accent/10' : 'border-border/50 bg-secondary'}`}>
+                    <span className="text-[9px] font-black uppercase text-center leading-tight">All</span>
+                  </div>
+                </button>
+                {subcategories.map((sub) => (
+                  <button key={sub.id} onClick={() => toggleSubcategory(sub.slug, false)} className="flex flex-col items-center gap-2 group min-w-[72px]">
+                    <div className={`w-12 h-12 rounded-full border overflow-hidden flex items-center justify-center bg-secondary relative ${selectedSubcategory.includes(sub.slug) ? 'border-accent ring-2 ring-accent/20' : 'border-border/50'}`}>
+                      {sub.image_url ? <img src={sub.image_url} alt={sub.name} className="w-full h-full object-cover" /> : <span className="text-[9px] font-bold uppercase">{sub.name.substring(0,2)}</span>}
+                    </div>
+                    <span className="text-[9px] font-bold uppercase tracking-wider text-center line-clamp-1">{sub.name}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
 
           {/* FILTER DRAWER OVERLAY */}
           {isFilterOpen && (
