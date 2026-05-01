@@ -18,6 +18,9 @@ import AdminBrowseLinks from '@/pages/AdminBrowseLinks';
 import AdminScrapeTargets from '@/pages/AdminScrapeTargets'; // Adjust path if needed
 import Contact from '@/pages/Contact';
 import { ThemeProvider } from '@/contexts/ThemeContext';
+import Refund from '@/pages/Refund';
+import Terms from '@/pages/Terms';
+import Privacy from '@/pages/Privacy';
 import '@/App.css';
 import { Analytics } from "@vercel/analytics/react";
 import AdminBanners from './pages/AdminBanners';
@@ -168,6 +171,9 @@ function App() {
                 }
               />
               <Route path="/contact" element={<Contact />} />
+              <Route path="/refund" element={<Refund />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/privacy" element={<Privacy />} />
             </Routes>
           </BrowserRouter>
           <Toaster position="top-right" />

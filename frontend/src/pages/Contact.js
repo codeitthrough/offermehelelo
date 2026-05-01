@@ -78,6 +78,15 @@ const Contact = () => {
           </p>
         </div>
 
+        {/* RAZORPAY REQUIRED CONTACT DETAILS */}
+        <div className="border rounded-none bg-card p-6 mb-8 text-left space-y-2 text-muted-foreground shadow-sm">
+          <h3 className="text-lg font-black text-foreground uppercase tracking-tight mb-3">Official Contact Details</h3>
+          <p><strong>Email:</strong> [support@offermehelelo.com]</p>
+          <p><strong>Phone:</strong> [+91 98765 43210]</p>
+          <p><strong>Operating Address:</strong> [Your Full Physical Address, City, State, ZIP - DO NOT SKIP THIS]</p>
+          <p className="pt-2 text-sm italic">We aim to respond to all queries within 24-48 business hours.</p>
+        </div>
+
         <div className="border rounded-none bg-card p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>

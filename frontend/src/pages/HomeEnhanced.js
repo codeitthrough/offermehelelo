@@ -721,6 +721,14 @@ const HomeEnhanced = () => {
         <div className="mt-8 border-t border-gray-200 pt-4 text-center text-xs text-gray-500">
           <p>Offer Me He Lelo is reader-supported. When you buy through links on our site, we may earn an affiliate commission. As an Amazon Associate, we earn from qualifying purchases.</p>
         </div>
+        
+        {/* NEW RAZORPAY REQUIRED LINKS */}
+        <div className="mt-6 border-t pt-4 flex flex-wrap justify-center gap-6 text-xs font-bold uppercase tracking-wider text-muted-foreground pb-4">
+          <a href="/terms" className="hover:text-foreground transition-colors">Terms of Service</a>
+          <a href="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</a>
+          <a href="/refund" className="hover:text-foreground transition-colors">Refund Policy</a>
+          <a href="/contact" className="hover:text-foreground transition-colors">Contact Us</a>
+        </div>
       </footer>
 
       <StickyDealButton deal={topDeal} onTrackClick={trackClick} />
