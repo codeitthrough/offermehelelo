@@ -631,6 +631,7 @@ const HomeEnhanced = () => {
                         <SelectItem value="price_asc">Price: Low to High</SelectItem>
                         <SelectItem value="price_desc">Price: High to Low</SelectItem>
                         <SelectItem value="discount">Highest Discount</SelectItem>
+                        <SelectItem value="rating">Highest Rating</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
